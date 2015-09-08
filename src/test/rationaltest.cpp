@@ -383,14 +383,14 @@ void RationalTest::testAlgorithm() {
                                            std::minus<Rational<rational_type> >() ) ),
                                    m_accu.size() * std::numeric_limits<double>::epsilon() );
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.08767569878681e-09, static_cast<double>
-                                   ( std::accumulate ( m_accu.begin(), m_accu.begin() + 12,
-                                           1.0, std::multiplies<Rational<rational_type> >() ) ),
+    CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.08767569878681e-09,
+                                   std::accumulate ( m_accu.begin(), m_accu.begin() + 12,
+                                           1.0, std::multiplies<Rational<rational_type> >() ),
                                    12 * std::numeric_limits<double>::epsilon() );
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL ( 479001600, static_cast<double>
-                                   ( std::accumulate ( m_accu.begin(), m_accu.begin() + 12,
-                                           1.0, std::divides<Rational<rational_type> >() ) ),
+    CPPUNIT_ASSERT_DOUBLES_EQUAL ( 479001600.0, std::accumulate ( m_accu.begin(),
+                                   m_accu.begin() + 12, 1.0,
+                                   std::divides<Rational<rational_type> >() ),
                                    12 * std::numeric_limits<double>::epsilon() );
 }
 
