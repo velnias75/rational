@@ -85,6 +85,7 @@ private:
 
     typedef std::vector<Commons::Math::Rational<rational_type> > rat_vector;
     rat_vector m_accu;
+    rat_vector m_onethird;
     
     typedef std::vector<Commons::Math::Rational<uint32_t> > rat_vector_ul;
     rat_vector_ul m_accu_ul;

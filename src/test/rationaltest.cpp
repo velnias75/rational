@@ -27,18 +27,22 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( RationalTest );
 using namespace Commons::Math;
 
 RationalTest::RationalTest() : CppUnit::TestFixture(), m_nullRational(), m_sqrt2(), m_accu(),
-    m_accu_ul() {}
+    m_onethird(), m_accu_ul() {}
 
 void RationalTest::setUp() {
     m_sqrt2 = Rational<rational_type> ( std::sqrt ( 2 ) );
 
-    for ( rational_type i = 1; i < 25; ++i )
+    for ( rational_type i = 1; i < 25; ++i ) {
         m_accu.push_back ( rat_vector::value_type ( 1, i ) );
+    }
 
     m_accu_ul.reserve ( 65536u );
 
-    for ( unsigned long ul = 1u; ul < 65536u; ++ul )
+    for ( unsigned long ul = 1u; ul < 65536u; ++ul ) {
         m_accu_ul.push_back ( rat_vector_ul::value_type ( 1u, ul ) );
+    }
+
+    std::fill_n ( std::back_inserter ( m_onethird ), 3, rat_vector::value_type ( 1, 3 ) );
 }
 
 void RationalTest::tearDown() {}
@@ -392,6 +396,15 @@ void RationalTest::testAlgorithm() {
                                    m_accu.begin() + 12, 1.0,
                                    std::divides<Rational<rational_type> >() ),
                                    12 * std::numeric_limits<double>::epsilon() );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), std::accumulate ( m_onethird.begin(),
+                           m_onethird.end(), Rational<rational_type>(),
+                           std::plus<Rational<rational_type> >() ).nominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ),
+                           std::accumulate ( m_onethird.begin(), m_onethird.end(),
+                                   Rational<rational_type>(),
+                                   std::plus<Rational<rational_type> >() ).denominator() );
 }
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
