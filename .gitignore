@@ -27,3 +27,4 @@ clang/
 debug/
 release/
 .kdev*
+core*

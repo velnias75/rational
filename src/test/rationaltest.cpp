@@ -39,6 +39,8 @@ void RationalTest::testNullRational() {
 
 void RationalTest::testConstruct() {
 
+    CPPUNIT_ASSERT_THROW ( Rational<rational_type> r ( 1, 0 ), std::exception );
+
     CPPUNIT_ASSERT_EQUAL ( 0.5, static_cast<double> ( Rational<rational_type> ( 1, 2 ) ) );
     CPPUNIT_ASSERT_EQUAL ( -0.5, static_cast<double> ( Rational<rational_type> ( 1, -2 ) ) );
     CPPUNIT_ASSERT_EQUAL ( -0.5, static_cast<double> ( Rational<rational_type> ( -1, 2 ) ) );
@@ -64,7 +66,7 @@ void RationalTest::testConstructFromDouble() {
 
     Rational<rational_type> r ( -0.7391304347826086 );
 
-    CPPUNIT_ASSERT_EQUAL ( -static_cast<rational_type> ( 17 ), r.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -17 ), r.nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 23 ), r.denominator() );
 
 #ifndef __clang__
@@ -97,7 +99,7 @@ void RationalTest::testAssignedFromDouble() {
 
     Rational<rational_type> r = -0.7391304347826086;
 
-    CPPUNIT_ASSERT_EQUAL ( -static_cast<rational_type> ( 17 ), r.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -17 ), r.nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 23 ), r.denominator() );
 
     Rational<rational_type> pi = M_PI;
@@ -127,7 +129,7 @@ void RationalTest::testSubtraction() {
     const Rational<rational_type> b ( 44, 35 );
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 47 ), ( a - b ).nominator() );
-    CPPUNIT_ASSERT_EQUAL ( -static_cast<rational_type> ( 105 ), ( a - b ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -105 ), ( a - b ).denominator() );
 
     const Rational<rational_type> c ( 1, 6 );
     const Rational<rational_type> d ( 2, 15 );
