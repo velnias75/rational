@@ -23,3 +23,7 @@ src/test/test_rational
 stamp-h1
 test-driver
 *.trs
+clang/
+debug/
+release/
+.kdev*

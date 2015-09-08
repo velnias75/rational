@@ -24,8 +24,9 @@
 
 #include "rational.h"
 
-class RationalTest : public CppUnit::TestFixture
-{
+#pragma GCC diagnostic ignored "-Winline"
+#pragma GCC diagnostic push
+class RationalTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE ( RationalTest );
     CPPUNIT_TEST ( testNullRational );
     CPPUNIT_TEST ( testConstruct );
@@ -40,7 +41,15 @@ class RationalTest : public CppUnit::TestFixture
     CPPUNIT_TEST ( testIOStreamOps );
     CPPUNIT_TEST_SUITE_END();
 
+#ifndef __clang__
+    typedef long long rational_type;
+#else
+    typedef long rational_type;
+#endif
+
 public:
+    RationalTest();
+
     void setUp();
     void tearDown();
 
@@ -57,9 +66,14 @@ public:
     void testIOStreamOps();
 
 private:
-    Commons::Math::Rational<long long> m_nullRational;
-    Commons::Math::Rational<long long> m_sqrt2;
+    Commons::Math::Rational<rational_type> m_nullRational;
+#ifndef __clang__
+    Commons::Math::Rational<rational_type> m_sqrt2;
+#else
+    Commons::Math::Rational<unsigned long> m_sqrt2;
+#endif
 };
+#pragma GCC diagnostic pop
 
 #endif /* RATIONALTESTCASE_H */
 

@@ -25,20 +25,19 @@
 #include <limits>
 #include <cmath>
 
-namespace Commons
-{
+namespace Commons {
 
-namespace Math
-{
+namespace Math {
 
 template<typename T>
-class Rational
-{
+class Rational {
+    template<typename> friend class Rational;
 public:
     Rational() : m_nom ( 0 ), m_denom ( 1 ) {}
 
     template<typename U>
-    explicit Rational ( const Rational<U> &o ) : m_nom ( o.m_nom ), m_denom ( o.m_denom ) {}
+    explicit Rational ( const Rational<U> &o ) : m_nom ( static_cast<T> ( o.m_nom ) ),
+        m_denom ( static_cast<T> ( o.m_denom ) ) {}
 
     Rational ( T n, T d )  : m_nom ( n ), m_denom ( d ) {
         euclid ( *this );
@@ -205,6 +204,11 @@ public:
         return ( Rational ( f ) == o );
     }
 
+    template<typename FloatType>
+    inline friend bool operator== ( const Rational& o, FloatType f ) {
+        return ( o == Rational ( f ) );
+    }
+
     inline bool operator!= ( const Rational &o ) const {
         return ! ( *this == o );
     }
@@ -212,6 +216,11 @@ public:
     template<typename FloatType>
     inline friend bool operator!= ( FloatType f, const Rational& o ) {
         return ! ( Rational ( f ) == o );
+    }
+
+    template<typename FloatType>
+    inline friend bool operator!= ( const Rational& o, FloatType f ) {
+        return ! ( o == Rational ( f ) );
     }
 
     inline bool operator< ( const Rational &o ) const {
@@ -224,6 +233,11 @@ public:
         return ( Rational ( f ) < o );
     }
 
+    template<typename FloatType>
+    inline friend bool operator< ( const Rational& o, FloatType f ) {
+        return ( o < Rational ( f ) );
+    }
+
     inline bool operator<= ( const Rational &o ) const {
         return ! ( o < *this );
     }
@@ -231,6 +245,11 @@ public:
     template<typename FloatType>
     inline friend bool operator<= ( FloatType f, const Rational& o ) {
         return ! ( o < Rational ( f ) );
+    }
+
+    template<typename FloatType>
+    inline friend bool operator<= ( const Rational& o, FloatType f ) {
+        return ! ( Rational ( f ) < o );
     }
 
     inline bool operator> ( const Rational &o ) const {
@@ -242,6 +261,11 @@ public:
         return o < Rational ( f );
     }
 
+    template<typename FloatType>
+    inline friend bool operator> ( const Rational& o, FloatType f ) {
+        return Rational ( f ) < o;
+    }
+
     inline bool operator>= ( const Rational &o ) const {
         return ! ( *this < o );
     }
@@ -249,6 +273,11 @@ public:
     template<typename FloatType>
     inline friend bool operator>= ( FloatType f, const Rational& o ) {
         return ! ( Rational ( f ) < o );
+    }
+
+    template<typename FloatType>
+    inline friend bool operator>= ( const Rational& o, FloatType f ) {
+        return ! ( o < Rational ( f ) );
     }
 
 private:
@@ -274,14 +303,12 @@ private:
 };
 
 template<typename T>
-std::ostream &operator<< ( std::ostream &o, const Rational<T> &r )
-{
+std::ostream &operator<< ( std::ostream &o, const Rational<T> &r ) {
     return ( o << r.nominator() << "/" << r.denominator() );
 }
 
 template<typename T>
-std::istream &operator>> ( std::istream &i, Rational<T> &r )
-{
+std::istream &operator>> ( std::istream &i, Rational<T> &r ) {
 
     double d;
 
@@ -298,3 +325,4 @@ std::istream &operator>> ( std::istream &i, Rational<T> &r )
 #endif /* COMMONS_MATH_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+
