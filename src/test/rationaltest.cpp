@@ -208,19 +208,20 @@ void RationalTest::testModulus() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 19 ), ( c ).nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 14 ), ( c ).denominator() );
 
-    Rational<rational_type> d ( -542, 84 );
-    Rational<rational_type> e ( 65, 28 );
+    Rational<rational_type> d ( 542, 84 );
+    Rational<rational_type> e ( -65, 28 );
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -38 ), ( d % e ).nominator() );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 21 ), ( d % e ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -43 ), ( d % e ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 84 ), ( d % e ).denominator() );
 
-    Rational<rational_type> f ( 5.65 );
-    Rational<rational_type> g ( 1.23 );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 347 ), ( e % d ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 84 ), ( e % d ).denominator() );
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 2739689773316806 ),
-                           ( f % g ).nominator() );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 3752999689475075 ),
-                           ( f % g ).denominator() );
+    Rational<uint32_t> f ( 5.65f );
+    Rational<uint32_t> g ( 1.23f );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 73 ), ( f % g ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 100 ), ( f % g ).denominator() );
 }
 
 void RationalTest::testRelOps() {
