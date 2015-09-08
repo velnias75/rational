@@ -20,6 +20,10 @@
 #ifndef RATIONALTESTCASE_H
 #define RATIONALTESTCASE_H
 
+#include <vector>
+
+#include <stdint.h>
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "rational.h"
@@ -35,19 +39,22 @@ class RationalTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testAddition );
     CPPUNIT_TEST ( testSubtraction );
     CPPUNIT_TEST ( testMultiplication );
+    CPPUNIT_TEST ( testInvert );
     CPPUNIT_TEST ( testDivision );
     CPPUNIT_TEST ( testRelOps );
     CPPUNIT_TEST ( testGlobalOps );
     CPPUNIT_TEST ( testIOStreamOps );
+    CPPUNIT_TEST ( testPrecision );
+    CPPUNIT_TEST ( testAlgorithm );
     CPPUNIT_TEST_SUITE_END();
 
+public:
 #ifndef __clang__
     typedef long long rational_type;
 #else
     typedef long rational_type;
 #endif
 
-public:
     RationalTest();
 
     void setUp();
@@ -60,10 +67,13 @@ public:
     void testAddition();
     void testSubtraction();
     void testMultiplication();
+    void testInvert();
     void testDivision();
     void testRelOps();
     void testGlobalOps();
     void testIOStreamOps();
+    void testPrecision();
+    void testAlgorithm();
 
 private:
     Commons::Math::Rational<rational_type> m_nullRational;
@@ -72,6 +82,12 @@ private:
 #else
     Commons::Math::Rational<unsigned long> m_sqrt2;
 #endif
+
+    typedef std::vector<Commons::Math::Rational<rational_type> > rat_vector;
+    rat_vector m_accu;
+    
+    typedef std::vector<Commons::Math::Rational<uint32_t> > rat_vector_ul;
+    rat_vector_ul m_accu_ul;
 };
 #pragma GCC diagnostic pop
 

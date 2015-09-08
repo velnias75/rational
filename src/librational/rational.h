@@ -26,15 +26,12 @@
 #include <limits>
 #include <cmath>
 
-namespace Commons
-{
+namespace Commons {
 
-namespace Math
-{
+namespace Math {
 
 template<typename T>
-class Rational
-{
+class Rational {
     template<typename> friend class Rational;
 public:
     Rational() : m_nom ( 0 ), m_denom ( 1 ) {}
@@ -43,40 +40,17 @@ public:
     explicit Rational ( const Rational<U> &o ) : m_nom ( static_cast<T> ( o.m_nom ) ),
         m_denom ( static_cast<T> ( o.m_denom ) ) {}
 
-    Rational ( T n, T d )  : m_nom ( n ), m_denom ( d ) {
+    Rational ( const T &n, const T &d )  : m_nom ( n ), m_denom ( d ) {
 
         if ( m_denom == T() ) {
             throw std::runtime_error ( "denominator can't be null" );
         }
 
-        euclid ( *this );
+        gcm ( *this );
     }
 
     template<typename FloatType>
-    Rational ( FloatType f ) : m_nom ( 0 ), m_denom ( 1 ) {
-
-        T p[2] = { 0, 1 };
-        T q[2] = { 1, 0 };
-
-        FloatType x = f;
-
-        do {
-
-            const T n = static_cast<T> ( std::floor ( x ) );
-            x = static_cast<FloatType> ( 1 ) / ( x - static_cast<FloatType> ( n ) );
-
-            m_nom = p[0] + n * p[1];
-            p[0] = p[1];
-            p[1] = m_nom;
-
-            m_denom = q[0] + n * q[1];
-            q[0] = q[1];
-            q[1] = m_denom;
-
-        } while ( ! ( std::abs ( static_cast<FloatType> ( m_nom ) /
-                                 static_cast<FloatType> ( m_denom ) - f ) <
-                      std::numeric_limits<FloatType>::epsilon() ) );
-    }
+    Rational ( FloatType f );
 
     Rational &operator= ( const Rational& o ) {
 
@@ -107,30 +81,23 @@ public:
     }
 
     Rational &invert() {
+        using namespace std;
+        swap ( m_nom, m_denom );
 
-        const T aux = m_denom;
+        if ( m_denom == T() ) throw std::runtime_error ( "division by zero" );
 
-        m_denom = m_nom;
-        m_nom   = aux;
-
-        return euclid ( *this );
+        return *this;
     }
 
     inline Rational inv() const {
         return Rational ( *this ).invert();
     }
 
-    Rational& operator+= ( const Rational& o ) {
-
-        m_nom   = ( m_nom * o.m_denom ) + ( m_denom * o.m_nom );
-        m_denom = m_denom * o.m_denom;
-
-        return euclid ( *this );
-    }
+    Rational& operator+= ( const Rational& o );
 
     template<typename FloatType>
     inline friend FloatType &operator+= ( FloatType &f, const Rational& o ) {
-        return ( f = static_cast<FloatType> ( Rational ( f ) + o ) );
+        return ( f = Rational ( f ) + o );
     }
 
     inline Rational operator+ ( const Rational& o ) const {
@@ -138,17 +105,16 @@ public:
     }
 
     template<typename FloatType>
-    inline friend FloatType operator+ ( FloatType f, const Rational& o ) {
-        return static_cast<FloatType> ( Rational ( f ) + o );
+    inline friend Rational operator+ ( const Rational& o, FloatType f ) {
+        return ( o + Rational ( f ) );
     }
 
-    Rational& operator-= ( const Rational& o ) {
-
-        m_nom   = ( m_nom * o.m_denom ) - ( m_denom * o.m_nom );
-        m_denom = m_denom * o.m_denom;
-
-        return euclid ( *this );
+    template<typename FloatType>
+    inline friend Rational operator+ ( FloatType f, const Rational& o ) {
+        return ( Rational ( f ) + o );
     }
+
+    Rational& operator-= ( const Rational& o );
 
     template<typename FloatType>
     inline friend FloatType &operator-= ( FloatType &f, const Rational& o ) {
@@ -160,8 +126,13 @@ public:
     }
 
     template<typename FloatType>
-    inline friend FloatType operator- ( FloatType f, const Rational& o ) {
-        return static_cast<FloatType> ( Rational ( f ) - o );
+    inline friend FloatType operator- ( const Rational& o, FloatType f ) {
+        return static_cast<FloatType> ( o - Rational ( f ) );
+    }
+
+    template<typename FloatType>
+    inline friend Rational operator- ( FloatType f, const Rational& o ) {
+        return ( Rational ( f ) - o );
     }
 
     Rational& operator*= ( const Rational& o ) {
@@ -182,8 +153,13 @@ public:
     }
 
     template<typename FloatType>
-    inline friend FloatType operator* ( FloatType f, const Rational& o ) {
-        return static_cast<FloatType> ( Rational ( f ) * o );
+    inline friend Rational operator* ( const Rational& o, FloatType f ) {
+        return ( o * Rational ( f ) );
+    }
+
+    template<typename FloatType>
+    inline friend Rational operator* ( FloatType f, const Rational& o ) {
+        return ( Rational ( f ) * o );
     }
 
     inline Rational& operator/= ( const Rational& o ) {
@@ -200,8 +176,13 @@ public:
     }
 
     template<typename FloatType>
-    inline friend FloatType operator/ ( FloatType f, const Rational& o ) {
-        return static_cast<FloatType> ( Rational ( f ) / o );
+    inline friend FloatType operator/ ( const Rational& o, FloatType f ) {
+        return static_cast<FloatType> ( o / Rational ( f ) );
+    }
+
+    template<typename FloatType>
+    inline friend Rational operator/ ( FloatType f, const Rational& o ) {
+        return ( Rational ( f ) / o );
     }
 
     inline bool operator== ( const Rational &o ) const {
@@ -290,25 +271,41 @@ public:
     }
 
 private:
-    Rational &euclid ( const Rational &o ) {
 
-        T a = o.m_nom, b = o.m_denom;
+    inline static T lcm ( const T &a, const T &b ) {
+        return ( static_cast<T> ( std::abs ( a ) ) / euclid ( a, b ) ) *
+               static_cast<T> ( std::abs ( b ) );
+    }
 
-        while ( b ) {
-            const T h = a % b;
-            a = b;
-            b = h;
-        }
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic push
+    Rational &gcm ( const Rational &o ) {
 
-        m_nom /= a;
-        m_denom /= a;
+        const T &x ( euclid ( o.m_nom, o.m_denom ) );
+
+        m_nom /= x;
+        m_denom /= x;
 
         if ( m_denom < 0 ) {
-            m_nom *= -1;
-            m_denom *= -1;
+            m_nom *= static_cast<T> ( -1 );
+            m_denom *= static_cast<T> ( -1 );
         }
 
         return *this;
+    }
+#pragma GCC diagnostic pop
+
+    static T euclid ( const T &a, const T &b ) {
+
+        T x ( a ), y ( b );
+
+        while ( y ) {
+            const T &h ( x % y );
+            x = y;
+            y = h;
+        }
+
+        return x;
     }
 
 private:
@@ -316,15 +313,73 @@ private:
     T m_denom;
 };
 
+template<typename T> template<typename FloatType>
+Rational<T>::Rational ( FloatType f ) : m_nom ( 0 ), m_denom ( 1 ) {
+
+    T p[2] = { 0, 1 };
+    T q[2] = { 1, 0 };
+
+    FloatType x = f;
+
+    do {
+
+        const T n = static_cast<T> ( std::floor ( x ) );
+        x = static_cast<FloatType> ( 1 ) / ( x - static_cast<FloatType> ( n ) );
+
+        m_nom = p[0] + n * p[1];
+        p[0] = p[1];
+        p[1] = m_nom;
+
+        m_denom = q[0] + n * q[1];
+        q[0] = q[1];
+        q[1] = m_denom;
+
+    } while ( ! ( std::abs ( static_cast<FloatType> ( m_nom ) /
+                             static_cast<FloatType> ( m_denom ) - f ) <
+                  std::numeric_limits<FloatType>::epsilon() ) );
+}
+
 template<typename T>
-std::ostream &operator<< ( std::ostream &o, const Rational<T> &r )
-{
+Rational<T>& Rational<T>::operator+= ( const Rational& o ) {
+
+    if ( m_denom != o.m_denom ) {
+
+        const T &l ( lcm ( m_denom, o.m_denom ) );
+
+        m_nom = ( l/m_denom ) * m_nom + ( l/o.m_denom ) * o.m_nom;
+        m_denom = l;
+
+    } else {
+        m_nom = m_nom + o.m_nom;
+    }
+
+    return gcm ( *this );
+}
+
+template<typename T>
+Rational<T>& Rational<T>::operator-= ( const Rational& o ) {
+
+    if ( m_denom != o.m_denom ) {
+
+        const T &l ( lcm ( m_denom, o.m_denom ) );
+
+        m_nom = ( l/m_denom ) * m_nom - ( l/o.m_denom ) * o.m_nom;
+        m_denom = l;
+
+    } else {
+        m_nom = m_nom - o.m_nom;
+    }
+
+    return gcm ( *this );
+}
+
+template<typename T>
+std::ostream &operator<< ( std::ostream &o, const Rational<T> &r ) {
     return ( o << r.nominator() << "/" << r.denominator() );
 }
 
 template<typename T>
-std::istream &operator>> ( std::istream &i, Rational<T> &r )
-{
+std::istream &operator>> ( std::istream &i, Rational<T> &r ) {
 
     double d;
 
