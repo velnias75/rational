@@ -194,6 +194,35 @@ void RationalTest::testDivision() {
     CPPUNIT_ASSERT_THROW ( a / ( b - d ), std::runtime_error );
 }
 
+void RationalTest::testModulus() {
+
+    Rational<rational_type> a ( 8, 1 );
+    a %= Rational<rational_type> ( 3, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 2 ), ( a ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), ( a ).denominator() );
+
+    Rational<rational_type> c ( 41, 7 );
+    c %= Rational<rational_type> ( 3, 2 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 19 ), ( c ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 14 ), ( c ).denominator() );
+
+    Rational<rational_type> d ( -542, 84 );
+    Rational<rational_type> e ( 65, 28 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -38 ), ( d % e ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 21 ), ( d % e ).denominator() );
+
+    Rational<rational_type> f ( 5.65 );
+    Rational<rational_type> g ( 1.23 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 2739689773316806 ),
+                           ( f % g ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 3752999689475075 ),
+                           ( f % g ).denominator() );
+}
+
 void RationalTest::testRelOps() {
 
     const Rational<rational_type> a ( 1, 4 );

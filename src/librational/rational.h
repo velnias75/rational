@@ -26,12 +26,15 @@
 #include <limits>
 #include <cmath>
 
-namespace Commons {
+namespace Commons
+{
 
-namespace Math {
+namespace Math
+{
 
 template<typename T>
-class Rational {
+class Rational
+{
     template<typename> friend class Rational;
 public:
     Rational() : m_nom ( 0 ), m_denom ( 1 ) {}
@@ -84,7 +87,9 @@ public:
         using namespace std;
         swap ( m_nom, m_denom );
 
-        if ( m_denom == T() ) throw std::runtime_error ( "division by zero" );
+        if ( m_denom == T() ) {
+            throw std::runtime_error ( "division by zero" );
+        }
 
         return *this;
     }
@@ -183,6 +188,27 @@ public:
     template<typename FloatType>
     inline friend Rational operator/ ( FloatType f, const Rational& o ) {
         return ( Rational ( f ) / o );
+    }
+
+    Rational& operator%= ( const Rational& o );
+
+    template<typename FloatType>
+    inline friend FloatType &operator%= ( FloatType &f, const Rational& o ) {
+        return ( f = static_cast<FloatType> ( Rational ( f ) % o ) );
+    }
+
+    inline Rational operator% ( const Rational& o ) const {
+        return ( Rational ( *this ) %= o );
+    }
+
+    template<typename FloatType>
+    inline friend FloatType operator% ( const Rational& o, FloatType f ) {
+        return static_cast<FloatType> ( o % Rational ( f ) );
+    }
+
+    template<typename FloatType>
+    inline friend Rational operator% ( FloatType f, const Rational& o ) {
+        return ( Rational ( f ) % o );
     }
 
     inline bool operator== ( const Rational &o ) const {
@@ -314,7 +340,8 @@ private:
 };
 
 template<typename T> template<typename FloatType>
-Rational<T>::Rational ( FloatType f ) : m_nom ( 0 ), m_denom ( 1 ) {
+Rational<T>::Rational ( FloatType f ) : m_nom ( 0 ), m_denom ( 1 )
+{
 
     T p[2] = { 0, 1 };
     T q[2] = { 1, 0 };
@@ -340,13 +367,14 @@ Rational<T>::Rational ( FloatType f ) : m_nom ( 0 ), m_denom ( 1 ) {
 }
 
 template<typename T>
-Rational<T>& Rational<T>::operator+= ( const Rational& o ) {
+Rational<T>& Rational<T>::operator+= ( const Rational& o )
+{
 
     if ( m_denom != o.m_denom ) {
 
         const T &l ( lcm ( m_denom, o.m_denom ) );
 
-        m_nom = ( l/m_denom ) * m_nom + ( l/o.m_denom ) * o.m_nom;
+        m_nom = ( ( l/m_denom ) * m_nom ) + ( ( l/o.m_denom ) * o.m_nom );
         m_denom = l;
 
     } else {
@@ -357,13 +385,14 @@ Rational<T>& Rational<T>::operator+= ( const Rational& o ) {
 }
 
 template<typename T>
-Rational<T>& Rational<T>::operator-= ( const Rational& o ) {
+Rational<T>& Rational<T>::operator-= ( const Rational& o )
+{
 
     if ( m_denom != o.m_denom ) {
 
         const T &l ( lcm ( m_denom, o.m_denom ) );
 
-        m_nom = ( l/m_denom ) * m_nom - ( l/o.m_denom ) * o.m_nom;
+        m_nom = ( ( l/m_denom ) * m_nom ) - ( ( l/o.m_denom ) * o.m_nom );
         m_denom = l;
 
     } else {
@@ -374,12 +403,49 @@ Rational<T>& Rational<T>::operator-= ( const Rational& o ) {
 }
 
 template<typename T>
-std::ostream &operator<< ( std::ostream &o, const Rational<T> &r ) {
+Rational<T>& Rational<T>::operator%= ( const Rational& o )
+{
+
+    /*
+     * Yes, any number mod any other number is defined as
+a mod b = c when nb+c=a for some integer n.
+
+For example, 5.65 mod 1.23 = 0.73 since 1.23*4 = 4.92 and 5.65 - 4.92 = 0.73.
+
+Also, taking the modulus before or after can be different.
+For example, let A = 5 mod 6, A = 5 and B = 10 mod 6, so B = 4, and AB = 5*4 = 20.
+Now note that (A*B) = 50, and 50 mod 6 = 2.
+
+If AB is taken mod 6, that is 20 mod 6, and that is also 2.
+
+So, if the mod is computed on two numbers and then they are multiplied,
+it is possible that the answer is too large.  However, if the mod is repeated,
+the same number is gotten, for 20 mod 6 = 2 as well.
+*/
+    
+    if ( m_denom != o.m_denom ) {
+
+        const T &l ( lcm ( m_denom, o.m_denom ) );
+
+        m_nom = ( ( l/m_denom ) * m_nom ) % ( ( l/o.m_denom ) * o.m_nom );
+        m_denom = l;
+
+    } else {
+        m_nom = m_nom % o.m_nom;
+    }
+
+    return gcm ( *this );
+}
+
+template<typename T>
+std::ostream &operator<< ( std::ostream &o, const Rational<T> &r )
+{
     return ( o << r.nominator() << "/" << r.denominator() );
 }
 
 template<typename T>
-std::istream &operator>> ( std::istream &i, Rational<T> &r ) {
+std::istream &operator>> ( std::istream &i, Rational<T> &r )
+{
 
     double d;
 
@@ -396,3 +462,4 @@ std::istream &operator>> ( std::istream &i, Rational<T> &r ) {
 #endif /* COMMONS_MATH_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+
