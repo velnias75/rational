@@ -194,7 +194,7 @@ void RationalTest::testDivision() {
     CPPUNIT_ASSERT_THROW ( a / ( b - d ), std::runtime_error );
 }
 
-void RationalTest::testModulus() {
+void RationalTest::testModulo() {
 
     Rational<rational_type> a ( 8, 1 );
     a %= Rational<rational_type> ( 3, 1 );
@@ -217,8 +217,8 @@ void RationalTest::testModulus() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 347 ), ( e % d ).nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 84 ), ( e % d ).denominator() );
 
-    Rational<uint32_t> f ( 5.65f );
-    Rational<uint32_t> g ( 1.23f );
+    Rational<uint32_t> f ( 5.65l );
+    Rational<uint32_t> g ( 1.23l );
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 73 ), ( f % g ).nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 100 ), ( f % g ).denominator() );
@@ -337,6 +337,13 @@ void RationalTest::testGlobalOps() {
     CPPUNIT_ASSERT_EQUAL ( 0.5, aux /= Rational<rational_type> ( 1, 2 ) );
     CPPUNIT_ASSERT_EQUAL ( 2.0, static_cast<double> ( Rational<rational_type> ( 1, 2 ) /= 0.25 ) );
 
+    aux = 0.25;
+
+    CPPUNIT_ASSERT_EQUAL ( 0.25, static_cast<double> ( 0.25 % Rational<rational_type> ( 1, 2 ) ) );
+    CPPUNIT_ASSERT_EQUAL ( 0.0, static_cast<double> ( Rational<rational_type> ( 1, 2 ) % 0.25 ) );
+    CPPUNIT_ASSERT_EQUAL ( 0.25, aux %= Rational<rational_type> ( 1, 2 ) );
+    CPPUNIT_ASSERT_EQUAL ( 0.0, static_cast<double> ( Rational<rational_type> ( 1, 2 ) %= 0.25 ) );
+    
     CPPUNIT_ASSERT ( 0.5 == Rational<rational_type> ( 1, 2 ) );
     CPPUNIT_ASSERT ( Rational<rational_type> ( 1, 2 ) == 0.5 );
 
