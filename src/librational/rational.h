@@ -26,12 +26,15 @@
 #include <limits>
 #include <cmath>
 
-namespace Commons {
+namespace Commons
+{
 
-namespace Math {
+namespace Math
+{
 
 template<typename T>
-class Rational {
+class Rational
+{
     template<typename> friend class Rational;
 public:
     Rational() : m_nom ( 0 ), m_denom ( 1 ) {}
@@ -41,14 +44,11 @@ public:
         m_denom ( static_cast<T> ( o.m_denom ) ) {}
 
     Rational ( T n, T d )  : m_nom ( n ), m_denom ( d ) {
-        
-        if(m_denom == T()) throw std::runtime_error("denominator can't be null");
-        
-        if(m_denom < 0) {
-            m_nom *= -1;
-            m_denom *= -1;
+
+        if ( m_denom == T() ) {
+            throw std::runtime_error ( "denominator can't be null" );
         }
-        
+
         euclid ( *this );
     }
 
@@ -95,7 +95,7 @@ public:
 
     template<typename FloatType>
     inline operator FloatType() const {
-        return static_cast<FloatType> ( m_nom ) /static_cast<FloatType> ( m_denom );
+        return static_cast<FloatType> ( m_nom ) / static_cast<FloatType> ( m_denom );
     }
 
     inline T nominator() const {
@@ -292,7 +292,7 @@ public:
 private:
     Rational &euclid ( const Rational &o ) {
 
-        T a = o.nominator(), b = o.denominator();
+        T a = o.m_nom, b = o.m_denom;
 
         while ( b ) {
             const T h = a % b;
@@ -303,6 +303,11 @@ private:
         m_nom /= a;
         m_denom /= a;
 
+        if ( m_denom < 0 ) {
+            m_nom *= -1;
+            m_denom *= -1;
+        }
+
         return *this;
     }
 
@@ -312,12 +317,14 @@ private:
 };
 
 template<typename T>
-std::ostream &operator<< ( std::ostream &o, const Rational<T> &r ) {
+std::ostream &operator<< ( std::ostream &o, const Rational<T> &r )
+{
     return ( o << r.nominator() << "/" << r.denominator() );
 }
 
 template<typename T>
-std::istream &operator>> ( std::istream &i, Rational<T> &r ) {
+std::istream &operator>> ( std::istream &i, Rational<T> &r )
+{
 
     double d;
 
@@ -334,5 +341,3 @@ std::istream &operator>> ( std::istream &i, Rational<T> &r ) {
 #endif /* COMMONS_MATH_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
-
-
