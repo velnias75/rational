@@ -39,7 +39,7 @@ void RationalTest::testNullRational() {
 
 void RationalTest::testConstruct() {
 
-//     CPPUNIT_ASSERT_THROW ( Rational<rational_type> r ( 1, 0 ), std::exception );
+    CPPUNIT_ASSERT_THROW ( Rational<rational_type> r ( 1, 0 ), std::runtime_error );
 
     CPPUNIT_ASSERT_EQUAL ( 0.5, static_cast<double> ( Rational<rational_type> ( 1, 2 ) ) );
     CPPUNIT_ASSERT_EQUAL ( -0.5, static_cast<double> ( Rational<rational_type> ( 1, -2 ) ) );
