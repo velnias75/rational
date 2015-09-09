@@ -30,9 +30,13 @@ namespace Commons {
 
 namespace Math {
 
+template<bool>
+struct _changeSign;
+    
 template<typename T>
 class Rational {
     template<typename> friend class Rational;
+    template<bool> friend struct _changeSign;        
 public:
     Rational() : m_nom ( 0 ), m_denom ( 1 ) {}
 
@@ -50,7 +54,7 @@ public:
     }
 
     template<typename FloatType>
-    Rational ( FloatType f );
+    Rational ( const FloatType &f );
 
     Rational &operator= ( const Rational& o ) {
 
@@ -296,12 +300,11 @@ public:
 private:
 
     inline static T lcm ( const T &a, const T &b ) {
-        return ( static_cast<T> ( std::abs ( a ) ) / euclid ( a, b ) ) *
-               static_cast<T> ( std::abs ( b ) );
+        return std::numeric_limits<T>::is_signed ?
+            ( static_cast<T> ( std::abs ( a ) ) / euclid ( a, b ) ) *
+                static_cast<T> ( std::abs ( b ) ) : a / euclid ( a, b ) * b;
     }
 
-#pragma GCC diagnostic ignored "-Wtype-limits"
-#pragma GCC diagnostic push
     Rational &gcm ( const Rational &o ) {
 
         const T &x ( euclid ( o.m_nom, o.m_denom ) );
@@ -309,14 +312,14 @@ private:
         m_nom /= x;
         m_denom /= x;
 
-        if ( m_denom < 0 ) {
-            m_nom *= static_cast<T> ( -1 );
-            m_denom *= static_cast<T> ( -1 );
-        }
-
-        return *this;
+        return _changeSign<std::numeric_limits<T>::is_signed>()(*this);
     }
-#pragma GCC diagnostic pop
+
+// #pragma GCC diagnostic ignored "-Wtype-limits"
+// #pragma GCC diagnostic push
+//     template<bool = std::numeric_limits<T>>
+//     Rational &changeSign();
+// #pragma GCC diagnostic pop
 
     static T euclid ( const T &a, const T &b ) {
 
@@ -337,29 +340,35 @@ private:
 };
 
 template<typename T> template<typename FloatType>
-Rational<T>::Rational ( FloatType f ) : m_nom ( 0 ), m_denom ( 1 ) {
+Rational<T>::Rational ( const FloatType &f ) : m_nom ( 0 ), m_denom ( 1 ) {
 
-    T p[2] = { 0, 1 };
-    T q[2] = { 1, 0 };
+    if ( !std::numeric_limits<FloatType>::is_exact ) {
+        
+        T p[2] = { 0, 1 };
+        T q[2] = { 1, 0 };
 
-    FloatType x = f;
+        FloatType x = f;
 
-    do {
+        do {
 
-        const T n = static_cast<T> ( std::floor ( x ) );
-        x = static_cast<FloatType> ( 1 ) / ( x - static_cast<FloatType> ( n ) );
+            const T n = static_cast<T> ( std::floor ( x ) );
+            x = static_cast<FloatType> ( 1 ) / ( x - static_cast<FloatType> ( n ) );
 
-        m_nom = p[0] + n * p[1];
-        p[0] = p[1];
-        p[1] = m_nom;
+            m_nom = p[0] + n * p[1];
+            p[0] = p[1];
+            p[1] = m_nom;
 
-        m_denom = q[0] + n * q[1];
-        q[0] = q[1];
-        q[1] = m_denom;
+            m_denom = q[0] + n * q[1];
+            q[0] = q[1];
+            q[1] = m_denom;
 
-    } while ( ! ( std::abs ( static_cast<FloatType> ( m_nom ) /
-                             static_cast<FloatType> ( m_denom ) - f ) <
-                  std::numeric_limits<FloatType>::epsilon() ) );
+        } while ( ! ( std::abs ( static_cast<FloatType> ( m_nom ) /
+                                static_cast<FloatType> ( m_denom ) - f ) <
+                    std::numeric_limits<FloatType>::epsilon() ) );
+    } else {
+        m_nom = f;
+        m_denom = 1;
+    }
 }
 
 template<typename T>
@@ -413,6 +422,28 @@ Rational<T>& Rational<T>::operator%= ( const Rational& o ) {
 
     return gcm ( *this );
 }
+
+template<>
+struct _changeSign<true> {
+    template<typename T>
+    inline Rational<T> &operator()(Rational<T> &r) {
+        
+        if(r.m_denom < 0) {
+            r.m_nom *= static_cast<T>(-1);
+            r.m_denom *= static_cast<T>(-1);
+        }
+        
+        return r;
+    };
+};
+    
+template<>
+struct _changeSign<false> {
+    template<typename T>
+    inline Rational<T> &operator()(Rational<T> &r) {
+        return r;
+    };
+};
 
 template<typename T>
 std::ostream &operator<< ( std::ostream &o, const Rational<T> &r ) {
