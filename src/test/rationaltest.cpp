@@ -230,22 +230,22 @@ void RationalTest::testModulo() {
 }
 
 void RationalTest::testIncDec() {
-    
+
     Rational<rational_type> a ( 2, 4 );
-    
-    CPPUNIT_ASSERT_EQUAL(3, (++a).nominator());
-    CPPUNIT_ASSERT_EQUAL(2, (a++).denominator());
-    
-    CPPUNIT_ASSERT_EQUAL(5, a.nominator());
-    CPPUNIT_ASSERT_EQUAL(2, a.denominator());
-    
+
+    CPPUNIT_ASSERT_EQUAL ( 3, ( ++a ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( 2, ( a++ ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 5, a.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( 2, a.denominator() );
+
     Rational<rational_type> b ( 2, 4 );
-    
-    CPPUNIT_ASSERT_EQUAL(-1, (--b).nominator());
-    CPPUNIT_ASSERT_EQUAL(2, (b--).denominator());
-    
-    CPPUNIT_ASSERT_EQUAL(-3, b.nominator());
-    CPPUNIT_ASSERT_EQUAL(2, b.denominator());
+
+    CPPUNIT_ASSERT_EQUAL ( -1, ( --b ).nominator() );
+    CPPUNIT_ASSERT_EQUAL ( 2, ( b-- ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -3, b.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( 2, b.denominator() );
 }
 
 void RationalTest::testRelOps() {

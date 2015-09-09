@@ -29,6 +29,7 @@
 #include "rational.h"
 
 #pragma GCC diagnostic ignored "-Winline"
+#pragma GCC diagnostic ignored "-Weffc++"
 #pragma GCC diagnostic push
 class RationalTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE ( RationalTest );

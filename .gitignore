@@ -29,3 +29,4 @@ release/
 .kdev*
 core*
 *~
+callgrind.out.*

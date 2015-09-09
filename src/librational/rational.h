@@ -46,9 +46,7 @@ public:
 
     Rational ( const integer_type &n, const integer_type &d )  : m_nom ( n ), m_denom ( d ) {
 
-        if ( m_denom == integer_type() ) {
-            throw std::runtime_error ( "denominator can't be null" );
-        }
+        if ( m_denom == integer_type() ) throw std::runtime_error ( "denominator can't be null" );
 
         gcm ( *this );
     }
@@ -85,12 +83,11 @@ public:
     }
 
     Rational &invert() {
+
         using namespace std;
         swap ( m_nom, m_denom );
 
-        if ( m_denom == integer_type() ) {
-            throw std::runtime_error ( "division by zero" );
-        }
+        if ( m_denom == integer_type() ) throw std::runtime_error ( "division by zero" );
 
         return *this;
     }
@@ -107,7 +104,7 @@ public:
 
     inline Rational& operator++() {
         m_nom += m_denom;
-        return *this;
+        return gcm ( *this );
     }
 
     inline Rational operator++ ( int ) {
@@ -124,7 +121,7 @@ public:
 
     inline Rational& operator--() {
         m_nom -= m_denom;
-        return *this;
+        return gcm ( *this );
     }
 
     inline Rational operator-- ( int ) {
@@ -138,7 +135,7 @@ public:
         m_nom *= o.m_nom;
         m_denom *= o.m_denom;
 
-        return *this;
+        return gcm ( *this );
     }
 
     inline Rational operator* ( const Rational& o ) const {
@@ -201,28 +198,23 @@ public:
 private:
     inline static integer_type lcm ( const integer_type &a, const integer_type &b ) {
         return std::numeric_limits<integer_type>::is_signed ?
-               ( static_cast<integer_type> ( std::abs ( a ) ) / euclid ( a, b ) ) *
-               static_cast<integer_type> ( std::abs ( b ) ) : a / euclid ( a, b ) * b;
+               ( static_cast<integer_type> ( std::abs ( a ) ) / ( a ? euclid ( a, b ) : b ) ) *
+               static_cast<integer_type> ( std::abs ( b ) ) : a / ( a ? euclid ( a, b ) : b ) * b ;
     }
 
-    Rational &gcm ( const Rational &o ) {
-
-        const integer_type &x ( euclid ( o.m_nom, o.m_denom ) );
-
-        m_nom /= x;
-        m_denom /= x;
-
-        return _changeSign<std::numeric_limits<integer_type>::is_signed>() ( *this );
-    }
+    Rational &gcm ( const Rational &o );
 
     static integer_type euclid ( const integer_type &a, const integer_type &b ) {
 
         integer_type x ( a ), y ( b );
 
+        // while ( y ) { const integer_type &h ( x % y ); x = y; y = h; }
+
         while ( y ) {
-            const integer_type &h ( x % y );
-            x = y;
-            y = h;
+            x %= y;
+            y ^= x;
+            x ^= y;
+            y ^= x;
         }
 
         return x;
@@ -263,6 +255,17 @@ Rational<T>::Rational ( const FloatType &f ) : m_nom ( 0 ), m_denom ( 1 ) {
         m_nom = static_cast<integer_type> ( f );
         m_denom = static_cast<integer_type> ( 1 );
     }
+}
+
+template<typename T>
+Rational<T> &Rational<T>::gcm ( const Rational &o ) {
+
+    const integer_type &x ( o.m_nom ? euclid ( o.m_nom, o.m_denom ) : o.m_denom );
+
+    m_nom /= x;
+    m_denom /= x;
+
+    return _changeSign<std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
 template<typename T>
