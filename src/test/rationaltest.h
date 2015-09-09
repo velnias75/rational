@@ -50,11 +50,7 @@ class RationalTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE_END();
 
 public:
-#ifndef __clang__
-    typedef long long rational_type;
-#else
-    typedef long rational_type;
-#endif
+    typedef int32_t rational_type;
 
     RationalTest();
 
@@ -79,11 +75,7 @@ public:
 
 private:
     Commons::Math::Rational<rational_type> m_nullRational;
-#ifndef __clang__
-    Commons::Math::Rational<rational_type> m_sqrt2;
-#else
-    Commons::Math::Rational<unsigned long> m_sqrt2;
-#endif
+    Commons::Math::Rational<uint64_t> m_sqrt2;
 
     typedef std::vector<Commons::Math::Rational<rational_type> > rat_vector;
     rat_vector m_accu;

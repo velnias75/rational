@@ -30,7 +30,7 @@ RationalTest::RationalTest() : CppUnit::TestFixture(), m_nullRational(), m_sqrt2
     m_onethird(), m_accu_ul() {}
 
 void RationalTest::setUp() {
-    m_sqrt2 = Rational<rational_type> ( std::sqrt ( 2 ) );
+    m_sqrt2 = Rational<rational_type> ( std::sqrt ( 2.0 ) );
 
     for ( rational_type i = 1; i < 25; ++i ) {
         m_accu.push_back ( rat_vector::value_type ( 1, i ) );
@@ -88,11 +88,11 @@ void RationalTest::testConstructFromDouble() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), s.denominator() );
 
 #ifndef __clang__
-    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 77227930 ), m_sqrt2.nominator() );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 54608393 ), m_sqrt2.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 77227930 ), m_sqrt2.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 54608393 ), m_sqrt2.denominator() );
 #else
-    CPPUNIT_ASSERT_EQUAL ( static_cast<unsigned long> ( 131836323 ), m_sqrt2.nominator() );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<unsigned long> ( 93222358 ), m_sqrt2.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 131836323 ), m_sqrt2.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 93222358 ), m_sqrt2.denominator() );
 #endif
 
     Rational<rational_type> pi ( M_PI );
@@ -164,7 +164,7 @@ void RationalTest::testMultiplication() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 7 ), ( a * b ).nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 12 ), ( a * b ).denominator() );
 
-    CPPUNIT_ASSERT_EQUAL ( 2.0f, static_cast<float> ( m_sqrt2 * m_sqrt2 ) );
+    CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.0f, static_cast<float> ( m_sqrt2 * m_sqrt2 ), 1.e-6 );
 }
 
 void RationalTest::testInvert() {
@@ -343,7 +343,7 @@ void RationalTest::testGlobalOps() {
     CPPUNIT_ASSERT_EQUAL ( 0.0, static_cast<double> ( Rational<rational_type> ( 1, 2 ) % 0.25 ) );
     CPPUNIT_ASSERT_EQUAL ( 0.25, aux %= Rational<rational_type> ( 1, 2 ) );
     CPPUNIT_ASSERT_EQUAL ( 0.0, static_cast<double> ( Rational<rational_type> ( 1, 2 ) %= 0.25 ) );
-    
+
     CPPUNIT_ASSERT ( 0.5 == Rational<rational_type> ( 1, 2 ) );
     CPPUNIT_ASSERT ( Rational<rational_type> ( 1, 2 ) == 0.5 );
 
