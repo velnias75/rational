@@ -30,7 +30,7 @@ RationalTest::RationalTest() : CppUnit::TestFixture(), m_nullRational(), m_sqrt2
     m_onethird(), m_accu_ul() {}
 
 void RationalTest::setUp() {
-    m_sqrt2 = Rational<rational_type> ( std::sqrt ( 2.0 ) );
+    m_sqrt2 = Rational<uint64_t> ( std::sqrt ( 2.0 ) );
 
     for ( rational_type i = 1; i < 25; ++i ) {
         m_accu.push_back ( rat_vector::value_type ( 1, i ) );
@@ -119,6 +119,11 @@ void RationalTest::testAssignedFromDouble() {
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -17 ), r.nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 23 ), r.denominator() );
+
+    Rational<rational_type> s = -3;
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -3 ), s.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), s.denominator() );
 
     Rational<rational_type> pi = M_PI;
 
