@@ -101,44 +101,14 @@ public:
 
     Rational& operator+= ( const Rational& o );
 
-    template<typename FloatType>
-    inline friend FloatType &operator+= ( FloatType &f, const Rational& o ) {
-        return ( f = Rational ( f ) + o );
-    }
-
     inline Rational operator+ ( const Rational& o ) const {
         return ( Rational ( *this ) += o );
     }
 
-    template<typename FloatType>
-    inline friend Rational operator+ ( const Rational& o, FloatType f ) {
-        return ( o + Rational ( f ) );
-    }
-
-    template<typename FloatType>
-    inline friend Rational operator+ ( FloatType f, const Rational& o ) {
-        return ( Rational ( f ) + o );
-    }
-
     Rational& operator-= ( const Rational& o );
-
-    template<typename FloatType>
-    inline friend FloatType &operator-= ( FloatType &f, const Rational& o ) {
-        return ( f = static_cast<FloatType> ( Rational ( f ) - o ) );
-    }
 
     inline Rational operator- ( const Rational& o ) const {
         return ( Rational ( *this ) -= o );
-    }
-
-    template<typename FloatType>
-    inline friend FloatType operator- ( const Rational& o, FloatType f ) {
-        return static_cast<FloatType> ( o - Rational ( f ) );
-    }
-
-    template<typename FloatType>
-    inline friend Rational operator- ( FloatType f, const Rational& o ) {
-        return ( Rational ( f ) - o );
     }
 
     Rational& operator*= ( const Rational& o ) {
@@ -149,95 +119,30 @@ public:
         return *this;
     }
 
-    template<typename FloatType>
-    inline friend FloatType &operator*= ( FloatType &f, const Rational& o ) {
-        return ( f = static_cast<FloatType> ( Rational ( f ) * o ) );
-    }
-
     inline Rational operator* ( const Rational& o ) const {
         return ( Rational ( *this ) *= o );
-    }
-
-    template<typename FloatType>
-    inline friend Rational operator* ( const Rational& o, FloatType f ) {
-        return ( o * Rational ( f ) );
-    }
-
-    template<typename FloatType>
-    inline friend Rational operator* ( FloatType f, const Rational& o ) {
-        return ( Rational ( f ) * o );
     }
 
     inline Rational& operator/= ( const Rational& o ) {
         return ( *this *= o.inv() );
     }
 
-    template<typename FloatType>
-    inline friend FloatType &operator/= ( FloatType &f, const Rational& o ) {
-        return ( f = static_cast<FloatType> ( Rational ( f ) / o ) );
-    }
-
     inline Rational operator/ ( const Rational& o ) const {
         return ( Rational ( *this ) /= o );
     }
 
-    template<typename FloatType>
-    inline friend FloatType operator/ ( const Rational& o, FloatType f ) {
-        return static_cast<FloatType> ( o / Rational ( f ) );
-    }
-
-    template<typename FloatType>
-    inline friend Rational operator/ ( FloatType f, const Rational& o ) {
-        return ( Rational ( f ) / o );
-    }
-
     Rational& operator%= ( const Rational& o );
-
-    template<typename FloatType>
-    inline friend FloatType &operator%= ( FloatType &f, const Rational& o ) {
-        return ( f = static_cast<FloatType> ( Rational ( f ) % o ) );
-    }
 
     inline Rational operator% ( const Rational& o ) const {
         return ( Rational ( *this ) %= o );
-    }
-
-    template<typename FloatType>
-    inline friend FloatType operator% ( const Rational& o, FloatType f ) {
-        return static_cast<FloatType> ( o % Rational ( f ) );
-    }
-
-    template<typename FloatType>
-    inline friend Rational operator% ( FloatType f, const Rational& o ) {
-        return ( Rational ( f ) % o );
     }
 
     inline bool operator== ( const Rational &o ) const {
         return ! ( ( *this < o ) || ( *this > o ) );
     }
 
-    template<typename FloatType>
-    inline friend bool operator== ( FloatType f, const Rational& o ) {
-        return ( Rational ( f ) == o );
-    }
-
-    template<typename FloatType>
-    inline friend bool operator== ( const Rational& o, FloatType f ) {
-        return ( o == Rational ( f ) );
-    }
-
     inline bool operator!= ( const Rational &o ) const {
         return ! ( *this == o );
-    }
-
-    template<typename FloatType>
-    inline friend bool operator!= ( FloatType f, const Rational& o ) {
-        return ! ( Rational ( f ) == o );
-    }
-
-    template<typename FloatType>
-    inline friend bool operator!= ( const Rational& o, FloatType f ) {
-        return ! ( o == Rational ( f ) );
     }
 
     inline bool operator< ( const Rational &o ) const {
@@ -245,56 +150,30 @@ public:
                : ( o.m_nom * m_denom ) < ( m_nom * o.m_denom );
     }
 
-    template<typename FloatType>
-    inline friend bool operator< ( FloatType f, const Rational& o ) {
-        return ( Rational ( f ) < o );
-    }
-
-    template<typename FloatType>
-    inline friend bool operator< ( const Rational& o, FloatType f ) {
-        return ( o < Rational ( f ) );
-    }
-
     inline bool operator<= ( const Rational &o ) const {
         return ! ( o < *this );
-    }
-
-    template<typename FloatType>
-    inline friend bool operator<= ( FloatType f, const Rational& o ) {
-        return ! ( o < Rational ( f ) );
-    }
-
-    template<typename FloatType>
-    inline friend bool operator<= ( const Rational& o, FloatType f ) {
-        return ! ( Rational ( f ) < o );
     }
 
     inline bool operator> ( const Rational &o ) const {
         return o < *this;
     }
 
-    template<typename FloatType>
-    inline friend bool operator> ( FloatType f, const Rational& o ) {
-        return o < Rational ( f );
-    }
-
-    template<typename FloatType>
-    inline friend bool operator> ( const Rational& o, FloatType f ) {
-        return Rational ( f ) < o;
-    }
-
     inline bool operator>= ( const Rational &o ) const {
         return ! ( *this < o );
     }
 
-    template<typename FloatType>
-    inline friend bool operator>= ( FloatType f, const Rational& o ) {
-        return ! ( Rational ( f ) < o );
+    friend std::ostream &operator<< ( std::ostream &o, const Rational &r ) {
+        return ( o << r.m_nom << "/" << r.m_denom );
     }
 
-    template<typename FloatType>
-    inline friend bool operator>= ( const Rational& o, FloatType f ) {
-        return ! ( o < Rational ( f ) );
+    friend std::istream &operator>> ( std::istream &i, Rational &r ) {
+
+        double d;
+
+        i >> d;
+        r = d;
+
+        return i;
     }
 
 private:
@@ -314,12 +193,6 @@ private:
 
         return _changeSign<std::numeric_limits<T>::is_signed>() ( *this );
     }
-
-// #pragma GCC diagnostic ignored "-Wtype-limits"
-// #pragma GCC diagnostic push
-//     template<bool = std::numeric_limits<T>>
-//     Rational &changeSign();
-// #pragma GCC diagnostic pop
 
     static T euclid ( const T &a, const T &b ) {
 
@@ -388,6 +261,21 @@ Rational<T>& Rational<T>::operator+= ( const Rational& o ) {
     return gcm ( *this );
 }
 
+template<typename T, typename FloatType>
+inline FloatType &operator+= ( FloatType &f, const Rational<T>& o ) {
+    return ( f = Rational<T> ( f ) += o );
+}
+
+template<typename T, typename FloatType>
+inline Rational<T> operator+ ( const Rational<T>& o, FloatType f ) {
+    return ( o + Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline Rational<T> operator+ ( FloatType f, const Rational<T>& o ) {
+    return ( Rational<T> ( f ) + o );
+}
+
 template<typename T>
 Rational<T>& Rational<T>::operator-= ( const Rational& o ) {
 
@@ -403,6 +291,51 @@ Rational<T>& Rational<T>::operator-= ( const Rational& o ) {
     }
 
     return gcm ( *this );
+}
+
+template<typename T, typename FloatType>
+inline FloatType &operator-= ( FloatType &f, const Rational<T>& o ) {
+    return ( f = static_cast<FloatType> ( Rational<T> ( f ) -= o ) );
+}
+
+template<typename T, typename FloatType>
+inline FloatType operator- ( const Rational<T>& o, FloatType f ) {
+    return static_cast<FloatType> ( o - Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline Rational<T> operator- ( FloatType f, const Rational<T>& o ) {
+    return ( Rational<T> ( f ) - o );
+}
+
+template<typename T, typename FloatType>
+inline FloatType &operator*= ( FloatType &f, const Rational<T>& o ) {
+    return ( f = static_cast<FloatType> ( Rational<T> ( f ) *= o ) );
+}
+
+template<typename T, typename FloatType>
+inline Rational<T> operator* ( const Rational<T>& o, FloatType f ) {
+    return ( o * Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline Rational<T> operator* ( FloatType f, const Rational<T>& o ) {
+    return ( Rational<T> ( f ) * o );
+}
+
+template<typename T, typename FloatType>
+inline FloatType &operator/= ( FloatType &f, const Rational<T>& o ) {
+    return ( f = static_cast<FloatType> ( Rational<T> ( f ) /= o ) );
+}
+
+template<typename T, typename FloatType>
+inline FloatType operator/ ( const Rational<T>& o, FloatType f ) {
+    return static_cast<FloatType> ( o / Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline Rational<T> operator/ ( FloatType f, const Rational<T>& o ) {
+    return ( Rational<T> ( f ) / o );
 }
 
 template<typename T>
@@ -421,6 +354,81 @@ Rational<T>& Rational<T>::operator%= ( const Rational& o ) {
     }
 
     return gcm ( *this );
+}
+
+template<typename T, typename FloatType>
+inline FloatType &operator%= ( FloatType &f, const Rational<T>& o ) {
+    return ( f = static_cast<FloatType> ( Rational<T> ( f ) %= o ) );
+}
+
+template<typename T, typename FloatType>
+inline FloatType operator% ( const Rational<T>& o, FloatType f ) {
+    return static_cast<FloatType> ( o % Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline Rational<T> operator% ( FloatType f, const Rational<T>& o ) {
+    return ( Rational<T> ( f ) % o );
+}
+
+template<typename T, typename FloatType>
+inline bool operator== ( FloatType f, const Rational<T>& o ) {
+    return ( Rational<T> ( f ) == o );
+}
+
+template<typename T, typename FloatType>
+inline bool operator== ( const Rational<T>& o, FloatType f ) {
+    return ( o == Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline bool operator!= ( FloatType f, const Rational<T>& o ) {
+    return ! ( Rational<T> ( f ) == o );
+}
+
+template<typename T, typename FloatType>
+inline bool operator!= ( const Rational<T>& o, FloatType f ) {
+    return ! ( o == Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline bool operator< ( FloatType f, const Rational<T>& o ) {
+    return ( Rational<T> ( f ) < o );
+}
+
+template<typename T, typename FloatType>
+inline bool operator< ( const Rational<T>& o, FloatType f ) {
+    return ( o < Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline bool operator<= ( FloatType f, const Rational<T>& o ) {
+    return ! ( o < Rational<T> ( f ) );
+}
+
+template<typename T, typename FloatType>
+inline bool operator<= ( const Rational<T>& o, FloatType f ) {
+    return ! ( Rational<T> ( f ) < o );
+}
+
+template<typename T, typename FloatType>
+inline bool operator> ( FloatType f, const Rational<T>& o ) {
+    return o < Rational<T> ( f );
+}
+
+template<typename T, typename FloatType>
+inline bool operator> ( const Rational<T>& o, FloatType f ) {
+    return Rational<T> ( f ) < o;
+}
+
+template<typename T, typename FloatType>
+inline bool operator>= ( FloatType f, const Rational<T>& o ) {
+    return ! ( Rational<T> ( f ) < o );
+}
+
+template<typename T, typename FloatType>
+inline bool operator>= ( const Rational<T>& o, FloatType f ) {
+    return ! ( o < Rational<T> ( f ) );
 }
 
 template<>
@@ -446,22 +454,6 @@ struct _changeSign<false> {
         return r;
     };
 };
-
-template<typename T>
-std::ostream &operator<< ( std::ostream &o, const Rational<T> &r ) {
-    return ( o << r.nominator() << "/" << r.denominator() );
-}
-
-template<typename T>
-std::istream &operator>> ( std::istream &i, Rational<T> &r ) {
-
-    double d;
-
-    i >> d;
-    r = d;
-
-    return i;
-}
 
 }
 
