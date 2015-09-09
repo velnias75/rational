@@ -150,6 +150,16 @@ void RationalTest::testAssignedFromDouble() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 2 ), u.nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), u.denominator() );
 
+    u += 2.0;
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 4 ), u.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), u.denominator() );
+
+    u -= 2.0;
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 2 ), u.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), u.denominator() );
+
     Rational<rational_type> pi = M_PI;
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 245850922 ), pi.nominator() );

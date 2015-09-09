@@ -74,11 +74,11 @@ public:
         return static_cast<FloatType> ( m_nom ) / static_cast<FloatType> ( m_denom );
     }
 
-    inline integer_type nominator() const {
+    inline integer_type nominator() const throw() {
         return m_nom;
     }
 
-    inline integer_type denominator() const {
+    inline integer_type denominator() const throw() {
         return m_denom;
     }
 
@@ -321,7 +321,7 @@ inline FloatType &operator-= ( FloatType &f, const Rational<T>& o ) {
 }
 
 template<typename T, typename FloatType>
-inline FloatType operator- ( const Rational<T>& o, const FloatType &f ) {
+inline Rational<T> operator- ( const Rational<T>& o, const FloatType &f ) {
     return o - Rational<T> ( f );
 }
 
@@ -351,7 +351,7 @@ inline FloatType &operator/= ( FloatType &f, const Rational<T>& o ) {
 }
 
 template<typename T, typename FloatType>
-inline FloatType operator/ ( const Rational<T>& o, const FloatType &f ) {
+inline Rational<T> operator/ ( const Rational<T>& o, const FloatType &f ) {
     return ( o / Rational<T> ( f ) );
 }
 
@@ -384,7 +384,7 @@ inline FloatType &operator%= ( FloatType &f, const Rational<T>& o ) {
 }
 
 template<typename T, typename FloatType>
-inline FloatType operator% ( const Rational<T>& o, const FloatType &f ) {
+inline Rational<T> operator% ( const Rational<T>& o, const FloatType &f ) {
     return ( o % Rational<T> ( f ) );
 }
 
