@@ -92,7 +92,7 @@ public:
         return *this;
     }
 
-    inline Rational inv() const {
+    inline Rational inverse() const {
         return Rational ( *this ).invert();
     }
 
@@ -135,7 +135,7 @@ public:
         m_nom *= o.m_nom;
         m_denom *= o.m_denom;
 
-        return gcm ( *this );
+        return *this;
     }
 
     inline Rational operator* ( const Rational& o ) const {
@@ -143,7 +143,7 @@ public:
     }
 
     inline Rational& operator/= ( const Rational& o ) {
-        return ( *this *= o.inv() );
+        return ( *this *= o.inverse() );
     }
 
     inline Rational operator/ ( const Rational& o ) const {
@@ -165,8 +165,8 @@ public:
     }
 
     inline bool operator< ( const Rational &o ) const {
-        return ( m_denom * o.m_denom ) > 0 ? ( m_nom * o.m_denom ) < ( o.m_nom * m_denom )
-               : ( o.m_nom * m_denom ) < ( m_nom * o.m_denom );
+        return /* ( m_denom * o.m_denom ) > 0 ? */ ( m_nom * o.m_denom ) < ( o.m_nom * m_denom )
+               /* : ( o.m_nom * m_denom ) < ( m_nom * o.m_denom ) */; // denom can NEVER be zero!
     }
 
     inline bool operator<= ( const Rational &o ) const {
@@ -485,4 +485,4 @@ struct _changeSign<false> {
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

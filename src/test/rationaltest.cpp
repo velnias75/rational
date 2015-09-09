@@ -180,9 +180,9 @@ void RationalTest::testInvert() {
                            Rational<rational_type> ( 161, 49 ).invert().denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 7 ),
-                           Rational<rational_type> ( 161, 49 ).inv().nominator() );
+                           Rational<rational_type> ( 161, 49 ).inverse().nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 23 ),
-                           Rational<rational_type> ( 161, 49 ).inv().denominator() );
+                           Rational<rational_type> ( 161, 49 ).inverse().denominator() );
 }
 
 void RationalTest::testDivision() {
@@ -471,4 +471,4 @@ void RationalTest::testAlgorithm() {
                                    std::plus<Rational<rational_type> >() ).denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
