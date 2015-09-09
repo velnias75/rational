@@ -101,6 +101,21 @@ void RationalTest::testConstructFromDouble() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 78256779 ), pi.denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( M_PI, static_cast<double> ( pi ) );
+
+    Rational<rational_type> t ( 1.0 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), t.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), t.denominator() );
+
+    Rational<rational_type> u ( 2.0 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 2 ), u.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), u.denominator() );
+
+    Rational<rational_type> v ( -8 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -8 ), v.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), v.denominator() );
 }
 
 void RationalTest::testAssignedFromDouble() {
@@ -124,6 +139,16 @@ void RationalTest::testAssignedFromDouble() {
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( -3 ), s.nominator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), s.denominator() );
+
+    Rational<rational_type> t = 1.0;
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), t.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), t.denominator() );
+
+    Rational<rational_type> u = 2.0;
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 2 ), u.nominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<rational_type> ( 1 ), u.denominator() );
 
     Rational<rational_type> pi = M_PI;
 

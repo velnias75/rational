@@ -226,7 +226,8 @@ private:
 };
 
 template<typename T> template<typename FloatType>
-Rational<T>::Rational ( const FloatType &f ) : m_nom ( 0 ), m_denom ( 1 ) {
+Rational<T>::Rational ( const FloatType &f ) : m_nom ( static_cast<integer_type>( f ) ),
+    m_denom ( 1 ) {
 
     if ( !std::numeric_limits<FloatType>::is_exact ) {
 
@@ -235,7 +236,9 @@ Rational<T>::Rational ( const FloatType &f ) : m_nom ( 0 ), m_denom ( 1 ) {
 
         FloatType x ( f );
 
-        do {
+        while ( ! ( std::abs ( static_cast<FloatType> ( m_nom ) /
+                               static_cast<FloatType> ( m_denom ) - f ) <
+                     std::numeric_limits<FloatType>::epsilon() ) ) {
 
             const integer_type n = static_cast<integer_type> ( std::floor ( x ) );
             x = static_cast<FloatType> ( 1 ) / ( x - static_cast<FloatType> ( n ) );
@@ -248,12 +251,7 @@ Rational<T>::Rational ( const FloatType &f ) : m_nom ( 0 ), m_denom ( 1 ) {
             q[0] = q[1];
             q[1] = m_denom;
 
-        } while ( ! ( std::abs ( static_cast<FloatType> ( m_nom ) /
-                                 static_cast<FloatType> ( m_denom ) - f ) <
-                      std::numeric_limits<FloatType>::epsilon() ) );
-    } else {
-        m_nom = static_cast<integer_type> ( f );
-        m_denom = static_cast<integer_type> ( 1 );
+        }
     }
 }
 
