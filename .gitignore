@@ -28,3 +28,4 @@ debug/
 release/
 .kdev*
 core*
+*~
