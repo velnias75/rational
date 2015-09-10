@@ -46,6 +46,7 @@ class RationalTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testIncDec );
     CPPUNIT_TEST ( testRelOps );
     CPPUNIT_TEST ( testGlobalOps );
+    CPPUNIT_TEST ( testString );
     CPPUNIT_TEST ( testIOStreamOps );
     CPPUNIT_TEST ( testPrecision );
     CPPUNIT_TEST ( testAlgorithm );
@@ -72,6 +73,7 @@ public:
     void testIncDec();
     void testRelOps();
     void testGlobalOps();
+    void testString();
     void testIOStreamOps();
     void testPrecision();
     void testAlgorithm();

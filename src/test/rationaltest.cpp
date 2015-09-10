@@ -18,7 +18,6 @@
  */
 
 #include <numeric>
-#include <sstream>
 
 #include "rationaltest.h"
 
@@ -262,6 +261,36 @@ void RationalTest::testModulo() {
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 73 ), ( f % g ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 100 ), ( f % g ).denominator() );
+
+    Rational<rational_type> h ( 11, 4 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2, h.mod().first );
+    CPPUNIT_ASSERT_EQUAL ( 3, h.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, h.mod().second.denominator() );
+
+    Rational<rational_type> i ( 11, -4 );
+
+    CPPUNIT_ASSERT_EQUAL ( -2, i.mod().first );
+    CPPUNIT_ASSERT_EQUAL ( 3, i.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, i.mod().second.denominator() );
+
+    Rational<rational_type> j ( 18, 8 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2, j.mod().first );
+    CPPUNIT_ASSERT_EQUAL ( 1, j.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, j.mod().second.denominator() );
+
+    Rational<rational_type> k ( -18, 8 );
+
+    CPPUNIT_ASSERT_EQUAL ( -2, k.mod().first );
+    CPPUNIT_ASSERT_EQUAL ( 1, k.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, k.mod().second.denominator() );
+
+    Rational<rational_type> l ( 1, 8 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0, l.mod().first );
+    CPPUNIT_ASSERT_EQUAL ( 1, l.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 8, l.mod().second.denominator() );
 }
 
 void RationalTest::testIncDec() {
@@ -420,6 +449,34 @@ void RationalTest::testGlobalOps() {
 
     CPPUNIT_ASSERT ( 0.25 <= Rational<rational_type> ( 1, 2 ) );
     CPPUNIT_ASSERT ( Rational<rational_type> ( 1, 2 ) >= 0.25 );
+}
+
+void RationalTest::testString() {
+
+    Rational<rational_type> h ( 11, 4 );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/4" ), h.str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2 3/4" ), h.str ( true ) );
+
+    Rational<rational_type> i ( 11, -4 );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "-11/4" ), i.str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "-2 3/4" ), i.str ( true ) );
+
+    Rational<rational_type> j ( 18, 8 );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "9/4" ), j.str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2 1/4" ), j.str ( true ) );
+
+    Rational<rational_type> k ( -18, 8 );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "-9/4" ), k.str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "-2 1/4" ), k.str ( true ) );
+
+    Rational<rational_type> l ( 1, 8 );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1/8" ), l.str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1/8" ), l.str ( true ) );
 }
 
 void RationalTest::testIOStreamOps() {

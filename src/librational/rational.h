@@ -21,8 +21,7 @@
 #define COMMONS_MATH_RATIONAL_H
 
 #include <stdexcept>
-#include <istream>
-#include <ostream>
+#include <sstream>
 #include <limits>
 #include <cmath>
 
@@ -44,12 +43,7 @@ public:
 
     Rational ( const Rational &o ) : m_numer ( o.m_numer ), m_denom ( o.m_denom ) {}
 
-    Rational ( const integer_type &n, const integer_type &d )  : m_numer ( n ), m_denom ( d ) {
-
-        if ( m_denom == integer_type() ) throw std::runtime_error ( "denominator can't be null" );
-
-        gcm ( *this );
-    }
+    Rational ( const integer_type &n, const integer_type &d );
 
     template<typename FloatType>
     Rational ( const FloatType &f );
@@ -81,6 +75,17 @@ public:
     inline integer_type denominator() const throw() {
         return m_denom;
     }
+
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic push
+    inline std::pair<integer_type, Rational<T> > mod() const {
+        return std::numeric_limits<integer_type>::is_signed ?
+               ( std::make_pair ( m_numer/m_denom, Rational<T> ( ( m_numer % m_denom ) *
+                                  ( m_numer < 0 ? static_cast<integer_type> ( -1 ) :
+                                    static_cast<integer_type> ( 1 ) ), m_denom ) ) ) :
+                   ( std::make_pair ( m_numer/m_denom, Rational<T> ( ( m_numer % m_denom ) ) ) );
+    }
+#pragma GCC diagnostic pop
 
     Rational &invert() {
 
@@ -182,8 +187,10 @@ public:
         return ! ( *this < o );
     }
 
+    std::string str ( bool mixed = false ) const;
+
     friend std::ostream &operator<< ( std::ostream &o, const Rational &r ) {
-        return ( o << r.m_numer << "/" << r.m_denom );
+        return ( o << r.str() );
     }
 
     friend std::istream &operator>> ( std::istream &i, Rational &r ) {
@@ -226,11 +233,21 @@ private:
     integer_type m_denom;
 };
 
+template<typename T>
+Rational<T>::Rational ( const integer_type &n, const integer_type &d )  : m_numer ( n ),
+    m_denom ( d ) {
+
+    if ( m_denom == integer_type() ) throw std::runtime_error ( "denominator can't be null" );
+
+    gcm ( *this );
+}
+
 template<typename T> template<typename FloatType>
 Rational<T>::Rational ( const FloatType &f ) : m_numer ( static_cast<integer_type> ( f ) ),
     m_denom ( 1 ) {
 
-    if ( !std::numeric_limits<FloatType>::is_exact ) {
+    if ( ! ( std::numeric_limits<FloatType>::is_integer ||
+             std::numeric_limits<FloatType>::is_exact ) ) {
 
         integer_type p[2] = { 0, 1 };
         integer_type q[2] = { 1, 0 };
@@ -377,6 +394,26 @@ Rational<T>& Rational<T>::operator%= ( const Rational& o ) {
     }
 
     return gcm ( *this );
+}
+
+template<typename T>
+std::string Rational<T>::str ( bool mixed ) const {
+
+    std::ostringstream os;
+
+    if ( mixed ) {
+
+        const std::pair<integer_type, Rational<T> > &p ( mod() );
+
+        if ( p.first != 0 ) os << p.first << ' ';
+
+        os  << p.second.str ( false );
+
+    } else {
+        os << m_numer << '/' << m_denom;
+    }
+
+    return os.str();
 }
 
 template<typename T, typename FloatType>
