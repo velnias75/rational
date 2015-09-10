@@ -45,7 +45,7 @@ public:
     typedef typename _mod<integer_type,
             std::numeric_limits<integer_type>::is_signed>::pair_type mod_type;
 
-    Rational() : m_numer ( 0 ), m_denom ( 1 ) {}
+    Rational() : m_numer (), m_denom ( 1 ) {}
 
     Rational ( const Rational &o ) : m_numer ( o.m_numer ), m_denom ( o.m_denom ) {}
 
@@ -248,8 +248,8 @@ Rational<T>::Rational ( const FloatType &f ) : m_numer ( static_cast<integer_typ
     if ( ! ( std::numeric_limits<FloatType>::is_integer ||
              std::numeric_limits<FloatType>::is_exact ) ) {
 
-        integer_type p[2] = { 0, 1 };
-        integer_type q[2] = { 1, 0 };
+        integer_type p[2] = { integer_type(), 1 };
+        integer_type q[2] = { 1, integer_type() };
 
         FloatType x ( f );
 
@@ -404,7 +404,7 @@ std::string Rational<T>::str ( bool mixed ) const {
 
         const std::pair<integer_type, Rational<T> > &p ( mod() );
 
-        if ( p.first != 0 ) os << p.first << ' ';
+        if ( p.first != integer_type() ) os << p.first << ' ';
 
         os  << p.second.str ( false );
 
