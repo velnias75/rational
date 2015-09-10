@@ -291,6 +291,12 @@ void RationalTest::testModulo() {
     CPPUNIT_ASSERT_EQUAL ( 0, l.mod().first );
     CPPUNIT_ASSERT_EQUAL ( 1, l.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 8, l.mod().second.denominator() );
+    
+    Rational<uint32_t> m ( 18, 8 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2u, m.mod().first );
+    CPPUNIT_ASSERT_EQUAL ( 1u, m.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4u, m.mod().second.denominator() );
 }
 
 void RationalTest::testIncDec() {

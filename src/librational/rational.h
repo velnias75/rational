@@ -32,10 +32,14 @@ namespace Math {
 template<bool>
 struct _changeSign;
 
+template<typename, bool>
+struct _mod;
+
 template<typename T>
 class Rational {
     template<typename> friend class Rational;
     template<bool> friend struct _changeSign;
+    template<typename, bool> friend struct _mod;
 public:
     typedef T integer_type;
 
@@ -76,16 +80,9 @@ public:
         return m_denom;
     }
 
-#pragma GCC diagnostic ignored "-Wtype-limits"
-#pragma GCC diagnostic push
     inline std::pair<integer_type, Rational<T> > mod() const {
-        return std::numeric_limits<integer_type>::is_signed ?
-               ( std::make_pair ( m_numer/m_denom, Rational<T> ( ( m_numer % m_denom ) *
-                                  ( m_numer < 0 ? static_cast<integer_type> ( -1 ) :
-                                    static_cast<integer_type> ( 1 ) ), m_denom ) ) ) :
-                   ( std::make_pair ( m_numer/m_denom, Rational<T> ( ( m_numer % m_denom ) ) ) );
+        return _mod<T, std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
-#pragma GCC diagnostic pop
 
     Rational &invert() {
 
@@ -490,6 +487,25 @@ template<typename T, typename FloatType>
 inline bool operator>= ( const Rational<T>& o, const FloatType &f ) {
     return ! ( o < Rational<T> ( f ) );
 }
+
+template<typename T>
+struct _mod<T, true> {
+
+    inline std::pair<T, Rational<T> > operator() ( const Rational<T> &r ) const {
+        return std::make_pair ( r.m_numer/r.m_denom, Rational<T> ( ( r.m_numer % r.m_denom ) *
+                                ( r.m_numer < 0 ? static_cast<T> ( -1 ) : static_cast<T> ( 1 ) ),
+                                r.m_denom ) );
+    }
+};
+
+template<typename T>
+struct _mod<T, false> {
+
+    inline std::pair<T, Rational<T> > operator() ( const Rational<T> &r ) const {
+        return std::make_pair ( r.m_numer/r.m_denom, Rational<T> ( ( r.m_numer % r.m_denom ),
+                                r.m_denom ) );
+    }
+};
 
 template<>
 struct _changeSign<true> {
