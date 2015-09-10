@@ -42,6 +42,7 @@ class Rational {
     template<typename, bool> friend struct _mod;
 public:
     typedef T integer_type;
+    typedef typename _mod<T, std::numeric_limits<integer_type>::is_signed>::pair_type mod_type;
 
     Rational() : m_numer ( 0 ), m_denom ( 1 ) {}
 
@@ -80,7 +81,7 @@ public:
         return m_denom;
     }
 
-    inline std::pair<integer_type, Rational<T> > mod() const {
+    inline mod_type mod() const {
         return _mod<T, std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
 
@@ -491,7 +492,9 @@ inline bool operator>= ( const Rational<T>& o, const FloatType &f ) {
 template<typename T>
 struct _mod<T, true> {
 
-    inline std::pair<T, Rational<T> > operator() ( const Rational<T> &r ) const {
+    typedef std::pair<T, Rational<T> > pair_type;
+
+    inline pair_type operator() ( const Rational<T> &r ) const {
         return std::make_pair ( r.m_numer/r.m_denom, Rational<T> ( ( r.m_numer % r.m_denom ) *
                                 ( r.m_numer < 0 ? static_cast<T> ( -1 ) : static_cast<T> ( 1 ) ),
                                 r.m_denom ) );
@@ -501,7 +504,9 @@ struct _mod<T, true> {
 template<typename T>
 struct _mod<T, false> {
 
-    inline std::pair<T, Rational<T> > operator() ( const Rational<T> &r ) const {
+    typedef std::pair<T, Rational<T> > pair_type;
+
+    inline pair_type operator() ( const Rational<T> &r ) const {
         return std::make_pair ( r.m_numer/r.m_denom, Rational<T> ( ( r.m_numer % r.m_denom ),
                                 r.m_denom ) );
     }
