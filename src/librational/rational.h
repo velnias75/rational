@@ -54,13 +54,13 @@ public:
 
     Rational ( const integer_type &n, const integer_type &d );
 
-    Rational ( const integer_type &w, const integer_type &n, const integer_type &d )
-        : m_numer (), m_denom ( 1 ) {
+    Rational ( const integer_type &w, const integer_type &n, const integer_type &d ) : m_numer (),
+        m_denom ( 1 ) {
         *this += Rational ( n, d ) += Rational ( w );
     }
 
-    template<typename FloatType>
-    Rational ( const FloatType &f );
+    template<typename NumberType>
+    Rational ( const NumberType &n );
 
     Rational &operator= ( const Rational& o ) {
 
@@ -72,14 +72,14 @@ public:
         return *this;
     }
 
-    template<typename FloatType>
-    inline Rational &operator= ( const FloatType &f ) {
-        return ( *this = Rational ( f ) );
+    template<typename NumberType>
+    inline Rational &operator= ( const NumberType &n ) {
+        return ( *this = Rational ( n ) );
     }
 
-    template<typename FloatType>
-    inline operator FloatType() const {
-        return static_cast<FloatType> ( m_numer ) / static_cast<FloatType> ( m_denom );
+    template<typename NumberType>
+    inline operator NumberType() const {
+        return static_cast<NumberType> ( m_numer ) / static_cast<NumberType> ( m_denom );
     }
 
     inline integer_type numerator() const throw() {
@@ -263,24 +263,24 @@ Rational<T>::Rational ( const integer_type &n, const integer_type &d )  : m_nume
     gcm ( *this );
 }
 
-template<typename T> template<typename FloatType>
-Rational<T>::Rational ( const FloatType &f ) : m_numer ( static_cast<integer_type> ( f ) ),
+template<typename T> template<typename NumberType>
+Rational<T>::Rational ( const NumberType &nt ) : m_numer ( static_cast<integer_type> ( nt ) ),
     m_denom ( 1 ) {
 
-    if ( ! ( std::numeric_limits<FloatType>::is_integer ||
-             std::numeric_limits<FloatType>::is_exact ) ) {
+    if ( ! ( std::numeric_limits<NumberType>::is_integer ||
+             std::numeric_limits<NumberType>::is_exact ) ) {
 
         integer_type p[2] = { integer_type(), 1 };
         integer_type q[2] = { 1, integer_type() };
 
-        FloatType x ( f );
+        NumberType x ( nt );
 
-        while ( ! ( std::abs ( static_cast<FloatType> ( m_numer ) /
-                               static_cast<FloatType> ( m_denom ) - f ) <
-                    std::numeric_limits<FloatType>::epsilon() ) ) {
+        while ( ! ( std::abs ( static_cast<NumberType> ( m_numer ) /
+                               static_cast<NumberType> ( m_denom ) - nt ) <
+                    std::numeric_limits<NumberType>::epsilon() ) ) {
 
             const integer_type n = static_cast<integer_type> ( std::floor ( x ) );
-            x = static_cast<FloatType> ( 1 ) / ( x - static_cast<FloatType> ( n ) );
+            x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( n ) );
 
             m_numer = p[0] + n * p[1];
             p[0] = p[1];
@@ -322,19 +322,19 @@ Rational<T>& Rational<T>::operator+= ( const Rational& o ) {
     return gcm ( *this );
 }
 
-template<typename T, typename FloatType>
-inline FloatType &operator+= ( FloatType &f, const Rational<T>& o ) {
-    return ( f = Rational<T> ( f ) += o );
+template<typename NumberType, typename T>
+inline NumberType &operator+= ( NumberType &n, const Rational<T>& o ) {
+    return ( n = Rational<T> ( n ) += o );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator+ ( const Rational<T>& o, const FloatType &f ) {
-    return ( o + Rational<T> ( f ) );
+template<typename T, typename NumberType>
+inline Rational<T> operator+ ( const Rational<T>& o, const NumberType &n ) {
+    return ( o + Rational<T> ( n ) );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator+ ( const FloatType &f, const Rational<T>& o ) {
-    return ( Rational<T> ( f ) + o );
+template<typename NumberType, typename T>
+inline Rational<T> operator+ ( const NumberType &n, const Rational<T>& o ) {
+    return ( Rational<T> ( n ) + o );
 }
 
 template<typename T>
@@ -354,49 +354,49 @@ Rational<T>& Rational<T>::operator-= ( const Rational& o ) {
     return gcm ( *this );
 }
 
-template<typename T, typename FloatType>
-inline FloatType &operator-= ( FloatType &f, const Rational<T>& o ) {
-    return ( f = Rational<T> ( f ) -= o );
+template<typename NumberType, typename T>
+inline NumberType &operator-= ( NumberType &n, const Rational<T>& o ) {
+    return ( n = Rational<T> ( n ) -= o );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator- ( const Rational<T>& o, const FloatType &f ) {
-    return o - Rational<T> ( f );
+template<typename T, typename NumberType>
+inline Rational<T> operator- ( const Rational<T>& o, const NumberType &n ) {
+    return o - Rational<T> ( n );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator- ( const FloatType &f, const Rational<T>& o ) {
-    return ( Rational<T> ( f ) - o );
+template<typename NumberType, typename T>
+inline Rational<T> operator- ( const NumberType &n, const Rational<T>& o ) {
+    return ( Rational<T> ( n ) - o );
 }
 
-template<typename T, typename FloatType>
-inline FloatType &operator*= ( FloatType &f, const Rational<T>& o ) {
-    return ( f = Rational<T> ( f ) *= o );
+template<typename NumberType, typename T>
+inline NumberType &operator*= ( NumberType &n, const Rational<T>& o ) {
+    return ( n = Rational<T> ( n ) *= o );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator* ( const Rational<T>& o, const FloatType &f ) {
-    return ( o * Rational<T> ( f ) );
+template<typename T, typename NumberType>
+inline Rational<T> operator* ( const Rational<T>& o, const NumberType &n ) {
+    return ( o * Rational<T> ( n ) );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator* ( const FloatType &f, const Rational<T>& o ) {
-    return ( Rational<T> ( f ) * o );
+template<typename NumberType, typename T>
+inline Rational<T> operator* ( const NumberType &n, const Rational<T>& o ) {
+    return ( Rational<T> ( n ) * o );
 }
 
-template<typename T, typename FloatType>
-inline FloatType &operator/= ( FloatType &f, const Rational<T>& o ) {
-    return ( f = Rational<T> ( f ) /= o );
+template<typename NumberType, typename T>
+inline NumberType &operator/= ( NumberType &n, const Rational<T>& o ) {
+    return ( n = Rational<T> ( n ) /= o );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator/ ( const Rational<T>& o, const FloatType &f ) {
-    return ( o / Rational<T> ( f ) );
+template<typename T, typename NumberType>
+inline Rational<T> operator/ ( const Rational<T>& o, const NumberType &n ) {
+    return ( o / Rational<T> ( n ) );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator/ ( const FloatType &f, const Rational<T>& o ) {
-    return ( Rational<T> ( f ) / o );
+template<typename NumberType, typename T>
+inline Rational<T> operator/ ( const NumberType &n, const Rational<T>& o ) {
+    return ( Rational<T> ( n ) / o );
 }
 
 template<typename T>
@@ -428,7 +428,7 @@ std::string Rational<T>::str ( bool mixed ) const {
 
         if ( p.first != integer_type() ) os << p.first << ' ';
 
-        os  << p.second.str ( false );
+        os << p.second.str ( false );
 
     } else {
         os << m_numer << '/' << m_denom;
@@ -437,79 +437,79 @@ std::string Rational<T>::str ( bool mixed ) const {
     return os.str();
 }
 
-template<typename T, typename FloatType>
-inline FloatType &operator%= ( FloatType &f, const Rational<T>& o ) {
-    return ( f = Rational<T> ( f ) %= o );
+template<typename NumberType, typename T>
+inline NumberType &operator%= ( NumberType &n, const Rational<T>& o ) {
+    return ( n = Rational<T> ( n ) %= o );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator% ( const Rational<T>& o, const FloatType &f ) {
-    return ( o % Rational<T> ( f ) );
+template<typename T, typename NumberType>
+inline Rational<T> operator% ( const Rational<T>& o, const NumberType &n ) {
+    return ( o % Rational<T> ( n ) );
 }
 
-template<typename T, typename FloatType>
-inline Rational<T> operator% ( const FloatType &f, const Rational<T>& o ) {
-    return ( Rational<T> ( f ) % o );
+template<typename NumberType, typename T>
+inline Rational<T> operator% ( const NumberType &n, const Rational<T>& o ) {
+    return ( Rational<T> ( n ) % o );
 }
 
-template<typename T, typename FloatType>
-inline bool operator== ( const FloatType &f, const Rational<T>& o ) {
-    return ( Rational<T> ( f ) == o );
+template<typename NumberType, typename T>
+inline bool operator== ( const NumberType &n, const Rational<T>& o ) {
+    return ( Rational<T> ( n ) == o );
 }
 
-template<typename T, typename FloatType>
-inline bool operator== ( const Rational<T>& o, const FloatType &f ) {
-    return ( o == Rational<T> ( f ) );
+template<typename T, typename NumberType>
+inline bool operator== ( const Rational<T>& o, const NumberType &n ) {
+    return ( o == Rational<T> ( n ) );
 }
 
-template<typename T, typename FloatType>
-inline bool operator!= ( const FloatType &f, const Rational<T>& o ) {
-    return ! ( Rational<T> ( f ) == o );
+template<typename NumberType, typename T>
+inline bool operator!= ( const NumberType &n, const Rational<T>& o ) {
+    return ! ( Rational<T> ( n ) == o );
 }
 
-template<typename T, typename FloatType>
-inline bool operator!= ( const Rational<T>& o, const FloatType &f ) {
-    return ! ( o == Rational<T> ( f ) );
+template<typename T, typename NumberType>
+inline bool operator!= ( const Rational<T>& o, const NumberType &n ) {
+    return ! ( o == Rational<T> ( n ) );
 }
 
-template<typename T, typename FloatType>
-inline bool operator< ( const FloatType &f, const Rational<T>& o ) {
-    return ( Rational<T> ( f ) < o );
+template<typename NumberType, typename T>
+inline bool operator< ( const NumberType &n, const Rational<T>& o ) {
+    return ( Rational<T> ( n ) < o );
 }
 
-template<typename T, typename FloatType>
-inline bool operator< ( const Rational<T>& o, const FloatType &f ) {
-    return ( o < Rational<T> ( f ) );
+template<typename T, typename NumberType>
+inline bool operator< ( const Rational<T>& o, const NumberType &n ) {
+    return ( o < Rational<T> ( n ) );
 }
 
-template<typename T, typename FloatType>
-inline bool operator<= ( const FloatType &f, const Rational<T>& o ) {
-    return ! ( o < Rational<T> ( f ) );
+template<typename NumberType, typename T>
+inline bool operator<= ( const NumberType &n, const Rational<T>& o ) {
+    return ! ( o < Rational<T> ( n ) );
 }
 
-template<typename T, typename FloatType>
-inline bool operator<= ( const Rational<T>& o, const FloatType &f ) {
-    return ! ( Rational<T> ( f ) < o );
+template<typename T, typename NumberType>
+inline bool operator<= ( const Rational<T>& o, const NumberType &n ) {
+    return ! ( Rational<T> ( n ) < o );
 }
 
-template<typename T, typename FloatType>
-inline bool operator> ( const FloatType &f, const Rational<T>& o ) {
-    return o < Rational<T> ( f );
+template<typename NumberType, typename T>
+inline bool operator> ( const NumberType &n, const Rational<T>& o ) {
+    return o < Rational<T> ( n );
 }
 
-template<typename T, typename FloatType>
-inline bool operator> ( const Rational<T>& o, const FloatType &f ) {
-    return Rational<T> ( f ) < o;
+template<typename T, typename NumberType>
+inline bool operator> ( const Rational<T>& o, const NumberType &n ) {
+    return Rational<T> ( n ) < o;
 }
 
-template<typename T, typename FloatType>
-inline bool operator>= ( const FloatType &f, const Rational<T>& o ) {
-    return ! ( Rational<T> ( f ) < o );
+template<typename NumberType, typename T>
+inline bool operator>= ( const NumberType &n, const Rational<T>& o ) {
+    return ! ( Rational<T> ( n ) < o );
 }
 
-template<typename T, typename FloatType>
-inline bool operator>= ( const Rational<T>& o, const FloatType &f ) {
-    return ! ( o < Rational<T> ( f ) );
+template<typename T, typename NumberType>
+inline bool operator>= ( const Rational<T>& o, const NumberType &n ) {
+    return ! ( o < Rational<T> ( n ) );
 }
 
 template<typename T>
@@ -596,4 +596,4 @@ inline Commons::Math::Rational<T> modf ( const Commons::Math::Rational<T> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
