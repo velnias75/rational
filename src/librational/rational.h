@@ -40,11 +40,11 @@ class Rational {
 public:
     typedef T integer_type;
 
-    Rational() : m_nom ( 0 ), m_denom ( 1 ) {}
+    Rational() : m_numer ( 0 ), m_denom ( 1 ) {}
 
-    Rational ( const Rational &o ) : m_nom ( o.m_nom ), m_denom ( o.m_denom ) {}
+    Rational ( const Rational &o ) : m_numer ( o.m_numer ), m_denom ( o.m_denom ) {}
 
-    Rational ( const integer_type &n, const integer_type &d )  : m_nom ( n ), m_denom ( d ) {
+    Rational ( const integer_type &n, const integer_type &d )  : m_numer ( n ), m_denom ( d ) {
 
         if ( m_denom == integer_type() ) throw std::runtime_error ( "denominator can't be null" );
 
@@ -57,7 +57,7 @@ public:
     Rational &operator= ( const Rational& o ) {
 
         if ( this != &o ) {
-            m_nom = o.m_nom;
+            m_numer = o.m_numer;
             m_denom = o.m_denom;
         }
 
@@ -71,11 +71,11 @@ public:
 
     template<typename FloatType>
     inline operator FloatType() const {
-        return static_cast<FloatType> ( m_nom ) / static_cast<FloatType> ( m_denom );
+        return static_cast<FloatType> ( m_numer ) / static_cast<FloatType> ( m_denom );
     }
 
-    inline integer_type nominator() const throw() {
-        return m_nom;
+    inline integer_type numerator() const throw() {
+        return m_numer;
     }
 
     inline integer_type denominator() const throw() {
@@ -85,7 +85,7 @@ public:
     Rational &invert() {
 
         using namespace std;
-        swap ( m_nom, m_denom );
+        swap ( m_numer, m_denom );
 
         if ( m_denom == integer_type() ) throw std::runtime_error ( "division by zero" );
 
@@ -103,7 +103,7 @@ public:
     }
 
     inline Rational& operator++() {
-        m_nom += m_denom;
+        m_numer += m_denom;
         return gcm ( *this );
     }
 
@@ -120,7 +120,7 @@ public:
     }
 
     inline Rational& operator--() {
-        m_nom -= m_denom;
+        m_numer -= m_denom;
         return gcm ( *this );
     }
 
@@ -132,7 +132,7 @@ public:
 
     Rational& operator*= ( const Rational& o ) {
 
-        m_nom *= o.m_nom;
+        m_numer *= o.m_numer;
         m_denom *= o.m_denom;
 
         return *this;
@@ -165,8 +165,9 @@ public:
     }
 
     inline bool operator< ( const Rational &o ) const {
-        return /* ( m_denom * o.m_denom ) > 0 ? */ ( m_nom * o.m_denom ) < ( o.m_nom * m_denom )
-               /* : ( o.m_nom * m_denom ) < ( m_nom * o.m_denom ) */; // denom can NEVER be zero!
+        return /* ( m_denom * o.m_denom ) > 0 ? */ ( m_numer * o.m_denom ) < ( o.m_numer * m_denom )
+                /* : ( o.m_numer * m_denom ) < ( m_numer * o.m_denom ) */;
+        // denom can NEVER be zero!
     }
 
     inline bool operator<= ( const Rational &o ) const {
@@ -182,7 +183,7 @@ public:
     }
 
     friend std::ostream &operator<< ( std::ostream &o, const Rational &r ) {
-        return ( o << r.m_nom << "/" << r.m_denom );
+        return ( o << r.m_numer << "/" << r.m_denom );
     }
 
     friend std::istream &operator>> ( std::istream &i, Rational &r ) {
@@ -221,12 +222,12 @@ private:
     }
 
 private:
-    integer_type m_nom;
+    integer_type m_numer;
     integer_type m_denom;
 };
 
 template<typename T> template<typename FloatType>
-Rational<T>::Rational ( const FloatType &f ) : m_nom ( static_cast<integer_type>( f ) ),
+Rational<T>::Rational ( const FloatType &f ) : m_numer ( static_cast<integer_type> ( f ) ),
     m_denom ( 1 ) {
 
     if ( !std::numeric_limits<FloatType>::is_exact ) {
@@ -236,16 +237,16 @@ Rational<T>::Rational ( const FloatType &f ) : m_nom ( static_cast<integer_type>
 
         FloatType x ( f );
 
-        while ( ! ( std::abs ( static_cast<FloatType> ( m_nom ) /
+        while ( ! ( std::abs ( static_cast<FloatType> ( m_numer ) /
                                static_cast<FloatType> ( m_denom ) - f ) <
-                     std::numeric_limits<FloatType>::epsilon() ) ) {
+                    std::numeric_limits<FloatType>::epsilon() ) ) {
 
             const integer_type n = static_cast<integer_type> ( std::floor ( x ) );
             x = static_cast<FloatType> ( 1 ) / ( x - static_cast<FloatType> ( n ) );
 
-            m_nom = p[0] + n * p[1];
+            m_numer = p[0] + n * p[1];
             p[0] = p[1];
-            p[1] = m_nom;
+            p[1] = m_numer;
 
             m_denom = q[0] + n * q[1];
             q[0] = q[1];
@@ -258,9 +259,9 @@ Rational<T>::Rational ( const FloatType &f ) : m_nom ( static_cast<integer_type>
 template<typename T>
 Rational<T> &Rational<T>::gcm ( const Rational &o ) {
 
-    const integer_type &x ( o.m_nom ? euclid ( o.m_nom, o.m_denom ) : o.m_denom );
+    const integer_type &x ( o.m_numer ? euclid ( o.m_numer, o.m_denom ) : o.m_denom );
 
-    m_nom /= x;
+    m_numer /= x;
     m_denom /= x;
 
     return _changeSign<std::numeric_limits<integer_type>::is_signed>() ( *this );
@@ -273,11 +274,11 @@ Rational<T>& Rational<T>::operator+= ( const Rational& o ) {
 
         const integer_type &l ( lcm ( m_denom, o.m_denom ) );
 
-        m_nom = ( ( l/m_denom ) * m_nom ) + ( ( l/o.m_denom ) * o.m_nom );
+        m_numer = ( ( l/m_denom ) * m_numer ) + ( ( l/o.m_denom ) * o.m_numer );
         m_denom = l;
 
     } else {
-        m_nom = m_nom + o.m_nom;
+        m_numer = m_numer + o.m_numer;
     }
 
     return gcm ( *this );
@@ -305,11 +306,11 @@ Rational<T>& Rational<T>::operator-= ( const Rational& o ) {
 
         const integer_type &l ( lcm ( m_denom, o.m_denom ) );
 
-        m_nom = ( ( l/m_denom ) * m_nom ) - ( ( l/o.m_denom ) * o.m_nom );
+        m_numer = ( ( l/m_denom ) * m_numer ) - ( ( l/o.m_denom ) * o.m_numer );
         m_denom = l;
 
     } else {
-        m_nom = m_nom - o.m_nom;
+        m_numer = m_numer - o.m_numer;
     }
 
     return gcm ( *this );
@@ -366,13 +367,13 @@ Rational<T>& Rational<T>::operator%= ( const Rational& o ) {
     if ( m_denom != o.m_denom ) {
 
         const integer_type &l ( lcm ( m_denom, o.m_denom ) );
-        const integer_type &a ( ( ( l/o.m_denom ) * o.m_nom ) );
+        const integer_type &a ( ( ( l/o.m_denom ) * o.m_numer ) );
 
-        m_nom = ( ( ( l/m_denom ) * m_nom ) % a + a ) % a;
+        m_numer = ( ( ( l/m_denom ) * m_numer ) % a + a ) % a;
         m_denom = l;
 
     } else {
-        m_nom = ( m_nom % o.m_nom + o.m_nom ) % o.m_nom;
+        m_numer = ( m_numer % o.m_numer + o.m_numer ) % o.m_numer;
     }
 
     return gcm ( *this );
@@ -460,7 +461,7 @@ struct _changeSign<true> {
     inline Rational<T> &operator() ( Rational<T> &r ) {
 
         if ( r.m_denom < 0 ) {
-            r.m_nom *= static_cast<T> ( -1 );
+            r.m_numer *= static_cast<T> ( -1 );
             r.m_denom *= static_cast<T> ( -1 );
         }
 
@@ -483,4 +484,4 @@ struct _changeSign<false> {
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
