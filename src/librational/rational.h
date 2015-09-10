@@ -238,6 +238,9 @@ private:
         integer_type x ( a ), y ( b );
 
         // while ( y ) { const integer_type &h ( x % y ); x = y; y = h; }
+        
+        // Note: maybe this algorithm should be made exchangeable with the Stein algorithm
+        // (https://de.wikipedia.org/wiki/Steinscher_Algorithmus) by a policy class?
 
         while ( y ) {
             x %= y;
