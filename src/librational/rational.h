@@ -42,7 +42,8 @@ class Rational {
     template<typename, bool> friend struct _mod;
 public:
     typedef T integer_type;
-    typedef typename _mod<T, std::numeric_limits<integer_type>::is_signed>::pair_type mod_type;
+    typedef typename _mod<integer_type,
+            std::numeric_limits<integer_type>::is_signed>::pair_type mod_type;
 
     Rational() : m_numer ( 0 ), m_denom ( 1 ) {}
 
@@ -82,7 +83,7 @@ public:
     }
 
     inline mod_type mod() const {
-        return _mod<T, std::numeric_limits<integer_type>::is_signed>() ( *this );
+        return _mod<integer_type, std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
 
     Rational &invert() {
