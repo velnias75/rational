@@ -424,7 +424,7 @@ std::string Rational<T>::str ( bool mixed ) const {
 
     if ( mixed ) {
 
-        const std::pair<integer_type, Rational<T> > &p ( mod() );
+        const mod_type &p ( mod() );
 
         if ( p.first != integer_type() ) os << p.first << ' ';
 
@@ -596,4 +596,4 @@ inline Commons::Math::Rational<T> modf ( const Commons::Math::Rational<T> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
