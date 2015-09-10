@@ -497,7 +497,7 @@ struct _mod<T, true> {
 
     inline pair_type operator() ( const Rational<T> &r ) const {
         return std::make_pair ( r.m_numer/r.m_denom, Rational<T> ( ( r.m_numer % r.m_denom ) *
-                                ( r.m_numer < 0 ? static_cast<T> ( -1 ) : static_cast<T> ( 1 ) ),
+                                ( r.m_numer < T() ? static_cast<T> ( -1 ) : static_cast<T> ( 1 ) ),
                                 r.m_denom ) );
     }
 };
@@ -519,7 +519,7 @@ struct _changeSign<true> {
     template<typename T>
     inline Rational<T> &operator() ( Rational<T> &r ) {
 
-        if ( r.m_denom < 0 ) {
+        if ( r.m_denom < T() ) {
             r.m_numer *= static_cast<T> ( -1 );
             r.m_denom *= static_cast<T> ( -1 );
         }
