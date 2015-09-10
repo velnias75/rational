@@ -35,6 +35,9 @@ struct _changeSign;
 template<typename, bool>
 struct _mod;
 
+template<typename, bool>
+struct _abs;
+
 template<typename T>
 class Rational {
     template<typename> friend class Rational;
@@ -50,6 +53,11 @@ public:
     Rational ( const Rational &o ) : m_numer ( o.m_numer ), m_denom ( o.m_denom ) {}
 
     Rational ( const integer_type &n, const integer_type &d );
+
+    Rational ( const integer_type &w, const integer_type &n, const integer_type &d )
+        : m_numer (), m_denom ( 1 ) {
+        *this += Rational ( n, d ) += Rational ( w );
+    }
 
     template<typename FloatType>
     Rational ( const FloatType &f );
@@ -84,6 +92,10 @@ public:
 
     inline mod_type mod() const {
         return _mod<integer_type, std::numeric_limits<integer_type>::is_signed>() ( *this );
+    }
+
+    inline Rational abs() const {
+        return _abs<integer_type, std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
 
     Rational &invert() {
@@ -121,6 +133,12 @@ public:
 
     inline Rational operator- ( const Rational& o ) const {
         return ( Rational ( *this ) -= o );
+    }
+
+    inline Rational operator-() const {
+        Rational tmp ( *this );
+        tmp.m_numer *= -1;
+        return tmp;
     }
 
     inline Rational& operator--() {
@@ -184,6 +202,10 @@ public:
 
     inline bool operator>= ( const Rational &o ) const {
         return ! ( *this < o );
+    }
+
+    inline bool operator!() const {
+        return m_numer == integer_type();
     }
 
     std::string str ( bool mixed = false ) const;
@@ -491,6 +513,22 @@ inline bool operator>= ( const Rational<T>& o, const FloatType &f ) {
 }
 
 template<typename T>
+struct _abs<T, true> {
+
+    inline Rational<T> operator() ( const Rational<T> &r ) const {
+        return r.numerator() < T() ? -r : r;
+    }
+};
+
+template<typename T>
+struct _abs<T, false> {
+
+    inline Rational<T> operator() ( const Rational<T> &r ) const {
+        return r;
+    }
+};
+
+template<typename T>
 struct _mod<T, true> {
 
     typedef std::pair<T, Rational<T> > pair_type;
@@ -537,6 +575,21 @@ struct _changeSign<false> {
     };
 };
 
+}
+
+}
+
+namespace std {
+
+template<typename T>
+inline Commons::Math::Rational<T> modf ( const Commons::Math::Rational<T> &__x,
+        typename Commons::Math::Rational<T>::integer_type * __iptr ) {
+
+    const typename Commons::Math::Rational<T>::mod_type &tmp ( __x.mod() );
+
+    *__iptr = tmp.first;
+
+    return tmp.second;
 }
 
 }

@@ -50,6 +50,7 @@ class RationalTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testIOStreamOps );
     CPPUNIT_TEST ( testPrecision );
     CPPUNIT_TEST ( testAlgorithm );
+    CPPUNIT_TEST ( testStdMath );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -77,6 +78,7 @@ public:
     void testIOStreamOps();
     void testPrecision();
     void testAlgorithm();
+    void testStdMath();
 
 private:
     Commons::Math::Rational<rational_type> m_nullRational;
