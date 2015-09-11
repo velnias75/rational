@@ -605,7 +605,7 @@ struct _mod<T, GCD, false> {
 template<typename T, bool>
 struct GCD_euclid {
 
-    inline T operator() ( const T &a, const T &b ) {
+    inline T operator() ( const T &a, const T &b ) const {
 
         T x ( a ), y ( b );
 
@@ -626,7 +626,7 @@ struct GCD_euclid {
 template<typename T>
 struct GCD_stein<T, true> {
 
-    inline T operator() ( const T &a, const T &b ) {
+    inline T operator() ( const T &a, const T &b ) const {
         return Rational<T, GCD_stein::template GCD_stein>::stein ( a < T() ? -a : a,
                 b < T() ? -b : b );
     }
@@ -635,7 +635,7 @@ struct GCD_stein<T, true> {
 template<typename T>
 struct GCD_stein<T, false> {
 
-    inline T operator() ( const T &a, const T &b ) {
+    inline T operator() ( const T &a, const T &b ) const {
         return Rational<T, GCD_stein::template GCD_stein>::stein ( a, b );
     }
 };
@@ -643,7 +643,7 @@ struct GCD_stein<T, false> {
 template<typename T, template<typename, bool> class GCD>
 struct _lcm<T, GCD, true> {
 
-    inline T operator() ( const T &a, const T &b ) {
+    inline T operator() ( const T &a, const T &b ) const {
 
         const T &x ( a < T() ? -a : a ), &y ( b < T() ? -b : b );
 
@@ -655,7 +655,7 @@ struct _lcm<T, GCD, true> {
 template<typename T, template<typename, bool> class GCD>
 struct _lcm<T, GCD, false> {
 
-    inline T operator() ( const T &a, const T &b ) {
+    inline T operator() ( const T &a, const T &b ) const {
         return ( a / ( a ? GCD<T, false>() ( a, b ) : b ) * b );
     }
 };
@@ -664,7 +664,7 @@ template<template<typename, bool> class GCD>
 struct _changeSign<GCD, true> {
 
     template<typename T>
-    inline Rational<T, GCD> &operator() ( Rational<T, GCD> &r ) {
+    inline Rational<T, GCD> &operator() ( Rational<T, GCD> &r ) const {
 
         if ( r.m_denom < T() ) {
             r.m_numer = -r.m_numer;
@@ -679,7 +679,7 @@ template<template<typename, bool> class GCD>
 struct _changeSign<GCD, false> {
 
     template<typename T>
-    inline Rational<T, GCD> &operator() ( Rational<T, GCD> &r ) {
+    inline Rational<T, GCD> &operator() ( Rational<T, GCD> &r ) const {
         return r;
     };
 };
