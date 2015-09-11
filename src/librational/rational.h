@@ -41,12 +41,19 @@ struct _abs;
 template<typename, bool>
 struct _stein;
 
+template<typename, bool>
+struct _lcm;
+
+template<typename, typename, bool>
+struct _approxFract;
+
 template<typename T>
 class Rational {
     template<typename> friend class Rational;
     template<bool> friend struct _changeSign;
     template<typename, bool> friend struct _mod;
     template<typename, bool> friend struct _stein;
+    template<typename, typename, bool> friend struct _approxFract;
 public:
     typedef T integer_type;
     typedef typename _mod<integer_type,
@@ -229,14 +236,6 @@ public:
     }
 
 private:
-    inline static integer_type lcm ( const integer_type &a, const integer_type &b ) {
-        return std::numeric_limits<integer_type>::is_signed ?
-                ( static_cast<integer_type> ( std::abs ( a ) ) /
-                ( a ? _stein<integer_type, true>() ( a, b ) : b ) ) *
-                static_cast<integer_type> ( std::abs ( b ) ) : a /
-                    ( a ? _stein<integer_type, false>() ( a, b ) : b ) * b;
-     }
-
     Rational &gcm ( const Rational &o );
 
 #if 0
@@ -259,17 +258,13 @@ private:
 
     // Note: maybe this algorithm should be made exchangeable
     // with the above Euclid algorithm by a policy class?
-    static integer_type stein(const integer_type &a, const integer_type &b) {
+    static integer_type stein ( const integer_type &a, const integer_type &b ) {
 
         integer_type x ( a ), y ( b ), f = integer_type();
 
         while ( y ) {
 
             if ( x < y ) {
-
-//              const integer_type h ( x );
-//              x = y;
-//              y = h;
 
                 y ^= x;
                 x ^= y;
@@ -312,31 +307,8 @@ template<typename T> template<typename NumberType>
 Rational<T>::Rational ( const NumberType &nt ) : m_numer ( static_cast<integer_type> ( nt ) ),
     m_denom ( 1 ) {
 
-    if ( ! ( std::numeric_limits<NumberType>::is_integer ||
-             std::numeric_limits<NumberType>::is_exact ) ) {
-
-        integer_type p[2] = { integer_type(), 1 };
-        integer_type q[2] = { 1, integer_type() };
-
-        NumberType x ( nt );
-
-        while ( ! ( std::abs ( static_cast<NumberType> ( m_numer ) /
-                               static_cast<NumberType> ( m_denom ) - nt ) <
-                    std::numeric_limits<NumberType>::epsilon() ) ) {
-
-            const integer_type n = static_cast<integer_type> ( std::floor ( x ) );
-            x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( n ) );
-
-            m_numer = p[0] + n * p[1];
-            p[0] = p[1];
-            p[1] = m_numer;
-
-            m_denom = q[0] + n * q[1];
-            q[0] = q[1];
-            q[1] = m_denom;
-
-        }
-    }
+    _approxFract<integer_type, NumberType, ! ( std::numeric_limits<NumberType>::is_integer ||
+            std::numeric_limits<NumberType>::is_exact ) >() ( *this, nt );
 }
 
 template<typename T>
@@ -356,7 +328,8 @@ Rational<T>& Rational<T>::operator+= ( const Rational& o ) {
 
     if ( m_denom != o.m_denom ) {
 
-        const integer_type &l ( lcm ( m_denom, o.m_denom ) );
+        const integer_type &l ( _lcm<integer_type, std::numeric_limits<integer_type>::is_signed>()
+                                ( m_denom, o.m_denom ) );
 
         m_numer = ( ( l/m_denom ) * m_numer ) + ( ( l/o.m_denom ) * o.m_numer );
         m_denom = l;
@@ -388,7 +361,8 @@ Rational<T>& Rational<T>::operator-= ( const Rational& o ) {
 
     if ( m_denom != o.m_denom ) {
 
-        const integer_type &l ( lcm ( m_denom, o.m_denom ) );
+        const integer_type &l ( _lcm<integer_type, std::numeric_limits<integer_type>::is_signed>()
+                                ( m_denom, o.m_denom ) );
 
         m_numer = ( ( l/m_denom ) * m_numer ) - ( ( l/o.m_denom ) * o.m_numer );
         m_denom = l;
@@ -450,7 +424,8 @@ Rational<T>& Rational<T>::operator%= ( const Rational& o ) {
 
     if ( m_denom != o.m_denom ) {
 
-        const integer_type &l ( lcm ( m_denom, o.m_denom ) );
+        const integer_type &l ( _lcm<integer_type, std::numeric_limits<integer_type>::is_signed>()
+                                ( m_denom, o.m_denom ) );
         const integer_type &a ( ( ( l/o.m_denom ) * o.m_numer ) );
 
         m_numer = ( ( ( l/m_denom ) * m_numer ) % a + a ) % a;
@@ -558,6 +533,39 @@ inline bool operator>= ( const Rational<T>& o, const NumberType &n ) {
     return ! ( o < Rational<T> ( n ) );
 }
 
+template<typename T, typename NumberType>
+struct _approxFract<T, NumberType, true> {
+
+    inline void operator() ( Rational<T> &r, const NumberType &nt ) const {
+
+        T p[2] = { T(), 1 };
+        T q[2] = { 1, T() };
+
+        NumberType x ( nt );
+
+        while ( ! ( std::abs ( static_cast<NumberType> ( r.m_numer ) /
+                               static_cast<NumberType> ( r.m_denom ) - nt ) <
+                    std::numeric_limits<NumberType>::epsilon() ) ) {
+
+            const T n = static_cast<T> ( std::floor ( x ) );
+            x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( n ) );
+
+            r.m_numer = p[0] + n * p[1];
+            p[0] = p[1];
+            p[1] = r.m_numer;
+
+            r.m_denom = q[0] + n * q[1];
+            q[0] = q[1];
+            q[1] = r.m_denom;
+        }
+    }
+};
+
+template<typename T, typename NumberType>
+struct _approxFract<T, NumberType, false> {
+    inline void operator() ( const Rational<T> &, const NumberType & ) const {}
+};
+
 template<typename T>
 struct _abs<T, true> {
 
@@ -599,15 +607,34 @@ struct _mod<T, false> {
 
 template<typename T>
 struct _stein<T, true> {
-    inline T operator()(const T &a, const T &b) {
-        return Rational<T>::stein(a < T() ? -a : a, b < T() ? -b : b);
+
+    inline T operator() ( const T &a, const T &b ) {
+        return Rational<T>::stein ( a < T() ? -a : a, b < T() ? -b : b );
     }
 };
 
 template<typename T>
 struct _stein<T, false> {
-    inline T operator()(const T &a, const T &b) {
-        return Rational<T>::stein(a, b);
+
+    inline T operator() ( const T &a, const T &b ) {
+        return Rational<T>::stein ( a, b );
+    }
+};
+
+template<typename T>
+struct _lcm<T, true> {
+
+    inline T operator() ( const T &a, const T &b ) {
+        return ( static_cast<T> ( std::abs ( a ) ) / ( a ? _stein<T, true>() ( a, b ) : b ) ) *
+               static_cast<T> ( std::abs ( b ) ) ;
+    }
+};
+
+template<typename T>
+struct _lcm<T, false> {
+
+    inline T operator() ( const T &a, const T &b ) {
+        return ( a / ( a ? _stein<T, false>() ( a, b ) : b ) * b );
     }
 };
 
