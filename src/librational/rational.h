@@ -38,11 +38,15 @@ struct _mod;
 template<typename, bool>
 struct _abs;
 
+template<typename, bool>
+struct _stein;
+
 template<typename T>
 class Rational {
     template<typename> friend class Rational;
     template<bool> friend struct _changeSign;
     template<typename, bool> friend struct _mod;
+    template<typename, bool> friend struct _stein;
 public:
     typedef T integer_type;
     typedef typename _mod<integer_type,
@@ -227,20 +231,20 @@ public:
 private:
     inline static integer_type lcm ( const integer_type &a, const integer_type &b ) {
         return std::numeric_limits<integer_type>::is_signed ?
-               ( static_cast<integer_type> ( std::abs ( a ) ) / ( a ? euclid ( a, b ) : b ) ) *
-               static_cast<integer_type> ( std::abs ( b ) ) : a / ( a ? euclid ( a, b ) : b ) * b ;
-    }
+                ( static_cast<integer_type> ( std::abs ( a ) ) /
+                ( a ? _stein<integer_type, true>() ( a, b ) : b ) ) *
+                static_cast<integer_type> ( std::abs ( b ) ) : a /
+                    ( a ? _stein<integer_type, false>() ( a, b ) : b ) * b;
+     }
 
     Rational &gcm ( const Rational &o );
 
+#if 0
     static integer_type euclid ( const integer_type &a, const integer_type &b ) {
 
         integer_type x ( a ), y ( b );
 
         // while ( y ) { const integer_type &h ( x % y ); x = y; y = h; }
-        
-        // Note: maybe this algorithm should be made exchangeable with the Stein algorithm
-        // (https://de.wikipedia.org/wiki/Steinscher_Algorithmus) by a policy class?
 
         while ( y ) {
             x %= y;
@@ -250,6 +254,44 @@ private:
         }
 
         return x;
+    }
+#endif
+
+    // Note: maybe this algorithm should be made exchangeable
+    // with the above Euclid algorithm by a policy class?
+    static integer_type stein(const integer_type &a, const integer_type &b) {
+
+        integer_type x ( a ), y ( b ), f = integer_type();
+
+        while ( y ) {
+
+            if ( x < y ) {
+
+//              const integer_type h ( x );
+//              x = y;
+//              y = h;
+
+                y ^= x;
+                x ^= y;
+                y ^= x;
+
+            } else if ( ! ( x & 1 ) ) {
+
+                x >>= 1;
+
+                if ( ! ( y & 1 ) ) {
+                    y >>= 1;
+                    ++f;
+                }
+
+            } else if ( ! ( y & 1 ) ) {
+                y >>= 1;
+            } else {
+                x -= y;
+            }
+        }
+
+        return x << f;
     }
 
 private:
@@ -300,8 +342,9 @@ Rational<T>::Rational ( const NumberType &nt ) : m_numer ( static_cast<integer_t
 template<typename T>
 Rational<T> &Rational<T>::gcm ( const Rational &o ) {
 
-    const integer_type &x ( o.m_numer ? euclid ( o.m_numer, o.m_denom ) : o.m_denom );
-
+    const integer_type &x ( o.m_numer ? _stein<integer_type,
+                            std::numeric_limits<integer_type>::is_signed>()
+                            ( o.m_numer, o.m_denom ) : o.m_denom );
     m_numer /= x;
     m_denom /= x;
 
@@ -551,6 +594,20 @@ struct _mod<T, false> {
     inline pair_type operator() ( const Rational<T> &r ) const {
         return std::make_pair ( r.m_numer/r.m_denom, Rational<T> ( ( r.m_numer % r.m_denom ),
                                 r.m_denom ) );
+    }
+};
+
+template<typename T>
+struct _stein<T, true> {
+    inline T operator()(const T &a, const T &b) {
+        return Rational<T>::stein(a < T() ? -a : a, b < T() ? -b : b);
+    }
+};
+
+template<typename T>
+struct _stein<T, false> {
+    inline T operator()(const T &a, const T &b) {
+        return Rational<T>::stein(a, b);
     }
 };
 
