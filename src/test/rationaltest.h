@@ -85,7 +85,11 @@ private:
     Commons::Math::Rational<uint64_t> m_sqrt2;
 
     typedef std::vector<Commons::Math::Rational<rational_type> > rat_vector;
+    typedef std::vector<Commons::Math::Rational<rational_type,
+            Commons::Math::GCD_stein> > rat_vector_stein;
+
     rat_vector m_accu;
+    rat_vector_stein m_accu_stein;
     rat_vector m_onethird;
 
     typedef std::vector<Commons::Math::Rational<uint32_t> > rat_vector_ul;

@@ -26,13 +26,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( RationalTest );
 using namespace Commons::Math;
 
 RationalTest::RationalTest() : CppUnit::TestFixture(), m_nullRational(), m_sqrt2(), m_accu(),
-    m_onethird(), m_accu_ul() {}
+    m_accu_stein(), m_onethird(), m_accu_ul() {}
 
 void RationalTest::setUp() {
+
     m_sqrt2 = Rational<uint64_t> ( std::sqrt ( 2.0 ) );
 
     for ( rational_type i = 1; i < 25; ++i ) {
         m_accu.push_back ( rat_vector::value_type ( 1, i ) );
+        m_accu_stein.push_back ( rat_vector_stein::value_type ( 1, i ) );
     }
 
     m_accu_ul.reserve ( 65536u );
@@ -54,28 +56,73 @@ void RationalTest::testConstruct() {
 
     CPPUNIT_ASSERT_THROW ( Rational<rational_type> r ( 1, 0 ), std::runtime_error );
 
+    Rational<rational_type, GCD_stein> a_stein ( 1, 2 );
+    Rational<rational_type, GCD_stein> b_stein ( 1, -2 );
+    Rational<rational_type, GCD_stein> c_stein ( -1, 2 );
+    Rational<rational_type, GCD_stein> d_stein ( -1, -2 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0.5,  static_cast<double> ( a_stein ) );
+    CPPUNIT_ASSERT_EQUAL ( -0.5, static_cast<double> ( b_stein ) );
+    CPPUNIT_ASSERT_EQUAL ( -0.5, static_cast<double> ( c_stein ) );
+    CPPUNIT_ASSERT_EQUAL ( 0.5,  static_cast<double> ( d_stein ) );
+
     CPPUNIT_ASSERT_EQUAL ( 0.5,  static_cast<double> ( Rational<rational_type> ( 1, 2 ) ) );
     CPPUNIT_ASSERT_EQUAL ( -0.5, static_cast<double> ( Rational<rational_type> ( 1, -2 ) ) );
     CPPUNIT_ASSERT_EQUAL ( -0.5, static_cast<double> ( Rational<rational_type> ( -1, 2 ) ) );
     CPPUNIT_ASSERT_EQUAL ( 0.5,  static_cast<double> ( Rational<rational_type> ( -1, -2 ) ) );
 
+    Rational<rational_type, GCD_stein> e_stein ( 6, -8 );
+
+    CPPUNIT_ASSERT_EQUAL ( -3, e_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4,  e_stein.denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( -3, Rational<rational_type> ( 6, -8 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 4, Rational<rational_type> ( 6, -8 ).denominator() );
+
+    Rational<rational_type, GCD_stein> f_stein ( 14, 24 );
+
+    CPPUNIT_ASSERT_EQUAL ( 7, f_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12, f_stein.denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( 7, Rational<rational_type> ( 14, 24 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12, Rational<rational_type> ( 14, 24 ).denominator() );
 
+    Rational<rational_type, GCD_stein> g_stein ( 2, 1, 3 );
+
+    CPPUNIT_ASSERT_EQUAL ( 7, g_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 3, g_stein.denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( 7, Rational<rational_type> ( 2, 1, 3 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 3, Rational<rational_type> ( 2, 1, 3 ).denominator() );
+
+    Rational<rational_type, GCD_stein> h_stein ( 18, 4, -5 );
+
+    CPPUNIT_ASSERT_EQUAL ( 86, h_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 5,  h_stein.denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( 86, Rational<rational_type> ( 18, 4, -5 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 5, Rational<rational_type> ( 18, 4, -5 ).denominator() );
 
+    Rational<rational_type, GCD_stein> i_stein ( 18, -4, 5 );
+
+    CPPUNIT_ASSERT_EQUAL ( 86, i_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 5,  i_stein.denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( 86, Rational<rational_type> ( 18, -4, 5 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 5, Rational<rational_type> ( 18, -4, 5 ).denominator() );
 
+    Rational<rational_type, GCD_stein> j_stein ( -18, 4, 5 );
+
+    CPPUNIT_ASSERT_EQUAL ( -86, j_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 5,   j_stein.denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( -86, Rational<rational_type> ( -18, 4, 5 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 5, Rational<rational_type> ( -18, 4, 5 ).denominator() );
+
+    Rational<rational_type, GCD_stein> k_stein ( -18, 4, -5 );
+
+    CPPUNIT_ASSERT_EQUAL ( -94, k_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 5,   k_stein.denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( -94, Rational<rational_type> ( -18, 4, -5 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 5, Rational<rational_type> ( -18, 4, -5 ).denominator() );
@@ -83,24 +130,41 @@ void RationalTest::testConstruct() {
 
 void RationalTest::testConstructFromDouble() {
 
-    Rational<rational_type> p ( 19.0/51.0 );
+    Rational<rational_type, GCD_euclid> p ( 19.0/51.0 );
+    Rational<rational_type, GCD_stein> p_stein ( 19.0/51.0 );
 
     CPPUNIT_ASSERT_EQUAL ( 19, p.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 51, p.denominator() );
 
-    Rational<rational_type> q ( 516901.0/740785.0 );
+    CPPUNIT_ASSERT_EQUAL ( 19, p_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 51, p_stein.denominator() );
+
+    Rational<rational_type, GCD_euclid> q ( 516901.0/740785.0 );
+    Rational<rational_type, GCD_stein> q_stein ( 516901.0/740785.0 );
 
     CPPUNIT_ASSERT_EQUAL ( 516901, q.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 740785, q.denominator() );
 
-    Rational<rational_type> r ( -0.7391304347826086 );
+    CPPUNIT_ASSERT_EQUAL ( 516901, q_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 740785, q_stein.denominator() );
+
+    Rational<rational_type, GCD_euclid> r ( -0.7391304347826086 );
+    Rational<rational_type, GCD_stein> r_stein ( -0.7391304347826086 );
 
     CPPUNIT_ASSERT_EQUAL ( -17, r.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 23, r.denominator() );
 
-    Rational<rational_type> s ( 0.0 );
+    CPPUNIT_ASSERT_EQUAL ( -17, r_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 23, r_stein.denominator() );
+
+    Rational<rational_type, GCD_euclid> s ( 0.0 );
+    Rational<rational_type, GCD_stein> s_stein ( 0.0 );
+
     CPPUNIT_ASSERT_EQUAL ( 0, s.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, s.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 0, s_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, s_stein.denominator() );
 
 #ifndef __clang__
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 77227930 ), m_sqrt2.numerator() );
@@ -110,12 +174,17 @@ void RationalTest::testConstructFromDouble() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 93222358 ), m_sqrt2.denominator() );
 #endif
 
-    Rational<rational_type> pi ( M_PI );
+    Rational<rational_type, GCD_euclid> pi ( M_PI );
+    Rational<rational_type, GCD_stein> pi_stein ( M_PI );
 
     CPPUNIT_ASSERT_EQUAL ( 245850922, pi.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 78256779, pi.denominator() );
 
+    CPPUNIT_ASSERT_EQUAL ( 245850922, pi_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 78256779, pi_stein.denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( M_PI, static_cast<double> ( pi ) );
+    CPPUNIT_ASSERT_EQUAL ( M_PI, static_cast<double> ( pi_stein ) );
 
     Rational<rational_type> t ( 1.0 );
 
@@ -555,6 +624,12 @@ void RationalTest::testAlgorithm() {
                                            Rational<rational_type> ( 0, 1 ),
                                            std::plus<Rational<rational_type> >() ) ),
                                    m_accu.size() * std::numeric_limits<double>::epsilon() );
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL ( 3.77595817775351, static_cast<double>
+                                   ( std::accumulate ( m_accu_stein.begin(), m_accu_stein.end(),
+                                           Rational<rational_type, GCD_stein> ( 0, 1 ),
+                                           std::plus<Rational<rational_type, GCD_stein> >() ) ),
+                                   m_accu_stein.size() * std::numeric_limits<double>::epsilon() );
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 104186 ), std::accumulate ( m_accu_ul.begin(),
                            m_accu_ul.end(), Rational<uint32_t>(),
