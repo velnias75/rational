@@ -17,6 +17,12 @@
  * along with rational.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * @author Heiko Schäfer <heiko@rangun.de>
+ * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ */
+
 #ifndef COMMONS_MATH_RATIONAL_H
 #define COMMONS_MATH_RATIONAL_H
 
@@ -38,10 +44,22 @@ struct _mod;
 template<typename, template<typename, bool> class, bool>
 struct _abs;
 
-template<typename, bool>
+/**
+ * @brief Stein GCD algorithm implementation
+ *
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ */
+template<typename T, bool IsSigned>
 struct GCD_stein;
 
-template<typename, bool>
+/**
+ * @brief Euclid GCD algorithm implementation
+ *
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ */
+template<typename T, bool IsSigned>
 struct GCD_euclid;
 
 template<typename, template<typename, bool> class, bool>
@@ -50,6 +68,14 @@ struct _lcm;
 template<typename, template<typename, bool> class, typename, bool>
 struct _approxFract;
 
+/**
+ * @brief %Rational (fraction) template class
+ *
+ * @note All %Rational objects are reduced
+ *
+ * @tparam T storage type
+ * @tparam GCD GCD algorithm
+ */
 template<typename T, template<typename, bool> class GCD = GCD_euclid>
 class Rational {
     friend struct _changeSign<GCD, std::numeric_limits<T>::is_signed>;
@@ -57,60 +83,142 @@ class Rational {
     template<typename, bool> friend struct GCD_stein;
     template<typename, template<typename, bool> class, typename, bool> friend struct _approxFract;
 public:
+    /**
+     * @brief storage type
+     */
     typedef T integer_type;
+
+    /**
+     * @brief type of the return value of mod()
+     *
+     * This type is based on @c std::pair, where @c first is the integral value and @c second the
+     * fractional part
+     */
     typedef typename _mod<integer_type, GCD,
             std::numeric_limits<integer_type>::is_signed>::pair_type mod_type;
 
+    /**
+     * @brief Creates a default (null) %Rational
+     */
     Rational() : m_numer (), m_denom ( 1 ) {}
 
-    Rational ( const Rational &o ) : m_numer ( o.m_numer ), m_denom ( o.m_denom ) {}
+    /**
+     * @brief Copy constructor
+     *
+     * @param[in] other the %Rational to copy
+     */
+    Rational ( const Rational &other ) : m_numer ( other.m_numer ), m_denom ( other.m_denom ) {}
 
-    Rational ( const integer_type &n, const integer_type &d );
+    /**
+     * @brief Creates a %Rational
+     *
+     * @param[in] numer the numerator
+     * @param[in] denom the denominator
+     */
+    Rational ( const integer_type &numer, const integer_type &denom );
 
-    Rational ( const integer_type &w, const integer_type &n, const integer_type &d ) : m_numer (),
-        m_denom ( 1 ) {
-        *this += Rational ( n, d ) += Rational ( w );
+    /**
+     * @brief Creates a inproper (mixed) %Rational
+     *
+     * @param[in] whole whole number part
+     * @param[in] numer the numerator
+     * @param[in] denom the denominator
+     */
+    Rational ( const integer_type &whole, const integer_type &numer,
+               const integer_type &denom ) : m_numer (), m_denom ( 1 ) {
+        *this += Rational ( numer, denom ) += Rational ( whole );
     }
 
+    /**
+     * @brief Creates an approximated %Rational
+     *
+     * @tparam NumberType type of the number to approximate
+     * @param[in] number the number to create an approximated %Rational of
+     */
     template<typename NumberType>
-    Rational ( const NumberType &n );
+    Rational ( const NumberType &number );
 
-    Rational &operator= ( const Rational& o ) {
+    /**
+     * @brief assign another %Rational
+     *
+     * @param[in] another the %Rational to assign
+     */
+    Rational &operator= ( const Rational& another ) {
 
-        if ( this != &o ) {
-            m_numer = o.m_numer;
-            m_denom = o.m_denom;
+        if ( this != &another ) {
+            m_numer = another.m_numer;
+            m_denom = another.m_denom;
         }
 
         return *this;
     }
 
+    /**
+     * @brief assigns a Number
+     *
+     * The Number is approximated to a %Rational and then it gets assigned
+     *
+     * @tparam NumberType type of the number to approximate
+     * @param[in] number the number to assign
+     */
     template<typename NumberType>
-    inline Rational &operator= ( const NumberType &n ) {
-        return ( *this = Rational ( n ) );
+    inline Rational &operator= ( const NumberType &number ) {
+        return ( *this = Rational ( number ) );
     }
 
+    /**
+     * @brief convert to a Number
+     *
+     * @tparam NumberType type of the number to approximate
+     *
+     * @return the number value of the %Rational
+     */
     template<typename NumberType>
     inline operator NumberType() const {
         return static_cast<NumberType> ( m_numer ) / static_cast<NumberType> ( m_denom );
     }
 
+    /**
+     * @brief gets the numerator
+     *
+     * @return the numerator
+     */
     inline integer_type numerator() const throw() {
         return m_numer;
     }
 
+    /**
+     * @brief gets the denominator
+     *
+     * @return the denominator
+     */
     inline integer_type denominator() const throw() {
         return m_denom;
     }
 
+    /**
+     * @brief extract the integral and fractional part
+     *
+     * @return a @c mod_type containing the integral and fractional part
+     */
     inline mod_type mod() const {
         return _mod<integer_type, GCD, std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
 
+    /**
+     * @brief gets the absolute %Rational
+     *
+     * @return a copy of the absolute %Rational
+     */
     inline Rational abs() const {
         return _abs<integer_type, GCD, std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
 
+    /**
+     * @brief inverts the %Rational
+     *
+     * @return the inverted %Rational
+     */
     Rational &invert() {
 
         using namespace std;
@@ -121,110 +229,280 @@ public:
         return *this;
     }
 
+    /**
+     * @brief gets a copy of the inverted %Rational
+     *
+     * @return a copy of the inverted %Rational
+     */
     inline Rational inverse() const {
         return Rational ( *this ).invert();
     }
 
-    Rational& operator+= ( const Rational& o );
+    /**
+     * @brief add and assign a %Rational
+     *
+     * @param[in] other the %Rational to add and assign
+     *
+     * @return the %Rational
+     */
+    Rational& operator+= ( const Rational& other );
 
-    inline Rational operator+ ( const Rational& o ) const {
-        return ( Rational ( *this ) += o );
+    /**
+     * @brief add a %Rational
+     *
+     * @param[in] other the %Rational to add
+     *
+     * @return a new %Rational
+     */
+    inline Rational operator+ ( const Rational& other ) const {
+        return ( Rational ( *this ) += other );
     }
 
+    /**
+     * @brief get a copy of the %Rational
+     *
+     * @return a copy of %Rational
+     */
     inline Rational operator+() const {
         return Rational ( *this );
     }
 
+    /**
+     * @brief pre-increment a %Rational
+     *
+     * the result will be @code (numerator + denominator) / denominator @endcode
+     *
+     * @return the incremented %Rational
+     */
     inline Rational& operator++() {
         m_numer += m_denom;
         return gcm ( *this );
     }
 
+    /**
+     * @brief post-increment a %Rational
+     *
+     * the result will be @code (numerator + denominator) / denominator @endcode
+     *
+     * @return a copy of %Rational
+     */
     inline Rational operator++ ( int ) {
         Rational tmp ( *this );
         ++*this;
         return tmp;
     }
 
-    Rational& operator-= ( const Rational& o );
+    /**
+     * @brief subtract and assign a %Rational
+     *
+     * @param[in] other the %Rational to subtract and assign
+     *
+     * @return the %Rational
+     */
+    Rational& operator-= ( const Rational& other );
 
-    inline Rational operator- ( const Rational& o ) const {
-        return ( Rational ( *this ) -= o );
+    /**
+     * @brief subtract a %Rational
+     *
+     * @param[in] other the %Rational to subtract
+     *
+     * @return a new %Rational
+     */
+    inline Rational operator- ( const Rational& other ) const {
+        return ( Rational ( *this ) -= other );
     }
 
+    /**
+     * @brief get a negated copy of the %Rational
+     *
+     * @return a negated copy of %Rational
+     */
     inline Rational operator-() const {
         Rational tmp ( *this );
         tmp.m_numer = -tmp.m_numer;
         return tmp;
     }
 
+    /**
+     * @brief pre-decrement a %Rational
+     *
+     * the result will be @code (numerator - denominator) / denominator @endcode
+     *
+     * @return the decremented %Rational
+     */
     inline Rational& operator--() {
         m_numer -= m_denom;
         return gcm ( *this );
     }
 
+    /**
+     * @brief post-decrement a %Rational
+     *
+     * the result will be @code (numerator - denominator) / denominator @endcode
+     *
+     * @return a copy of %Rational
+     */
     inline Rational operator-- ( int ) {
         Rational tmp ( *this );
         --*this;
         return tmp;
     }
 
-    Rational& operator*= ( const Rational& o ) {
+    /**
+     * @brief multiply and assign a %Rational
+     *
+     * @param[in] other the %Rational to multiply and assign
+     *
+     * @return the %Rational
+     */
+    Rational& operator*= ( const Rational& other ) {
 
-        m_numer *= o.m_numer;
-        m_denom *= o.m_denom;
+        m_numer *= other.m_numer;
+        m_denom *= other.m_denom;
 
         return *this;
     }
 
-    inline Rational operator* ( const Rational& o ) const {
-        return ( Rational ( *this ) *= o );
+    /**
+     * @brief multiply a %Rational
+     *
+     * @param[in] other the %Rational to multiply
+     *
+     * @return a new %Rational
+     */
+    inline Rational operator* ( const Rational& other ) const {
+        return ( Rational ( *this ) *= other );
     }
 
-    inline Rational& operator/= ( const Rational& o ) {
-        return ( *this *= o.inverse() );
+    /**
+     * @brief divide and assign a %Rational
+     *
+     * @param[in] other the %Rational to divide and assign
+     *
+     * @return the %Rational
+     */
+    inline Rational& operator/= ( const Rational& other ) {
+        return ( *this *= other.inverse() );
     }
 
-    inline Rational operator/ ( const Rational& o ) const {
-        return ( Rational ( *this ) /= o );
+    /**
+     * @brief divide a %Rational
+     *
+     * @param[in] other the %Rational to divide
+     *
+     * @return a new %Rational
+     */
+    inline Rational operator/ ( const Rational& other ) const {
+        return ( Rational ( *this ) /= other );
     }
 
-    Rational& operator%= ( const Rational& o );
+    /**
+     * @brief modulo and assign a %Rational
+     *
+     * @param[in] other the %Rational to modulo and assign
+     *
+     * @return the %Rational
+     */
+    Rational& operator%= ( const Rational& other );
 
-    inline Rational operator% ( const Rational& o ) const {
-        return ( Rational ( *this ) %= o );
+    /**
+     * @brief modulo a %Rational
+     *
+     * @param[in] other the %Rational to modulo
+     *
+     * @return a new %Rational
+     */
+    inline Rational operator% ( const Rational& other ) const {
+        return ( Rational ( *this ) %= other );
     }
 
-    inline bool operator== ( const Rational &o ) const {
-        return ! ( ( *this < o ) || ( *this > o ) );
+    /**
+     * @brief test on equality
+     *
+     * @param[in] other the %Rational to test to
+     *
+     * @return @c true if equal, @c false otherwise
+     */
+    inline bool operator== ( const Rational &other ) const {
+        return ! ( ( *this < other ) || ( *this > other ) );
     }
 
-    inline bool operator!= ( const Rational &o ) const {
-        return ! ( *this == o );
+    /**
+     * @brief test on inequality
+     *
+     * @param[in] other the %Rational to test to
+     *
+     * @return @c true if not equal, @c false otherwise
+     */
+    inline bool operator!= ( const Rational &other ) const {
+        return ! ( *this == other );
     }
 
-    inline bool operator< ( const Rational &o ) const {
-        return /* ( m_denom * o.m_denom ) > 0 ? */ ( m_numer * o.m_denom ) < ( o.m_numer * m_denom )
+    /**
+     * @brief test if less than
+     *
+     * @param[in] other the %Rational to test to
+     *
+     * @return @c true if less than @c other, @c false otherwise
+     */
+    inline bool operator< ( const Rational &other ) const {
+        return /* ( m_denom * o.m_denom ) > 0 ? */ ( m_numer * other.m_denom ) <
+                ( other.m_numer * m_denom )
                 /* : ( o.m_numer * m_denom ) < ( m_numer * o.m_denom ) */;
         // denom can NEVER be zero!
     }
 
-    inline bool operator<= ( const Rational &o ) const {
-        return ! ( o < *this );
+    /**
+     * @brief test if less or equal than
+     *
+     * @param[in] other the %Rational to test to
+     *
+     * @return @c true if less or equal than @c other, @c false otherwise
+     */
+    inline bool operator<= ( const Rational &other ) const {
+        return ! ( other < *this );
     }
 
-    inline bool operator> ( const Rational &o ) const {
-        return o < *this;
+    /**
+     * @brief test if greater than
+     *
+     * @param[in] other the %Rational to test to
+     *
+     * @return @c true if greater than @c other, @c false otherwise
+     */
+    inline bool operator> ( const Rational &other ) const {
+        return other < *this;
     }
 
-    inline bool operator>= ( const Rational &o ) const {
-        return ! ( *this < o );
+    /**
+     * @brief test if greater or equal than
+     *
+     * @param[in] other the %Rational to test to
+     *
+     * @return @c true if greater or equal than @c other, @c false otherwise
+     */
+    inline bool operator>= ( const Rational &other ) const {
+        return ! ( *this < other );
     }
 
+    /**
+     * @brief test if it is the neutral element to addition and subtraction
+     *
+     * Tests if the @c numerator is equal to the default constructed @c integer_type
+     *
+     * @return @c true if it is the neutral element to addition and subtraction, @c false otherwise
+     */
     inline bool operator!() const {
         return m_numer == integer_type();
     }
 
+    /**
+     * @brief generates the string representation of %Rational
+     *
+     * @param[in] mixed if @c true, than a mixed fraction is generated
+     *
+     * @return the string representation of %Rational
+     */
     std::string str ( bool mixed = false ) const;
 
     friend std::ostream &operator<< ( std::ostream &o, const Rational &r ) {
@@ -328,16 +606,37 @@ Rational<T, GCD>& Rational<T, GCD>::operator+= ( const Rational& o ) {
     return gcm ( *this );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline NumberType &operator+= ( NumberType &n, const Rational<T, GCD>& o ) {
     return ( n = Rational<T, GCD> ( n ) += o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline Rational<T, GCD> operator+ ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ( o + Rational<T, GCD> ( n ) );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline Rational<T, GCD> operator+ ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) + o );
@@ -362,46 +661,109 @@ Rational<T, GCD>& Rational<T, GCD>::operator-= ( const Rational& o ) {
     return gcm ( *this );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline NumberType &operator-= ( NumberType &n, const Rational<T, GCD>& o ) {
     return ( n = Rational<T, GCD> ( n ) -= o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline Rational<T, GCD> operator- ( const Rational<T, GCD>& o, const NumberType &n ) {
     return o - Rational<T, GCD> ( n );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline Rational<T, GCD> operator- ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) - o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline NumberType &operator*= ( NumberType &n, const Rational<T, GCD>& o ) {
     return ( n = Rational<T, GCD> ( n ) *= o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline Rational<T, GCD> operator* ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ( o * Rational<T, GCD> ( n ) );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline Rational<T, GCD> operator* ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) * o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline NumberType &operator/= ( NumberType &n, const Rational<T, GCD>& o ) {
     return ( n = Rational<T, GCD> ( n ) /= o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline Rational<T, GCD> operator/ ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ( o / Rational<T, GCD> ( n ) );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline Rational<T, GCD> operator/ ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) / o );
@@ -448,76 +810,181 @@ std::string Rational<T, GCD>::str ( bool mixed ) const {
     return os.str();
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline NumberType &operator%= ( NumberType &n, const Rational<T, GCD>& o ) {
     return ( n = Rational<T, GCD> ( n ) %= o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline Rational<T, GCD> operator% ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ( o % Rational<T, GCD> ( n ) );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline Rational<T, GCD> operator% ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) % o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline bool operator== ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) == o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline bool operator== ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ( o == Rational<T, GCD> ( n ) );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline bool operator!= ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ! ( Rational<T, GCD> ( n ) == o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline bool operator!= ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ! ( o == Rational<T, GCD> ( n ) );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline bool operator< ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) < o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline bool operator< ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ( o < Rational<T, GCD> ( n ) );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline bool operator<= ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ! ( o < Rational<T, GCD> ( n ) );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline bool operator<= ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ! ( Rational<T, GCD> ( n ) < o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline bool operator> ( const NumberType &n, const Rational<T, GCD>& o ) {
     return o < Rational<T, GCD> ( n );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline bool operator> ( const Rational<T, GCD>& o, const NumberType &n ) {
     return Rational<T, GCD> ( n ) < o;
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam NumberType the number type
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ */
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline bool operator>= ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ! ( Rational<T, GCD> ( n ) < o );
 }
 
+/**
+ * @relates Rational
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ */
 template<typename T, template<typename, bool> class GCD, typename NumberType>
 inline bool operator>= ( const Rational<T, GCD>& o, const NumberType &n ) {
     return ! ( o < Rational<T, GCD> ( n ) );
