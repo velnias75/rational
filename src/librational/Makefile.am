@@ -1,1 +1,1 @@
-noinst_HEADERS = rational.h
+pkginclude_HEADERS = rational.h
