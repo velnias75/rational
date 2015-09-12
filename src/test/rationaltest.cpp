@@ -200,6 +200,15 @@ void RationalTest::testConstructFromDouble() {
 
     CPPUNIT_ASSERT_EQUAL ( -8, v.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, v.denominator() );
+
+    Rational<uint64_t, GCD_euclid> max_pi_euclid ( 3.141592653589793238462643383279502884l );
+    Rational<uint64_t, GCD_stein>  max_pi_stein ( 3.141592653589793238462643383279502884l );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 8717442233u ), max_pi_euclid.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), max_pi_euclid.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 8717442233u ), max_pi_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), max_pi_stein.denominator() );
 }
 
 void RationalTest::testAssignedFromDouble() {
@@ -323,6 +332,12 @@ void RationalTest::testAddition() {
 
     CPPUNIT_ASSERT_EQUAL ( 2u, ( +f_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 15u, ( +f_stein ).denominator() );
+
+    Rational<rational_type> knuth_a ( 7, 66 );
+    Rational<rational_type> knuth_b ( 17, 12 );
+
+    CPPUNIT_ASSERT_EQUAL ( 67, ( knuth_a + knuth_b ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 44, ( knuth_a + knuth_b ).denominator() );
 }
 
 void RationalTest::testSubtraction() {
@@ -734,13 +749,13 @@ void RationalTest::testAlgorithm() {
                                            std::plus<Rational<rational_type, GCD_stein> >() ) ),
                                    m_accu_stein.size() * std::numeric_limits<double>::epsilon() );
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 104186 ), std::accumulate ( m_accu_ul.begin(),
-                           m_accu_ul.end(), Rational<uint32_t>(),
-                           std::plus<Rational<uint32_t> >() ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 3765161451u ),
+                           std::accumulate ( m_accu_ul.begin(), m_accu_ul.end(),
+                                   Rational<uint32_t>(),
+                                   std::plus<Rational<uint32_t> >() ).numerator() );
 
-    CPPUNIT_ASSERT_EQUAL ( 3502910561u, std::accumulate ( m_accu_ul.begin(), m_accu_ul.end(),
-                           Rational<uint32_t>(),
-                           std::plus<Rational<uint32_t> >() ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 2001829888u, std::accumulate ( m_accu_ul.begin(), m_accu_ul.end(),
+                           Rational<uint32_t>(), std::plus<Rational<uint32_t> >() ).denominator() );
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL ( -3.77595817775351, static_cast<double>
                                    ( std::accumulate ( m_accu.begin(), m_accu.end(),

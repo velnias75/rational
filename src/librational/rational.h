@@ -26,6 +26,7 @@
 #ifndef COMMONS_MATH_RATIONAL_H
 #define COMMONS_MATH_RATIONAL_H
 
+#include <functional>
 #include <stdexcept>
 #include <sstream>
 #include <limits>
@@ -81,6 +82,7 @@ class Rational {
     friend struct _changeSign<GCD, std::numeric_limits<T>::is_signed>;
     friend struct _mod<T, GCD, std::numeric_limits<T>::is_signed>;
     template<typename, bool> friend struct GCD_stein;
+    template<typename, bool> friend struct GCD_euclid;
     template<typename, template<typename, bool> class, typename, bool> friend struct _approxFract;
 public:
     /**
@@ -245,7 +247,9 @@ public:
      *
      * @return the %Rational
      */
-    Rational& operator+= ( const Rational& other );
+    inline Rational& operator+= ( const Rational& other ) {
+        return knuth_addSub ( other, std::plus<integer_type>() );
+    }
 
     /**
      * @brief add a %Rational
@@ -299,7 +303,9 @@ public:
      *
      * @return the %Rational
      */
-    Rational& operator-= ( const Rational& other );
+    inline Rational& operator-= ( const Rational& other ) {
+        return knuth_addSub ( other, std::minus<integer_type>() );
+    }
 
     /**
      * @brief subtract a %Rational
@@ -318,6 +324,10 @@ public:
      * @return a negated copy of %Rational
      */
     inline Rational operator-() const {
+
+//         if ( m_numer == std::numeric_limits<integer_type>::min() )
+//             throw std::runtime_error ( "overflow" );
+
         Rational tmp ( *this );
         tmp.m_numer = -tmp.m_numer;
         return tmp;
@@ -357,8 +367,23 @@ public:
      */
     Rational& operator*= ( const Rational& other ) {
 
-        m_numer *= other.m_numer;
-        m_denom *= other.m_denom;
+        const integer_type &d1 ( GCD<integer_type,
+                                 std::numeric_limits<integer_type>::is_signed>() ( m_numer,
+                                         other.m_denom ) );
+        const integer_type &d2 ( GCD<integer_type,
+                                 std::numeric_limits<integer_type>::is_signed>() ( m_denom,
+                                         other.m_numer ) );
+
+        if ( ! ( d1 == static_cast<integer_type> ( 1 ) &&
+                 d2 == static_cast<integer_type> ( 1 ) ) ) {
+
+            m_numer = ( m_numer / d1 ) * ( other.m_numer / d2 );
+            m_denom = ( m_denom / d2 ) * ( other.m_denom / d1 );
+
+        } else {
+            m_numer *= other.m_numer;
+            m_denom *= other.m_denom;
+        }
 
         return *this;
     }
@@ -522,6 +547,26 @@ public:
 private:
     Rational &gcm ( const Rational &o );
 
+    template<class Op>
+    Rational &knuth_addSub ( const Rational &o, const Op &op );
+
+    static integer_type euclid ( const integer_type &a, const integer_type &b ) {
+
+        T x ( a ), y ( b );
+
+        // while ( y ) { const integer_type &h ( x % y ); x = y; y = h; }
+
+        while ( y ) {
+
+            x %= y;
+            y ^= x;
+            x ^= y;
+            y ^= x;
+        }
+
+        return x;
+    }
+
     static integer_type stein ( const integer_type &a, const integer_type &b ) {
 
         integer_type x ( a ), y ( b ), f = integer_type();
@@ -581,29 +626,36 @@ Rational<T, GCD> &Rational<T, GCD>::gcm ( const Rational &o ) {
     const integer_type &x ( o.m_numer ? GCD<T, std::numeric_limits<integer_type>::is_signed>()
                             ( o.m_numer, o.m_denom ) : o.m_denom );
 
-    m_numer /= x;
-    m_denom /= x;
+    if ( x != static_cast<integer_type> ( 1 ) ) {
+        m_numer /= x;
+        m_denom /= x;
+    }
 
     return _changeSign<GCD, std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
-template<typename T, template<typename, bool> class GCD>
-Rational<T, GCD>& Rational<T, GCD>::operator+= ( const Rational& o ) {
+template<typename T, template<typename, bool> class GCD> template<class Op>
+Rational<T, GCD> &Rational<T, GCD>::knuth_addSub ( const Rational<T, GCD> &o, const Op &op ) {
 
-    if ( m_denom != o.m_denom ) {
+    const integer_type &d1 ( GCD<integer_type, std::numeric_limits<integer_type>::is_signed>()
+                             ( m_denom, o.m_denom ) );
 
-        const integer_type &l ( _lcm<integer_type, GCD,
-                                std::numeric_limits<integer_type>::is_signed>()
-                                ( m_denom, o.m_denom ) );
+    if ( d1 == static_cast<integer_type> ( 1 ) ) {
 
-        m_numer = ( ( l/m_denom ) * m_numer ) + ( ( l/o.m_denom ) * o.m_numer );
-        m_denom = l;
+        m_numer = op ( ( m_numer * o.m_denom ), ( m_denom * o.m_numer ) );
+        m_denom *= o.m_denom;
 
     } else {
-        m_numer = m_numer + o.m_numer;
+
+        const integer_type &t ( op ( m_numer * ( o.m_denom / d1 ),
+                                     o.m_numer * ( m_denom / d1 ) ) );
+        const integer_type &d2 ( GCD<integer_type, std::numeric_limits<integer_type>::is_signed>()
+                                 ( t, d1 ) );
+        m_numer = t / d2;
+        m_denom = ( m_denom / d1 ) * ( o.m_denom / d2 );
     }
 
-    return gcm ( *this );
+    return *this;
 }
 
 /**
@@ -640,25 +692,6 @@ inline Rational<T, GCD> operator+ ( const Rational<T, GCD>& o, const NumberType 
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline Rational<T, GCD> operator+ ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) + o );
-}
-
-template<typename T, template<typename, bool> class GCD>
-Rational<T, GCD>& Rational<T, GCD>::operator-= ( const Rational& o ) {
-
-    if ( m_denom != o.m_denom ) {
-
-        const integer_type &l ( _lcm<integer_type, GCD,
-                                std::numeric_limits<integer_type>::is_signed>()
-                                ( m_denom, o.m_denom ) );
-
-        m_numer = ( ( l/m_denom ) * m_numer ) - ( ( l/o.m_denom ) * o.m_numer );
-        m_denom = l;
-
-    } else {
-        m_numer = m_numer - o.m_numer;
-    }
-
-    return gcm ( *this );
 }
 
 /**
@@ -1004,7 +1037,7 @@ struct _approxFract<T, GCD, NumberType, true> {
                           static_cast<NumberType> ( r.m_denom ) - nt ) <
                     std::numeric_limits<NumberType>::epsilon() ) ) {
 
-            const T n = static_cast<T> ( std::floor ( x ) );
+            const T &n ( static_cast<T> ( std::floor ( x ) ) );
             x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( n ) );
 
             r.m_numer = p[0] + n * p[1];
@@ -1069,24 +1102,20 @@ struct _mod<T, GCD, false> {
     }
 };
 
-template<typename T, bool>
-struct GCD_euclid {
+template<typename T>
+struct GCD_euclid<T, true> {
 
     inline T operator() ( const T &a, const T &b ) const {
+        const T &h ( Rational<T, GCD_euclid::template GCD_euclid>::euclid ( a, b ) );
+        return h < T() ? -h : h;
+    }
+};
 
-        T x ( a ), y ( b );
+template<typename T>
+struct GCD_euclid<T, false> {
 
-        // while ( y ) { const integer_type &h ( x % y ); x = y; y = h; }
-
-        while ( y ) {
-
-            x %= y;
-            y ^= x;
-            x ^= y;
-            y ^= x;
-        }
-
-        return x;
+    inline T operator() ( const T &a, const T &b ) const {
+        return Rational<T, GCD_euclid::template GCD_euclid>::euclid ( a, b );
     }
 };
 
