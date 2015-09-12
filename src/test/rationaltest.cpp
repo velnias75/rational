@@ -244,7 +244,16 @@ void RationalTest::testAssignedFromDouble() {
     CPPUNIT_ASSERT_EQUAL ( 2, u.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, u.denominator() );
 
-    Rational<rational_type> pi = M_PI;
+    Rational<rational_type, GCD_euclid> pi = M_PI;
+    Rational<rational_type, GCD_stein> pi_stein = M_PI;
+
+    CPPUNIT_ASSERT_EQUAL ( 245850922, pi.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 78256779, pi.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 245850922, pi_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 78256779, pi_stein.denominator() );
+
+    pi = pi;
 
     CPPUNIT_ASSERT_EQUAL ( 245850922, pi.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 78256779, pi.denominator() );
@@ -291,6 +300,29 @@ void RationalTest::testAddition() {
 
     CPPUNIT_ASSERT_EQUAL ( 2, ( +d_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 15, ( +d_stein ).denominator() );
+
+    const Rational<uint32_t, GCD_euclid> e ( 1, 6 );
+    const Rational<uint32_t, GCD_stein> e_stein ( 1, 6 );
+    const Rational<uint32_t, GCD_euclid> f ( 2, 15 );
+    const Rational<uint32_t, GCD_stein> f_stein ( 2, 15 );
+
+    CPPUNIT_ASSERT_EQUAL ( 3u, ( e + f ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 10u, ( e + f ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 3u, ( e_stein + f_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 10u, ( e_stein + f_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 3u, ( f + e ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 10u, ( f + e ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 3u, ( f_stein + e_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 10u, ( f_stein + e_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 2u, ( +f ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 15u, ( +f ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 2u, ( +f_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 15u, ( +f_stein ).denominator() );
 }
 
 void RationalTest::testSubtraction() {
@@ -305,6 +337,12 @@ void RationalTest::testSubtraction() {
 
     CPPUNIT_ASSERT_EQUAL ( -47, ( a_stein - b_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 105, ( a_stein - b_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 0, ( a - a ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( a - a ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 0, ( a_stein - a_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( a_stein - a_stein ).denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( 47, ( b - a ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 105, ( b - a ).denominator() );
@@ -363,6 +401,9 @@ void RationalTest::testInvert() {
 
     CPPUNIT_ASSERT_EQUAL ( 7, Rational<rational_type> ( 161, 49 ).inverse().numerator() );
     CPPUNIT_ASSERT_EQUAL ( 23, Rational<rational_type> ( 161, 49 ).inverse().denominator() );
+
+    CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().invert(), std::runtime_error );
+    CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().inverse(), std::runtime_error );
 }
 
 void RationalTest::testDivision() {
@@ -736,7 +777,7 @@ void RationalTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<rational_type> ( 11, -3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<rational_type> ( -11, 3 ).abs().str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<rational_type> (  11, 3 ).abs().str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<rational_type> ( 11, 3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<uint32_t> ( 11, 3 ).abs().str() );
 }
 
