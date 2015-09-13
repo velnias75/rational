@@ -230,7 +230,7 @@ public:
         swap ( m_numer, m_denom );
 
 #ifdef __EXCEPTIONS
-        if ( m_denom == integer_type() ) throw std::runtime_error ( "division by zero" );
+        if ( m_denom == integer_type() ) throw std::domain_error ( "division by zero" );
 #endif
 
         return *this;
@@ -351,7 +351,7 @@ public:
     inline Rational operator-() const {
 
 //         if ( m_numer == std::numeric_limits<integer_type>::min() )
-//             throw std::runtime_error ( "overflow" );
+//             throw std::domain_error ( "overflow" );
 
         Rational tmp ( *this );
         tmp.m_numer = -tmp.m_numer;
@@ -672,7 +672,7 @@ Rational<T, GCD>::Rational ( const integer_type &n, const integer_type &d )  : m
     m_denom ( d ) {
 
 #ifdef __EXCEPTIONS
-    if ( m_denom == integer_type() ) throw std::runtime_error ( "denominator can't be null" );
+    if ( m_denom == integer_type() ) throw std::domain_error ( "denominator can't be null" );
 #endif
 
     gcm ( *this );

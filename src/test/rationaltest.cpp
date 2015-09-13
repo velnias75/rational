@@ -55,7 +55,7 @@ void RationalTest::testNullRational() {
 void RationalTest::testConstruct() {
 
 #ifdef __EXCEPTIONS
-    CPPUNIT_ASSERT_THROW ( Rational<rational_type> r ( 1, 0 ), std::runtime_error );
+    CPPUNIT_ASSERT_THROW ( Rational<rational_type> r ( 1, 0 ), std::domain_error );
 #endif
 
     Rational<rational_type, GCD_stein> a_stein ( 1, 2 );
@@ -441,8 +441,8 @@ void RationalTest::testInvert() {
     CPPUNIT_ASSERT_EQUAL ( 23, Rational<rational_type> ( 161, 49 ).inverse().denominator() );
 
 #ifdef __EXCEPTIONS
-    CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().invert(), std::runtime_error );
-    CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().inverse(), std::runtime_error );
+    CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().invert(), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().inverse(), std::domain_error );
 #endif
 }
 
@@ -476,8 +476,8 @@ void RationalTest::testDivision() {
     CPPUNIT_ASSERT_EQUAL ( 3, ( b / a_stein ).denominator() );
 
 #ifdef __EXCEPTIONS
-    CPPUNIT_ASSERT_THROW ( a / c, std::runtime_error );
-    CPPUNIT_ASSERT_THROW ( a / ( b - d ), std::runtime_error );
+    CPPUNIT_ASSERT_THROW ( a / c, std::domain_error );
+    CPPUNIT_ASSERT_THROW ( a / ( b - d ), std::domain_error );
 #endif
 }
 
@@ -921,10 +921,9 @@ void RationalTest::testAlgorithm() {
                                            GCD_stein> >() ) ),
                                    m_accu_stein.size() * std::numeric_limits<double>::epsilon() );
 
-    CPPUNIT_ASSERT_EQUAL ( 3765161451u,
-                           std::accumulate ( m_accu_ul.begin(), m_accu_ul.end(),
-                                   Rational<uint32_t>(),
-                                   std::plus<Rational<uint32_t> >() ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 3765161451u, std::accumulate ( m_accu_ul.begin(), m_accu_ul.end(),
+                           Rational<uint32_t>(),
+                           std::plus<Rational<uint32_t> >() ).numerator() );
 
     CPPUNIT_ASSERT_EQUAL ( 2001829888u, std::accumulate ( m_accu_ul.begin(), m_accu_ul.end(),
                            Rational<uint32_t>(), std::plus<Rational<uint32_t> >() ).denominator() );
@@ -940,25 +939,26 @@ void RationalTest::testAlgorithm() {
                                    std::accumulate ( m_accu.begin(), m_accu.begin() + 12,
                                            1.0, std::multiplies<
                                            Rational<rat_vector::value_type::integer_type> >() ),
-                                   12 * std::numeric_limits<double>::epsilon() );
+                                   12.0 * std::numeric_limits<double>::epsilon() );
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL ( 479001600.0, std::accumulate ( m_accu.begin(),
-                                   m_accu.begin() + 12, 1.0,
-                                   std::divides<
+                                   m_accu.begin() + 12, 1.0, std::divides<
                                    Rational<rat_vector::value_type::integer_type> >() ),
-                                   12 * std::numeric_limits<double>::epsilon() );
+                                   12.0 * std::numeric_limits<double>::epsilon() );
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<rat_vector::value_type::integer_type> ( 1 ),
-                           std::accumulate ( m_onethird.begin(), m_onethird.end(),
-                                   Rational<rat_vector::value_type::integer_type>(), std::plus<
-                                   Rational<rat_vector::value_type::integer_type> >() ).
+    CPPUNIT_ASSERT_EQUAL ( 1, std::accumulate ( m_onethird.begin(), m_onethird.end(),
+                           Rational<rat_vector::value_type::integer_type>(), std::plus<
+                           Rational<rat_vector::value_type::integer_type> >() ).
                            numerator() );
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<rat_vector::value_type::integer_type> ( 1 ),
-                           std::accumulate ( m_onethird.begin(), m_onethird.end(),
-                                   Rational<rat_vector::value_type::integer_type>(), std::plus<
-                                   Rational<rat_vector::value_type::integer_type> >() ).
+    CPPUNIT_ASSERT_EQUAL ( 1, std::accumulate ( m_onethird.begin(), m_onethird.end(),
+                           Rational<rat_vector::value_type::integer_type>(), std::plus<
+                           Rational<rat_vector::value_type::integer_type> >() ).
                            denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1.0l, static_cast<long double> ( std::accumulate ( m_onethird.begin(),
+                           m_onethird.end(), Rational<rat_vector::value_type::integer_type>(),
+                           std::plus<Rational<rat_vector::value_type::integer_type> >() ) ) );
 }
 
 void RationalTest::testStdMath() {
