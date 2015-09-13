@@ -30,7 +30,7 @@ RationalTest::RationalTest() : CppUnit::TestFixture(), m_nullRational(), m_sqrt2
 
 void RationalTest::setUp() {
 
-    m_sqrt2 = Rational<uint64_t> ( std::sqrt ( 2.0 ) );
+    m_sqrt2 = Rational<uint64_t> ( std::sqrt ( 2.0l ) );
 
     for ( rational_type i = 1; i < 25; ++i ) {
         m_accu.push_back ( rat_vector::value_type ( 1, i ) );
@@ -169,8 +169,8 @@ void RationalTest::testConstructFromDouble() {
     CPPUNIT_ASSERT_EQUAL ( 1, s_stein.denominator() );
 
 #ifndef __clang__
-    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 77227930 ), m_sqrt2.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 54608393 ), m_sqrt2.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 6333631924u, m_sqrt2.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4478554083u, m_sqrt2.denominator() );
 #else
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 131836323 ), m_sqrt2.numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 93222358 ), m_sqrt2.denominator() );
