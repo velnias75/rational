@@ -26,7 +26,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( RationalTest );
 using namespace Commons::Math;
 
 RationalTest::RationalTest() : CppUnit::TestFixture(), m_nullRational(), m_sqrt2(), m_accu(),
-    m_accu_stein(), m_onethird(), m_accu_ul() {}
+    m_accu_stein(), m_onethird(), m_oneseventh(), m_accu_ul(), m_twosqrt() {}
 
 void RationalTest::setUp() {
 
@@ -44,6 +44,8 @@ void RationalTest::setUp() {
     }
 
     std::fill_n ( std::back_inserter ( m_onethird ), 3, rat_vector::value_type ( 1, 3 ) );
+    std::fill_n ( std::back_inserter ( m_oneseventh ), 7, rat_vector::value_type ( 1, 7 ) );
+    std::fill_n ( std::back_inserter ( m_twosqrt ), 2, m_sqrt2 );
 }
 
 void RationalTest::tearDown() {}
@@ -959,6 +961,17 @@ void RationalTest::testAlgorithm() {
     CPPUNIT_ASSERT_EQUAL ( 1.0l, static_cast<long double> ( std::accumulate ( m_onethird.begin(),
                            m_onethird.end(), Rational<rat_vector::value_type::integer_type>(),
                            std::plus<Rational<rat_vector::value_type::integer_type> >() ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1.0l, static_cast<long double> ( std::accumulate ( m_oneseventh.begin(),
+                           m_oneseventh.end(), Rational<rat_vector::value_type::integer_type>(),
+                           std::plus<Rational<rat_vector::value_type::integer_type> >() ) ) );
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.0, static_cast<double> ( std::accumulate ( m_twosqrt.begin(),
+                                   m_twosqrt.end(),
+                                   Rational<rat_vector_sqrt::value_type::integer_type>
+                                   ( 1, 1 ), std::multiplies<
+                                   Rational<rat_vector_sqrt::value_type::integer_type> >
+                                   () ) ), std::numeric_limits<double >::epsilon() );
 }
 
 void RationalTest::testStdMath() {

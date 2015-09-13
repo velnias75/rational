@@ -91,9 +91,13 @@ private:
     rat_vector m_accu;
     rat_vector_stein m_accu_stein;
     rat_vector m_onethird;
+    rat_vector m_oneseventh;
 
     typedef std::vector<Commons::Math::Rational<uint32_t> > rat_vector_ul;
     rat_vector_ul m_accu_ul;
+
+    typedef std::vector<Commons::Math::Rational<uint64_t> > rat_vector_sqrt;
+    rat_vector_sqrt m_twosqrt;
 };
 #pragma GCC diagnostic pop
 
