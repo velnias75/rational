@@ -84,8 +84,6 @@ template<typename T, template<typename, bool> class GCD = GCD_euclid>
 class Rational {
     friend struct _changeSign<GCD, std::numeric_limits<T>::is_signed>;
     friend struct _mod<T, GCD, std::numeric_limits<T>::is_signed>;
-    template<typename, bool> friend struct GCD_stein;
-    template<typename, bool> friend struct GCD_euclid;
     template<typename, template<typename, bool> class, typename, bool> friend struct _approxFract;
 public:
     /**
@@ -614,54 +612,6 @@ private:
     template<class Op>
     Rational &knuth_addSub ( const Rational &o, const Op &op );
 
-    static integer_type euclid ( const integer_type &a, const integer_type &b ) {
-
-        T x ( a ), y ( b );
-
-        // while ( y ) { const integer_type &h ( x % y ); x = y; y = h; }
-
-        while ( y ) {
-
-            x %= y;
-            y ^= x;
-            x ^= y;
-            y ^= x;
-        }
-
-        return x;
-    }
-
-    static integer_type stein ( const integer_type &a, const integer_type &b ) {
-
-        integer_type x ( a ), y ( b ), f = integer_type();
-
-        while ( y ) {
-
-            if ( x < y ) {
-
-                y ^= x;
-                x ^= y;
-                y ^= x;
-
-            } else if ( ! ( x & 1 ) ) {
-
-                x >>= 1;
-
-                if ( ! ( y & 1 ) ) {
-                    y >>= 1;
-                    ++f;
-                }
-
-            } else if ( ! ( y & 1 ) ) {
-                y >>= 1;
-            } else {
-                x -= y;
-            }
-        }
-
-        return x << f;
-    }
-
 private:
     integer_type m_numer;
     integer_type m_denom;
@@ -1141,7 +1091,6 @@ struct _approxFract<T, GCD, NumberType, true> {
     }
 
 private:
-
     inline NumberType abs ( const NumberType &nt ) const {
         return nt < NumberType() ? -nt : nt;
     }
@@ -1193,28 +1142,32 @@ struct _mod<T, GCD, false> {
 };
 
 template<typename T>
-struct GCD_euclid<T, true> {
-
-    inline T operator() ( const T &a, const T &b ) const {
-        const T &h ( Rational<T, GCD_euclid::template GCD_euclid>::euclid ( a, b ) );
-        return h < T() ? -h : h;
-    }
-};
-
-template<typename T>
 struct GCD_euclid<T, false> {
 
     inline T operator() ( const T &a, const T &b ) const {
-        return Rational<T, GCD_euclid::template GCD_euclid>::euclid ( a, b );
+
+        T x ( a ), y ( b );
+
+        // while ( y ) { const integer_type &h ( x % y ); x = y; y = h; }
+
+        while ( y ) {
+
+            x %= y;
+            y ^= x;
+            x ^= y;
+            y ^= x;
+        }
+
+        return x;
     }
 };
 
 template<typename T>
-struct GCD_stein<T, true> {
+struct GCD_euclid<T, true> {
 
     inline T operator() ( const T &a, const T &b ) const {
-        return Rational<T, GCD_stein::template GCD_stein>::stein ( a < T() ? -a : a,
-                b < T() ? -b : b );
+        const T &h ( GCD_euclid<T, false>() ( a, b ) );
+        return h < T() ? -h : h;
     }
 };
 
@@ -1222,7 +1175,42 @@ template<typename T>
 struct GCD_stein<T, false> {
 
     inline T operator() ( const T &a, const T &b ) const {
-        return Rational<T, GCD_stein::template GCD_stein>::stein ( a, b );
+
+        T x ( a ), y ( b ), f = T();
+
+        while ( y ) {
+
+            if ( x < y ) {
+
+                y ^= x;
+                x ^= y;
+                y ^= x;
+
+            } else if ( ! ( x & 1 ) ) {
+
+                x >>= 1;
+
+                if ( ! ( y & 1 ) ) {
+                    y >>= 1;
+                    ++f;
+                }
+
+            } else if ( ! ( y & 1 ) ) {
+                y >>= 1;
+            } else {
+                x -= y;
+            }
+        }
+
+        return x << f;
+    }
+};
+
+template<typename T>
+struct GCD_stein<T, true> {
+
+    inline T operator() ( const T &a, const T &b ) const {
+        return GCD_stein<T, false>() ( a < T() ? -a : a, b < T() ? -b : b );
     }
 };
 
