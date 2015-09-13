@@ -972,6 +972,15 @@ void RationalTest::testAlgorithm() {
                                    ( 1, 1 ), std::multiplies<
                                    Rational<rat_vector_sqrt::value_type::integer_type> >
                                    () ) ), std::numeric_limits<double >::epsilon() );
+
+    const Rational<rational_type> a ( 77, 88 );
+    const Rational<rational_type> b ( 88, 77 );
+
+    CPPUNIT_ASSERT_EQUAL ( a, std::min ( a, b ) );
+    CPPUNIT_ASSERT_EQUAL ( a, std::min ( b, a ) );
+    
+    CPPUNIT_ASSERT_EQUAL ( b, std::max ( a, b ) );
+    CPPUNIT_ASSERT_EQUAL ( b, std::max ( b, a ) );
 }
 
 void RationalTest::testStdMath() {
