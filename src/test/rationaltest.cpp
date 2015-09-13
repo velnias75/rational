@@ -978,7 +978,7 @@ void RationalTest::testAlgorithm() {
 
     CPPUNIT_ASSERT_EQUAL ( a, std::min ( a, b ) );
     CPPUNIT_ASSERT_EQUAL ( a, std::min ( b, a ) );
-    
+
     CPPUNIT_ASSERT_EQUAL ( b, std::max ( a, b ) );
     CPPUNIT_ASSERT_EQUAL ( b, std::max ( b, a ) );
 }

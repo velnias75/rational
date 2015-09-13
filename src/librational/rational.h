@@ -347,10 +347,6 @@ public:
      * @return a negated copy of %Rational
      */
     inline Rational operator-() const {
-
-//         if ( m_numer == std::numeric_limits<integer_type>::min() )
-//             throw std::domain_error ( "overflow" );
-
         Rational tmp ( *this );
         tmp.m_numer = -tmp.m_numer;
         return tmp;
