@@ -206,10 +206,10 @@ void RationalTest::testConstructFromDouble() {
     Rational<uint64_t, GCD_euclid> max_pi_euclid ( 3.141592653589793238462643383279502884l );
     Rational<uint64_t, GCD_stein>  max_pi_stein ( 3.141592653589793238462643383279502884l );
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 8717442233u ), max_pi_euclid.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 8717442233u, max_pi_euclid.numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), max_pi_euclid.denominator() );
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 8717442233u ), max_pi_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 8717442233u, max_pi_stein.numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), max_pi_stein.denominator() );
 }
 
@@ -923,7 +923,7 @@ void RationalTest::testAlgorithm() {
                                            std::plus<Rational<rational_type, GCD_stein> >() ) ),
                                    m_accu_stein.size() * std::numeric_limits<double>::epsilon() );
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 3765161451u ),
+    CPPUNIT_ASSERT_EQUAL ( 3765161451u,
                            std::accumulate ( m_accu_ul.begin(), m_accu_ul.end(),
                                    Rational<uint32_t>(),
                                    std::plus<Rational<uint32_t> >() ).numerator() );

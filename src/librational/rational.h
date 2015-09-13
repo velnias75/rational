@@ -487,7 +487,7 @@ public:
     }
 
     template<template<typename, bool> class U>
-    inline friend Rational operator== ( const Rational& x, const Rational<integer_type, U>& y ) {
+    inline friend bool operator== ( const Rational& x, const Rational<integer_type, U>& y ) {
         return ( x == Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -503,7 +503,7 @@ public:
     }
 
     template<template<typename, bool> class U>
-    inline friend Rational operator!= ( const Rational& x, const Rational<integer_type, U>& y ) {
+    inline friend bool operator!= ( const Rational& x, const Rational<integer_type, U>& y ) {
         return ( x != Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -522,7 +522,7 @@ public:
     }
 
     template<template<typename, bool> class U>
-    inline friend Rational operator< ( const Rational& x, const Rational<integer_type, U>& y ) {
+    inline friend bool operator< ( const Rational& x, const Rational<integer_type, U>& y ) {
         return ( x < Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -538,7 +538,7 @@ public:
     }
 
     template<template<typename, bool> class U>
-    inline friend Rational operator<= ( const Rational& x, const Rational<integer_type, U>& y ) {
+    inline friend bool operator<= ( const Rational& x, const Rational<integer_type, U>& y ) {
         return ( x <= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -554,7 +554,7 @@ public:
     }
 
     template<template<typename, bool> class U>
-    inline friend Rational operator> ( const Rational& x, const Rational<integer_type, U>& y ) {
+    inline friend bool operator> ( const Rational& x, const Rational<integer_type, U>& y ) {
         return ( x > Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -570,7 +570,7 @@ public:
     }
 
     template<template<typename, bool> class U>
-    inline friend Rational operator>= ( const Rational& x, const Rational<integer_type, U>& y ) {
+    inline friend bool operator>= ( const Rational& x, const Rational<integer_type, U>& y ) {
         return ( x >= Rational ( y.numerator(), y.denominator() ) );
     }
 
