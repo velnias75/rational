@@ -27,10 +27,13 @@
 #define COMMONS_MATH_RATIONAL_H
 
 #include <functional>
-#include <stdexcept>
 #include <sstream>
 #include <limits>
 #include <cmath>
+
+#ifdef __EXCEPTIONS
+#include <stdexcept>
+#endif
 
 namespace Commons {
 
@@ -226,7 +229,9 @@ public:
         using namespace std;
         swap ( m_numer, m_denom );
 
+#ifdef __EXCEPTIONS
         if ( m_denom == integer_type() ) throw std::runtime_error ( "division by zero" );
+#endif
 
         return *this;
     }
@@ -365,28 +370,7 @@ public:
      *
      * @return the %Rational
      */
-    Rational& operator*= ( const Rational& other ) {
-
-        const integer_type &d1 ( GCD<integer_type,
-                                 std::numeric_limits<integer_type>::is_signed>() ( m_numer,
-                                         other.m_denom ) );
-        const integer_type &d2 ( GCD<integer_type,
-                                 std::numeric_limits<integer_type>::is_signed>() ( m_denom,
-                                         other.m_numer ) );
-
-        if ( ! ( d1 == static_cast<integer_type> ( 1 ) &&
-                 d2 == static_cast<integer_type> ( 1 ) ) ) {
-
-            m_numer = ( m_numer / d1 ) * ( other.m_numer / d2 );
-            m_denom = ( m_denom / d2 ) * ( other.m_denom / d1 );
-
-        } else {
-            m_numer *= other.m_numer;
-            m_denom *= other.m_denom;
-        }
-
-        return *this;
-    }
+    Rational& operator*= ( const Rational& other );
 
     /**
      * @brief multiply a %Rational
@@ -607,7 +591,9 @@ template<typename T, template<typename, bool> class GCD>
 Rational<T, GCD>::Rational ( const integer_type &n, const integer_type &d )  : m_numer ( n ),
     m_denom ( d ) {
 
+#ifdef __EXCEPTIONS
     if ( m_denom == integer_type() ) throw std::runtime_error ( "denominator can't be null" );
+#endif
 
     gcm ( *this );
 }
@@ -800,6 +786,30 @@ inline Rational<T, GCD> operator/ ( const Rational<T, GCD>& o, const NumberType 
 template<typename NumberType, typename T, template<typename, bool> class GCD>
 inline Rational<T, GCD> operator/ ( const NumberType &n, const Rational<T, GCD>& o ) {
     return ( Rational<T, GCD> ( n ) / o );
+}
+
+template<typename T, template<typename, bool> class GCD>
+Rational<T, GCD>& Rational<T, GCD>::operator*= ( const Rational& other ) {
+
+    const integer_type &d1 ( GCD<integer_type,
+                             std::numeric_limits<integer_type>::is_signed>() ( m_numer,
+                                     other.m_denom ) );
+    const integer_type &d2 ( GCD<integer_type,
+                             std::numeric_limits<integer_type>::is_signed>() ( m_denom,
+                                     other.m_numer ) );
+
+    if ( ! ( d1 == static_cast<integer_type> ( 1 ) &&
+             d2 == static_cast<integer_type> ( 1 ) ) ) {
+
+        m_numer = ( m_numer / d1 ) * ( other.m_numer / d2 );
+        m_denom = ( m_denom / d2 ) * ( other.m_denom / d1 );
+
+    } else {
+        m_numer *= other.m_numer;
+        m_denom *= other.m_denom;
+    }
+
+    return *this;
 }
 
 template<typename T, template<typename, bool> class GCD>

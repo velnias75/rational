@@ -54,7 +54,9 @@ void RationalTest::testNullRational() {
 
 void RationalTest::testConstruct() {
 
+#ifdef __EXCEPTIONS
     CPPUNIT_ASSERT_THROW ( Rational<rational_type> r ( 1, 0 ), std::runtime_error );
+#endif
 
     Rational<rational_type, GCD_stein> a_stein ( 1, 2 );
     Rational<rational_type, GCD_stein> b_stein ( 1, -2 );
@@ -417,8 +419,10 @@ void RationalTest::testInvert() {
     CPPUNIT_ASSERT_EQUAL ( 7, Rational<rational_type> ( 161, 49 ).inverse().numerator() );
     CPPUNIT_ASSERT_EQUAL ( 23, Rational<rational_type> ( 161, 49 ).inverse().denominator() );
 
+#ifdef __EXCEPTIONS
     CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().invert(), std::runtime_error );
     CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().inverse(), std::runtime_error );
+#endif
 }
 
 void RationalTest::testDivision() {
@@ -434,8 +438,10 @@ void RationalTest::testDivision() {
     CPPUNIT_ASSERT_EQUAL ( 28, ( b / a ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 3, ( b / a ).denominator() );
 
+#ifdef __EXCEPTIONS
     CPPUNIT_ASSERT_THROW ( a / c, std::runtime_error );
     CPPUNIT_ASSERT_THROW ( a / ( b - d ), std::runtime_error );
+#endif
 }
 
 void RationalTest::testModulo() {
