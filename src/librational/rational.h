@@ -256,6 +256,11 @@ public:
         return knuth_addSub ( other, std::plus<integer_type>() );
     }
 
+    template<template<typename, bool> class U>
+    inline friend Rational &operator+= ( Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x += Rational ( y.numerator(), y.denominator() ) );
+    }
+
     /**
      * @brief add a %Rational
      *
@@ -265,6 +270,11 @@ public:
      */
     inline Rational operator+ ( const Rational& other ) const {
         return ( Rational ( *this ) += other );
+    }
+
+    template<template<typename, bool> class U>
+    inline friend Rational operator+ ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( Rational ( x ) += Rational ( y.numerator(), y.denominator() ) );
     }
 
     /**
@@ -312,6 +322,11 @@ public:
         return knuth_addSub ( other, std::minus<integer_type>() );
     }
 
+    template<template<typename, bool> class U>
+    inline friend Rational &operator-= ( Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x -= Rational ( y.numerator(), y.denominator() ) );
+    }
+
     /**
      * @brief subtract a %Rational
      *
@@ -321,6 +336,11 @@ public:
      */
     inline Rational operator- ( const Rational& other ) const {
         return ( Rational ( *this ) -= other );
+    }
+
+    template<template<typename, bool> class U>
+    inline friend Rational operator- ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( Rational ( x ) -= Rational ( y.numerator(), y.denominator() ) );
     }
 
     /**
@@ -372,6 +392,11 @@ public:
      */
     Rational& operator*= ( const Rational& other );
 
+    template<template<typename, bool> class U>
+    inline friend Rational &operator*= ( Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x *= Rational ( y.numerator(), y.denominator() ) );
+    }
+
     /**
      * @brief multiply a %Rational
      *
@@ -381,6 +406,11 @@ public:
      */
     inline Rational operator* ( const Rational& other ) const {
         return ( Rational ( *this ) *= other );
+    }
+
+    template<template<typename, bool> class U>
+    inline friend Rational operator* ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( Rational ( x ) *= Rational ( y.numerator(), y.denominator() ) );
     }
 
     /**
@@ -394,6 +424,11 @@ public:
         return ( *this *= other.inverse() );
     }
 
+    template<template<typename, bool> class U>
+    inline friend Rational &operator/= ( Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x /= Rational ( y.numerator(), y.denominator() ) );
+    }
+
     /**
      * @brief divide a %Rational
      *
@@ -405,6 +440,11 @@ public:
         return ( Rational ( *this ) /= other );
     }
 
+    template<template<typename, bool> class U>
+    inline friend Rational operator/ ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( Rational ( x ) /= Rational ( y.numerator(), y.denominator() ) );
+    }
+
     /**
      * @brief modulo and assign a %Rational
      *
@@ -413,6 +453,11 @@ public:
      * @return the %Rational
      */
     Rational& operator%= ( const Rational& other );
+
+    template<template<typename, bool> class U>
+    inline friend Rational &operator%= ( Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x %= Rational ( y.numerator(), y.denominator() ) );
+    }
 
     /**
      * @brief modulo a %Rational
@@ -423,6 +468,11 @@ public:
      */
     inline Rational operator% ( const Rational& other ) const {
         return ( Rational ( *this ) %= other );
+    }
+
+    template<template<typename, bool> class U>
+    inline friend Rational operator% ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( Rational ( x ) %= Rational ( y.numerator(), y.denominator() ) );
     }
 
     /**
@@ -436,6 +486,11 @@ public:
         return ! ( ( *this < other ) || ( *this > other ) );
     }
 
+    template<template<typename, bool> class U>
+    inline friend Rational operator== ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x == Rational ( y.numerator(), y.denominator() ) );
+    }
+
     /**
      * @brief test on inequality
      *
@@ -445,6 +500,11 @@ public:
      */
     inline bool operator!= ( const Rational &other ) const {
         return ! ( *this == other );
+    }
+
+    template<template<typename, bool> class U>
+    inline friend Rational operator!= ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x != Rational ( y.numerator(), y.denominator() ) );
     }
 
     /**
@@ -461,6 +521,11 @@ public:
         // denom can NEVER be zero!
     }
 
+    template<template<typename, bool> class U>
+    inline friend Rational operator< ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x < Rational ( y.numerator(), y.denominator() ) );
+    }
+
     /**
      * @brief test if less or equal than
      *
@@ -470,6 +535,11 @@ public:
      */
     inline bool operator<= ( const Rational &other ) const {
         return ! ( other < *this );
+    }
+
+    template<template<typename, bool> class U>
+    inline friend Rational operator<= ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x <= Rational ( y.numerator(), y.denominator() ) );
     }
 
     /**
@@ -483,6 +553,11 @@ public:
         return other < *this;
     }
 
+    template<template<typename, bool> class U>
+    inline friend Rational operator> ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x > Rational ( y.numerator(), y.denominator() ) );
+    }
+
     /**
      * @brief test if greater or equal than
      *
@@ -492,6 +567,11 @@ public:
      */
     inline bool operator>= ( const Rational &other ) const {
         return ! ( *this < other );
+    }
+
+    template<template<typename, bool> class U>
+    inline friend Rational operator>= ( const Rational& x, const Rational<integer_type, U>& y ) {
+        return ( x >= Rational ( y.numerator(), y.denominator() ) );
     }
 
     /**

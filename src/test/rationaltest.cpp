@@ -283,6 +283,12 @@ void RationalTest::testAddition() {
     CPPUNIT_ASSERT_EQUAL ( 31, ( a_stein + b_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 15, ( a_stein + b_stein ).denominator() );
 
+    CPPUNIT_ASSERT_EQUAL ( 31, ( a + b_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 15, ( a + b_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 31, ( a_stein + b ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 15, ( a_stein + b ).denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( 31, ( b + a ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 15, ( b + a ).denominator() );
 
@@ -355,6 +361,12 @@ void RationalTest::testSubtraction() {
     CPPUNIT_ASSERT_EQUAL ( -47, ( a_stein - b_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 105, ( a_stein - b_stein ).denominator() );
 
+    CPPUNIT_ASSERT_EQUAL ( -47, ( a - b_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 105, ( a - b_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -47, ( a_stein - b ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 105, ( a_stein - b ).denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( 0, ( a - a ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, ( a - a ).denominator() );
 
@@ -400,13 +412,27 @@ void RationalTest::testSubtraction() {
 void RationalTest::testMultiplication() {
 
     const Rational<rational_type> a ( 2, 8 );
+    const Rational<rational_type, GCD_stein> a_stein ( 2, 8 );
     const Rational<rational_type> b ( 7, 3 );
+    const Rational<rational_type, GCD_stein> b_stein ( 7, 3 );
 
     CPPUNIT_ASSERT_EQUAL ( 7, ( a * b ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12, ( a * b ).denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( 7, ( b * a ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12, ( b * a ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 7, ( a_stein * b_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12, ( a_stein * b_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 7, ( b_stein * a_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12, ( b_stein * a_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 7, ( a * b_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12, ( a * b_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 7, ( b * a_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12, ( b * a_stein ).denominator() );
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.0f, static_cast<float> ( m_sqrt2 * m_sqrt2 ), 1.e-6 );
 }
@@ -428,15 +454,31 @@ void RationalTest::testInvert() {
 void RationalTest::testDivision() {
 
     const Rational<rational_type> a ( 2, 8 );
+    const Rational<rational_type, GCD_stein> a_stein ( 2, 8 );
     const Rational<rational_type> b ( 7, 3 );
+    const Rational<rational_type, GCD_stein> b_stein ( 7, 3 );
     const Rational<rational_type> c ( 0, 1 );
+    const Rational<rational_type, GCD_stein> c_stein ( 0, 1 );
     const Rational<rational_type> d ( -7, -3 );
+    const Rational<rational_type, GCD_stein> d_stein ( -7, -3 );
 
     CPPUNIT_ASSERT_EQUAL ( 3, ( a / b ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 28, ( a / b ).denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( 28, ( b / a ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 3, ( b / a ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 3, ( a_stein / b_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 28, ( a_stein / b_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 28, ( b_stein / a_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 3, ( b_stein / a_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 3, ( a / b_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 28, ( a / b_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 28, ( b / a_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 3, ( b / a_stein ).denominator() );
 
 #ifdef __EXCEPTIONS
     CPPUNIT_ASSERT_THROW ( a / c, std::runtime_error );
@@ -447,7 +489,19 @@ void RationalTest::testDivision() {
 void RationalTest::testModulo() {
 
     Rational<rational_type> a ( 8, 1 );
+    Rational<rational_type, GCD_stein> a_stein ( 8, 1 );
+
     a %= Rational<rational_type> ( 3, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2, ( a ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( a ).denominator() );
+
+    a_stein %= Rational<rational_type, GCD_stein> ( 3, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2, ( a_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( a_stein ).denominator() );
+
+    a %= Rational<rational_type, GCD_stein> ( 3, 1 );
 
     CPPUNIT_ASSERT_EQUAL ( 2, ( a ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, ( a ).denominator() );
@@ -459,13 +513,27 @@ void RationalTest::testModulo() {
     CPPUNIT_ASSERT_EQUAL ( 14, ( c ).denominator() );
 
     Rational<rational_type> d ( 542, 84 );
+    Rational<rational_type, GCD_stein> d_stein ( 542, 84 );
     Rational<rational_type> e ( -65, 28 );
+    Rational<rational_type, GCD_stein> e_stein ( -65, 28 );
 
     CPPUNIT_ASSERT_EQUAL ( -43, ( d % e ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 84, ( d % e ).denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( 347, ( e % d ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 84, ( e % d ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -43, ( d_stein % e_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 84, ( d_stein % e_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 347, ( e_stein % d_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 84, ( e_stein % d_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -43, ( d % e_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 84, ( d % e_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 347, ( e % d_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 84, ( e % d_stein ).denominator() );
 
     Rational<uint32_t> f ( 5.65l );
     Rational<uint32_t> g ( 1.23l );
@@ -532,7 +600,9 @@ void RationalTest::testIncDec() {
 void RationalTest::testRelOps() {
 
     const Rational<rational_type> a ( 1, 4 );
+    const Rational<rational_type, GCD_stein> a_stein ( 1, 4 );
     const Rational<rational_type> b ( 1, 2 );
+    const Rational<rational_type, GCD_stein> b_stein ( 1, 2 );
 
     CPPUNIT_ASSERT ( a < b );
     CPPUNIT_ASSERT ( a <= b );
@@ -540,39 +610,137 @@ void RationalTest::testRelOps() {
     CPPUNIT_ASSERT ( b > a );
     CPPUNIT_ASSERT ( b >= a );
 
+    CPPUNIT_ASSERT ( a_stein < b_stein );
+    CPPUNIT_ASSERT ( a_stein <= b_stein );
+
+    CPPUNIT_ASSERT ( a < b_stein );
+    CPPUNIT_ASSERT ( a <= b_stein );
+
+    CPPUNIT_ASSERT ( a_stein < b );
+    CPPUNIT_ASSERT ( a_stein <= b );
+
+    CPPUNIT_ASSERT ( b_stein > a_stein );
+    CPPUNIT_ASSERT ( b_stein >= a_stein );
+
+    CPPUNIT_ASSERT ( b > a_stein );
+    CPPUNIT_ASSERT ( b >= a_stein );
+
+    CPPUNIT_ASSERT ( b_stein > a );
+    CPPUNIT_ASSERT ( b_stein >= a );
+
     const Rational<rational_type> c ( 2, 4 );
+    const Rational<rational_type, GCD_stein> c_stein ( 2, 4 );
 
     CPPUNIT_ASSERT ( c == b );
     CPPUNIT_ASSERT ( b == c );
 
+    CPPUNIT_ASSERT ( c_stein == b_stein );
+    CPPUNIT_ASSERT ( b_stein == c_stein );
+
+    CPPUNIT_ASSERT ( c == b_stein );
+    CPPUNIT_ASSERT ( b == c_stein );
+
+    CPPUNIT_ASSERT ( c_stein == b );
+    CPPUNIT_ASSERT ( b_stein == c );
+
     CPPUNIT_ASSERT ( a != b );
     CPPUNIT_ASSERT ( b != a );
+
+    CPPUNIT_ASSERT ( a_stein != b_stein );
+    CPPUNIT_ASSERT ( b_stein != a_stein );
+
+    CPPUNIT_ASSERT ( a != b_stein );
+    CPPUNIT_ASSERT ( b != a_stein );
+
+    CPPUNIT_ASSERT ( a_stein != b );
+    CPPUNIT_ASSERT ( b_stein != a );
 
     CPPUNIT_ASSERT ( b <= c );
     CPPUNIT_ASSERT ( c <= b );
     CPPUNIT_ASSERT ( b >= c );
     CPPUNIT_ASSERT ( c >= b );
 
+    CPPUNIT_ASSERT ( b_stein <= c_stein );
+    CPPUNIT_ASSERT ( c_stein <= b_stein );
+    CPPUNIT_ASSERT ( b_stein >= c_stein );
+    CPPUNIT_ASSERT ( c_stein >= b_stein );
+
+    CPPUNIT_ASSERT ( b <= c_stein );
+    CPPUNIT_ASSERT ( c <= b_stein );
+    CPPUNIT_ASSERT ( b >= c_stein );
+    CPPUNIT_ASSERT ( c >= b_stein );
+
+    CPPUNIT_ASSERT ( b_stein <= c );
+    CPPUNIT_ASSERT ( c_stein <= b );
+    CPPUNIT_ASSERT ( b_stein >= c );
+    CPPUNIT_ASSERT ( c_stein >= b );
+
     const Rational<rational_type> d ( 2, 4 );
+    const Rational<rational_type, GCD_stein> d_stein ( 2, 4 );
     const Rational<rational_type> e ( 2, -4 );
+    const Rational<rational_type, GCD_stein> e_stein ( 2, -4 );
 
     CPPUNIT_ASSERT ( d > e );
     CPPUNIT_ASSERT ( e < d );
 
+    CPPUNIT_ASSERT ( d_stein > e_stein );
+    CPPUNIT_ASSERT ( e_stein < d_stein );
+
+    CPPUNIT_ASSERT ( d > e_stein );
+    CPPUNIT_ASSERT ( e < d_stein );
+
+    CPPUNIT_ASSERT ( d_stein > e );
+    CPPUNIT_ASSERT ( e_stein < d );
+
     const Rational<rational_type> f ( -2, 4 );
+    const Rational<rational_type, GCD_stein> f_stein ( -2, 4 );
 
     CPPUNIT_ASSERT ( f == e );
     CPPUNIT_ASSERT ( f >= e );
     CPPUNIT_ASSERT ( f <= e );
 
+    CPPUNIT_ASSERT ( f_stein == e_stein );
+    CPPUNIT_ASSERT ( f_stein >= e_stein );
+    CPPUNIT_ASSERT ( f_stein <= e_stein );
+
+    CPPUNIT_ASSERT ( f == e_stein );
+    CPPUNIT_ASSERT ( f >= e_stein );
+    CPPUNIT_ASSERT ( f <= e_stein );
+
+    CPPUNIT_ASSERT ( f_stein == e );
+    CPPUNIT_ASSERT ( f_stein >= e );
+    CPPUNIT_ASSERT ( f_stein <= e );
+
     CPPUNIT_ASSERT ( e == f );
     CPPUNIT_ASSERT ( e >= f );
     CPPUNIT_ASSERT ( e <= f );
 
+    CPPUNIT_ASSERT ( e_stein == f_stein );
+    CPPUNIT_ASSERT ( e_stein >= f_stein );
+    CPPUNIT_ASSERT ( e_stein <= f_stein );
+
+    CPPUNIT_ASSERT ( e == f_stein );
+    CPPUNIT_ASSERT ( e >= f_stein );
+    CPPUNIT_ASSERT ( e <= f_stein );
+
+    CPPUNIT_ASSERT ( e_stein == f );
+    CPPUNIT_ASSERT ( e_stein >= f );
+    CPPUNIT_ASSERT ( e_stein <= f );
+
     const Rational<rational_type> g ( -3, 4 );
+    const Rational<rational_type, GCD_stein> g_stein ( -3, 4 );
 
     CPPUNIT_ASSERT ( g < d );
     CPPUNIT_ASSERT ( d > g );
+
+    CPPUNIT_ASSERT ( g_stein < d_stein );
+    CPPUNIT_ASSERT ( d_stein > g_stein );
+
+    CPPUNIT_ASSERT ( g < d_stein );
+    CPPUNIT_ASSERT ( d > g_stein );
+
+    CPPUNIT_ASSERT ( g_stein < d );
+    CPPUNIT_ASSERT ( d_stein > g );
 }
 
 void RationalTest::testGlobalOps() {
