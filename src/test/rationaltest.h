@@ -93,7 +93,7 @@ private:
     rat_vector m_onethird;
     rat_vector m_oneseventh;
 
-    typedef std::vector<Commons::Math::Rational<uint32_t> > rat_vector_ul;
+    typedef std::vector<Commons::Math::Rational<uint64_t> > rat_vector_ul;
     rat_vector_ul m_accu_ul;
 
     typedef std::vector<Commons::Math::Rational<uint64_t> > rat_vector_sqrt;
