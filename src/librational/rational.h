@@ -111,6 +111,11 @@ public:
     typedef typename _mod<integer_type, GCD, CHKOP,
             std::numeric_limits<integer_type>::is_signed>::pair_type mod_type;
 
+    typedef CHKOP<std::plus<T> > op_plus;
+    typedef CHKOP<std::minus<T> > op_minus;
+    typedef CHKOP<std::multiplies<T> > op_multiplies;
+    typedef CHKOP<std::divides<T> > op_divides;
+
     /**
      * @brief Creates a default (null) %Rational
      */
@@ -264,7 +269,7 @@ public:
      * @return the %Rational
      */
     inline Rational& operator+= ( const Rational& other ) {
-        return knuth_addSub<std::plus<integer_type> > ( other );
+        return knuth_addSub<op_plus> ( other );
     }
 
     template<template<typename, bool> class U, template<class, typename, bool> class V>
@@ -305,7 +310,7 @@ public:
      * @return the incremented %Rational
      */
     inline Rational& operator++() {
-        m_numer += m_denom;
+        m_numer = op_plus() ( m_numer, m_denom );
         return gcm ( *this );
     }
 
@@ -330,7 +335,7 @@ public:
      * @return the %Rational
      */
     inline Rational& operator-= ( const Rational& other ) {
-        return knuth_addSub<std::minus<integer_type> > ( other );
+        return knuth_addSub<op_minus> ( other );
     }
 
     template<template<typename, bool> class U, template<class, typename, bool> class V>
@@ -656,8 +661,8 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::gcm ( const Rational &o ) {
                             ( o.m_numer, o.m_denom ) : o.m_denom );
 
     if ( x != static_cast<integer_type> ( 1 ) ) {
-        m_numer /= x;
-        m_denom /= x;
+        m_numer = op_divides() ( m_numer, x );
+        m_denom = op_divides() ( m_denom, x );
     }
 
     return _changeSign<GCD, CHKOP, std::numeric_limits<integer_type>::is_signed>() ( *this );
@@ -672,17 +677,22 @@ Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
 
     if ( d1 == static_cast<integer_type> ( 1 ) ) {
 
-        m_numer = Op() ( ( m_numer * o.m_denom ), ( m_denom * o.m_numer ) );
-        m_denom *= o.m_denom;
+        m_numer = Op() ( op_multiplies() ( m_numer, o.m_denom ),
+                         op_multiplies() ( m_denom, o.m_numer ) );
+        m_denom = op_multiplies() ( m_denom, o.m_denom );
 
     } else {
 
-        const integer_type &t ( Op() ( m_numer * ( o.m_denom / d1 ),
-                                       o.m_numer * ( m_denom / d1 ) ) );
+        const integer_type &t ( Op() (
+                                    op_multiplies() ( m_numer, ( op_divides() ( o.m_denom, d1 ) ) ),
+                                    op_multiplies() ( o.m_numer,
+                                            ( op_divides() ( m_denom, d1 ) ) ) ) );
+
         const integer_type &d2 ( GCD<integer_type, std::numeric_limits<integer_type>::is_signed>()
                                  ( t, d1 ) );
-        m_numer = t / d2;
-        m_denom = ( m_denom / d1 ) * ( o.m_denom / d2 );
+
+        m_numer = op_divides() ( t, d2 );
+        m_denom = op_multiplies() ( op_divides() ( m_denom, d1 ), op_divides() ( o.m_denom, d2 ) );
     }
 
     return *this;
@@ -858,12 +868,14 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator*= ( const Rational& o
     if ( ! ( d1 == static_cast<integer_type> ( 1 ) &&
              d2 == static_cast<integer_type> ( 1 ) ) ) {
 
-        m_numer = ( m_numer / d1 ) * ( other.m_numer / d2 );
-        m_denom = ( m_denom / d2 ) * ( other.m_denom / d1 );
+        m_numer = op_multiplies() ( ( op_divides() ( m_numer, d1 ) ),
+                                    ( op_divides() ( other.m_numer, d2 ) ) );
+        m_denom = op_multiplies() ( ( op_divides() ( m_denom, d2 ) ),
+                                    ( op_divides() ( other.m_denom, d1 ) ) );
 
     } else {
-        m_numer *= other.m_numer;
-        m_denom *= other.m_denom;
+        m_numer = op_multiplies() ( m_numer, other.m_numer );
+        m_denom = op_multiplies() ( m_denom, other.m_denom );
     }
 
     return *this;
@@ -879,13 +891,13 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator%= ( const Rational& o
                                 std::numeric_limits<integer_type>::is_signed>()
                                 ( m_denom, o.m_denom ) );
 
-        const integer_type &a ( ( ( l/o.m_denom ) * o.m_numer ) );
+        const integer_type &a ( op_multiplies() ( op_divides() ( l, o.m_denom ), o.m_numer ) );
 
-        m_numer = ( ( ( l/m_denom ) * m_numer ) % a + a ) % a;
+        m_numer = op_plus() ( op_multiplies() ( op_divides() ( l, m_denom ), m_numer ) % a, a ) % a;
         m_denom = l;
 
     } else {
-        m_numer = ( m_numer % o.m_numer + o.m_numer ) % o.m_numer;
+        m_numer = op_plus() ( m_numer % o.m_numer, o.m_numer ) % o.m_numer;
     }
 
     return gcm ( *this );
@@ -1173,7 +1185,8 @@ template<typename T, template<typename, bool> class GCD,
         const Rational<T, GCD, CHKOP> &h ( Rational<T, GCD, CHKOP> ( ( r.m_numer % r.m_denom ),
                                            r.m_denom ) );
 
-        return std::make_pair ( r.m_numer / r.m_denom, r.m_numer < T() ? -h : h );
+        return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
+                                r.m_denom ), r.m_numer < T() ? -h : h );
     }
 };
 
@@ -1183,8 +1196,9 @@ template<typename T, template<typename, bool> class GCD,
     typedef std::pair<T, Rational<T, GCD, CHKOP> > pair_type;
 
     inline pair_type operator() ( const Rational<T, GCD, CHKOP> &r ) const {
-        return std::make_pair ( r.m_numer / r.m_denom,
-                                Rational<T, GCD, CHKOP> ( ( r.m_numer % r.m_denom ), r.m_denom ) );
+        return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
+                                r.m_denom ), Rational<T, GCD, CHKOP> ( ( r.m_numer % r.m_denom ),
+                                        r.m_denom ) );
     }
 };
 
