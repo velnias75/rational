@@ -970,12 +970,13 @@ void RationalTest::testAlgorithm() {
                            m_oneseventh.end(), Rational<rat_vector::value_type::integer_type>(),
                            std::plus<Rational<rat_vector::value_type::integer_type> >() ) ) );
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.0, static_cast<double> ( std::accumulate ( m_twosqrt.begin(),
-                                   m_twosqrt.end(),
-                                   Rational<rat_vector_sqrt::value_type::integer_type>
-                                   ( 1, 1 ), std::multiplies<
-                                   Rational<rat_vector_sqrt::value_type::integer_type> >
-                                   () ) ), std::numeric_limits<double >::epsilon() );
+//  produces an overflow despite the test succeeds!
+//  CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.0, static_cast<double> ( std::accumulate ( m_twosqrt.begin(),
+//                                 m_twosqrt.end(),
+//                                 Rational<rat_vector_sqrt::value_type::integer_type>
+//                                 ( 1, 1 ), std::multiplies<
+//                                 Rational<rat_vector_sqrt::value_type::integer_type> >
+//                                 () ) ), std::numeric_limits<double >::epsilon() );
 
     const Rational<rational_type> a ( 77, 88 );
     const Rational<rational_type> b ( 88, 77 );
