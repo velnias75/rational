@@ -251,7 +251,7 @@ public:
      * @return the %Rational
      */
     inline Rational& operator+= ( const Rational& other ) {
-        return knuth_addSub ( other, std::plus<integer_type>() );
+        return knuth_addSub<std::plus<integer_type> > ( other );
     }
 
     template<template<typename, bool> class U>
@@ -317,7 +317,7 @@ public:
      * @return the %Rational
      */
     inline Rational& operator-= ( const Rational& other ) {
-        return knuth_addSub ( other, std::minus<integer_type>() );
+        return knuth_addSub<std::minus<integer_type> > ( other );
     }
 
     template<template<typename, bool> class U>
@@ -606,7 +606,7 @@ private:
     Rational &gcm ( const Rational &o );
 
     template<class Op>
-    Rational &knuth_addSub ( const Rational &o, const Op &op );
+    Rational &knuth_addSub ( const Rational &o );
 
 private:
     integer_type m_numer;
@@ -647,20 +647,20 @@ Rational<T, GCD> &Rational<T, GCD>::gcm ( const Rational &o ) {
 }
 
 template<typename T, template<typename, bool> class GCD> template<class Op>
-Rational<T, GCD> &Rational<T, GCD>::knuth_addSub ( const Rational<T, GCD> &o, const Op &op ) {
+Rational<T, GCD> &Rational<T, GCD>::knuth_addSub ( const Rational<T, GCD> &o ) {
 
     const integer_type &d1 ( GCD<integer_type, std::numeric_limits<integer_type>::is_signed>()
                              ( m_denom, o.m_denom ) );
 
     if ( d1 == static_cast<integer_type> ( 1 ) ) {
 
-        m_numer = op ( ( m_numer * o.m_denom ), ( m_denom * o.m_numer ) );
+        m_numer = Op() ( ( m_numer * o.m_denom ), ( m_denom * o.m_numer ) );
         m_denom *= o.m_denom;
 
     } else {
 
-        const integer_type &t ( op ( m_numer * ( o.m_denom / d1 ),
-                                     o.m_numer * ( m_denom / d1 ) ) );
+        const integer_type &t ( Op() ( m_numer * ( o.m_denom / d1 ),
+                                       o.m_numer * ( m_denom / d1 ) ) );
         const integer_type &d2 ( GCD<integer_type, std::numeric_limits<integer_type>::is_signed>()
                                  ( t, d1 ) );
         m_numer = t / d2;
