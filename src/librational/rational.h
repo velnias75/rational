@@ -49,10 +49,18 @@ template<typename, template<typename, bool> class, template<class, typename, boo
 struct _abs;
 
 template<class Op, typename T, bool>
-struct _chkOperator {
+struct NO_OPERATOR_CHECK {
 
     inline T operator() ( const T &x, const T& y ) const {
         return Op() ( x, y );
+    }
+};
+
+template<class Op, typename T, bool b>
+struct ENABLE_OVERFLOW_CHECK {
+
+    inline T operator() ( const T &x, const T& y ) const {
+        return NO_OPERATOR_CHECK<Op, T, b>() ( x, y );
     }
 };
 
@@ -90,7 +98,7 @@ template<typename, template<typename, bool> class, template<class, typename, boo
  */
 template<typename T, template<typename, bool> class GCD = GCD_euclid,
          template<class, typename = T,
-         bool = std::numeric_limits<T>::is_signed> class CHKOP = _chkOperator>
+         bool = std::numeric_limits<T>::is_signed> class CHKOP = NO_OPERATOR_CHECK>
 class Rational {
     friend struct _changeSign<GCD, CHKOP, std::numeric_limits<T>::is_signed>;
     friend struct _mod<T, GCD, CHKOP, std::numeric_limits<T>::is_signed>;
@@ -1345,7 +1353,7 @@ struct _changeSign<GCD, CHKOP, false> {
 
 #ifdef __EXCEPTIONS
 template<typename T>
-struct _chkOperator<std::plus<T>, T, true> {
+struct ENABLE_OVERFLOW_CHECK<std::plus<T>, T, true> {
 
     inline T operator() ( const T &x, const T& y ) const {
 
@@ -1362,7 +1370,7 @@ struct _chkOperator<std::plus<T>, T, true> {
 
 #ifdef __EXCEPTIONS
 template<typename T>
-struct _chkOperator<std::minus<T>, T, true> {
+struct ENABLE_OVERFLOW_CHECK<std::minus<T>, T, true> {
 
     inline T operator() ( const T &x, const T& y ) const {
 
@@ -1379,14 +1387,14 @@ struct _chkOperator<std::minus<T>, T, true> {
 
 #ifdef __EXCEPTIONS
 template<typename T>
-struct _chkOperator<std::multiplies<T>, T, true> {
+struct ENABLE_OVERFLOW_CHECK<std::multiplies<T>, T, true> {
     T operator() ( const T &x, const T& y ) const;
 };
 #endif
 
 #ifdef __EXCEPTIONS
 template<typename T>
-T _chkOperator<std::multiplies<T>, T, true>::operator() ( const T &x, const T& y ) const {
+T ENABLE_OVERFLOW_CHECK<std::multiplies<T>, T, true>::operator() ( const T &x, const T& y ) const {
 
     bool overflow = false;
 
@@ -1420,14 +1428,14 @@ T _chkOperator<std::multiplies<T>, T, true>::operator() ( const T &x, const T& y
 
 #ifdef __EXCEPTIONS
 template<typename T>
-struct _chkOperator<std::divides<T>, T, true> {
+struct ENABLE_OVERFLOW_CHECK<std::divides<T>, T, true> {
     T operator() ( const T &x, const T& y ) const;
 };
 #endif
 
 #ifdef __EXCEPTIONS
 template<typename T>
-T _chkOperator<std::divides<T>, T, true>::operator() ( const T &x, const T& y ) const {
+T ENABLE_OVERFLOW_CHECK<std::divides<T>, T, true>::operator() ( const T &x, const T& y ) const {
 
     if ( ! ( ( y == T() ) || ( ( x == std::numeric_limits<T>::min() ) && ( y == -1 ) ) ) ) {
 
@@ -1440,7 +1448,7 @@ T _chkOperator<std::divides<T>, T, true>::operator() ( const T &x, const T& y ) 
 
 #ifdef __EXCEPTIONS
 template<typename T>
-struct _chkOperator<std::modulus<T>, T, true> {
+struct ENABLE_OVERFLOW_CHECK<std::modulus<T>, T, true> {
 
     inline T operator() ( const T &x, const T& y ) const {
 
@@ -1450,6 +1458,49 @@ struct _chkOperator<std::modulus<T>, T, true> {
         }
 
         throw std::domain_error ( "modulus overflow" );
+    }
+};
+#endif
+
+#ifdef __EXCEPTIONS
+template<typename T>
+struct ENABLE_OVERFLOW_CHECK<std::plus<T>, T, false> {
+
+    inline T operator() ( const T &x, const T& y ) const {
+
+        if ( ! ( std::numeric_limits<T>::max() - x < y ) ) {
+            return std::plus<T>() ( x, y );
+        }
+
+        throw std::domain_error ( "unsigned addition wrap" );
+    }
+};
+#endif
+
+#ifdef __EXCEPTIONS
+template<typename T>
+struct ENABLE_OVERFLOW_CHECK<std::minus<T>, T, false> {
+
+    inline T operator() ( const T &x, const T& y ) const {
+
+        if ( x < y ) return std::minus<T>() ( x, y );
+
+        throw std::domain_error ( "unsigned subtraction wrap" );
+    }
+};
+#endif
+
+#ifdef __EXCEPTIONS
+template<typename T>
+struct ENABLE_OVERFLOW_CHECK<std::multiplies<T>, T, false> {
+
+    inline T operator() ( const T &x, const T& y ) const {
+
+        if ( y == T ( 0 ) || ! ( x > std::numeric_limits<T>::max() / y ) ) {
+            return std::multiplies<T>() ( x, y );
+        }
+
+        throw std::domain_error ( "unsigned multiplication wrap" );
     }
 };
 #endif
@@ -1477,5 +1528,3 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 #endif /* COMMONS_MATH_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
-
-

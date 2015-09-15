@@ -81,8 +81,11 @@ public:
     void testStdMath();
 
 private:
+    typedef Commons::Math::Rational<uint64_t, Commons::Math::GCD_euclid,
+            Commons::Math::ENABLE_OVERFLOW_CHECK> checked_sqrt;
+
     Commons::Math::Rational<rational_type> m_nullRational;
-    Commons::Math::Rational<uint64_t> m_sqrt2;
+    checked_sqrt m_sqrt2;
 
     typedef std::vector<Commons::Math::Rational<rational_type> > rat_vector;
     typedef std::vector<Commons::Math::Rational<rational_type,
@@ -96,7 +99,7 @@ private:
     typedef std::vector<Commons::Math::Rational<uint64_t> > rat_vector_ul;
     rat_vector_ul m_accu_ul;
 
-    typedef std::vector<Commons::Math::Rational<uint64_t> > rat_vector_sqrt;
+    typedef std::vector<checked_sqrt> rat_vector_sqrt;
     rat_vector_sqrt m_twosqrt;
 };
 #pragma GCC diagnostic pop

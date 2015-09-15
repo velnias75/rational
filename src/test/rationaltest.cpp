@@ -30,7 +30,7 @@ RationalTest::RationalTest() : CppUnit::TestFixture(), m_nullRational(), m_sqrt2
 
 void RationalTest::setUp() {
 
-    m_sqrt2 = Rational<uint64_t> ( std::sqrt ( 2.0l ) );
+    m_sqrt2 = checked_sqrt ( std::sqrt ( 2.0l ) );
 
     for ( rational_type i = 1; i < 25; ++i ) {
         m_accu.push_back ( rat_vector::value_type ( 1, i ) );
@@ -349,7 +349,7 @@ void RationalTest::testAddition() {
     CPPUNIT_ASSERT_EQUAL ( 44, ( knuth_a + knuth_b ).denominator() );
 
 #ifdef __EXCEPTIONS
-    const Rational<int8_t> overflow ( 127, 1 );
+    const Rational<int8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> overflow ( 127, 1 );
     CPPUNIT_ASSERT_THROW ( overflow + 1.0, std::domain_error );
 #endif
 }
@@ -415,7 +415,7 @@ void RationalTest::testSubtraction() {
     CPPUNIT_ASSERT_EQUAL ( 15, ( d_stein ).denominator() );
 
 #ifdef __EXCEPTIONS
-    const Rational<int8_t> overflow ( -128, 1 );
+    const Rational<int8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> overflow ( -128, 1 );
     CPPUNIT_ASSERT_THROW ( overflow - 1.0, std::domain_error );
 #endif
 }
@@ -446,12 +446,10 @@ void RationalTest::testMultiplication() {
     CPPUNIT_ASSERT_EQUAL ( 12, ( b * a_stein ).denominator() );
 
 #ifdef __EXCEPTIONS
-    const Rational<int8_t> overflow ( 127, 1 );
+    const Rational<int8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> overflow ( 127, 1 );
     CPPUNIT_ASSERT_THROW ( overflow * 10.0, std::domain_error );
+    CPPUNIT_ASSERT_THROW ( m_sqrt2 * m_sqrt2, std::domain_error );
 #endif
-
-//  produces an overflow despite the test succeeds!
-//  CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.0f, static_cast<float> ( m_sqrt2 * m_sqrt2 ), 1.e-6 );
 }
 
 void RationalTest::testInvert() {
@@ -989,13 +987,11 @@ void RationalTest::testAlgorithm() {
                            m_oneseventh.end(), Rational<rat_vector::value_type::integer_type>(),
                            std::plus<Rational<rat_vector::value_type::integer_type> >() ) ) );
 
-//  produces an overflow despite the test succeeds!
-//  CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.0, static_cast<double> ( std::accumulate ( m_twosqrt.begin(),
-//                                 m_twosqrt.end(),
-//                                 Rational<rat_vector_sqrt::value_type::integer_type>
-//                                 ( 1, 1 ), std::multiplies<
-//                                 Rational<rat_vector_sqrt::value_type::integer_type> >
-//                                 () ) ), std::numeric_limits<double >::epsilon() );
+#ifdef __EXCEPTIONS
+    CPPUNIT_ASSERT_THROW ( std::accumulate ( m_twosqrt.begin(), m_twosqrt.end(),
+                           checked_sqrt ( 1, 1 ), std::multiplies<checked_sqrt > () ),
+                           std::domain_error );
+#endif
 
     const Rational<rational_type> a ( 77, 88 );
     const Rational<rational_type> b ( 88, 77 );
