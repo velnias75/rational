@@ -1064,26 +1064,35 @@ struct _approxFract<T, GCD, NumberType, true> {
 
     inline void operator() ( Rational<T, GCD> &r, const NumberType &nt ) const {
 
-        T p[2] = { T(), 1 };
-        T q[2] = { 1, T() };
+#ifdef __EXCEPTIONS
+        if ( ! ( nt > std::numeric_limits<T>::max() || nt < std::numeric_limits<T>::min() ) ) {
+#endif
 
-        NumberType x ( nt );
+            T p[2] = { T(), 1 };
+            T q[2] = { 1, T() };
 
-        while ( ! ( abs ( static_cast<NumberType> ( r.m_numer ) /
-                          static_cast<NumberType> ( r.m_denom ) - nt ) <
-                    std::numeric_limits<NumberType>::epsilon() ) ) {
+            NumberType x ( nt );
 
-            const T &n ( static_cast<T> ( std::floor ( x ) ) );
-            x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( n ) );
+            while ( ! ( abs ( static_cast<NumberType> ( r.m_numer ) /
+                              static_cast<NumberType> ( r.m_denom ) - nt ) <
+                        std::numeric_limits<NumberType>::epsilon() ) ) {
 
-            r.m_numer = p[0] + n * p[1];
-            p[0] = p[1];
-            p[1] = r.m_numer;
+                const T &n ( static_cast<T> ( std::floor ( x ) ) );
+                x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( n ) );
 
-            r.m_denom = q[0] + n * q[1];
-            q[0] = q[1];
-            q[1] = r.m_denom;
+                r.m_numer = p[0] + n * p[1];
+                p[0] = p[1];
+                p[1] = r.m_numer;
+
+                r.m_denom = q[0] + n * q[1];
+                q[0] = q[1];
+                q[1] = r.m_denom;
+            }
+#ifdef __EXCEPTIONS
+        } else {
+            throw std::domain_error ( "rational approximation overflow" );
         }
+#endif
     }
 
 private:
