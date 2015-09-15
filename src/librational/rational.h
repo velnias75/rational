@@ -1343,6 +1343,7 @@ struct _changeSign<GCD, CHKOP, false> {
     };
 };
 
+#ifdef __EXCEPTIONS
 template<typename T>
 struct _chkOperator<std::plus<T>, T, true> {
 
@@ -1357,7 +1358,9 @@ struct _chkOperator<std::plus<T>, T, true> {
         throw std::domain_error ( "addition overflow" );
     }
 };
+#endif
 
+#ifdef __EXCEPTIONS
 template<typename T>
 struct _chkOperator<std::minus<T>, T, true> {
 
@@ -1372,12 +1375,16 @@ struct _chkOperator<std::minus<T>, T, true> {
         throw std::domain_error ( "subtraction overflow" );
     }
 };
+#endif
 
+#ifdef __EXCEPTIONS
 template<typename T>
 struct _chkOperator<std::multiplies<T>, T, true> {
     T operator() ( const T &x, const T& y ) const;
 };
+#endif
 
+#ifdef __EXCEPTIONS
 template<typename T>
 T _chkOperator<std::multiplies<T>, T, true>::operator() ( const T &x, const T& y ) const {
 
@@ -1409,12 +1416,16 @@ T _chkOperator<std::multiplies<T>, T, true>::operator() ( const T &x, const T& y
 
     return std::multiplies<T>() ( x, y );
 }
+#endif
 
+#ifdef __EXCEPTIONS
 template<typename T>
 struct _chkOperator<std::divides<T>, T, true> {
     T operator() ( const T &x, const T& y ) const;
 };
+#endif
 
+#ifdef __EXCEPTIONS
 template<typename T>
 T _chkOperator<std::divides<T>, T, true>::operator() ( const T &x, const T& y ) const {
 
@@ -1425,7 +1436,9 @@ T _chkOperator<std::divides<T>, T, true>::operator() ( const T &x, const T& y ) 
 
     throw std::domain_error ( "division overflow" );
 }
+#endif
 
+#ifdef __EXCEPTIONS
 template<typename T>
 struct _chkOperator<std::modulus<T>, T, true> {
 
@@ -1439,6 +1452,7 @@ struct _chkOperator<std::modulus<T>, T, true> {
         throw std::domain_error ( "modulus overflow" );
     }
 };
+#endif
 
 }
 
