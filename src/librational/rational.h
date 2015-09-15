@@ -115,6 +115,7 @@ public:
     typedef CHKOP<std::minus<T> > op_minus;
     typedef CHKOP<std::multiplies<T> > op_multiplies;
     typedef CHKOP<std::divides<T> > op_divides;
+    typedef CHKOP<std::modulus<T> > op_modulus;
 
     /**
      * @brief Creates a default (null) %Rational
@@ -893,11 +894,13 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator%= ( const Rational& o
 
         const integer_type &a ( op_multiplies() ( op_divides() ( l, o.m_denom ), o.m_numer ) );
 
-        m_numer = op_plus() ( op_multiplies() ( op_divides() ( l, m_denom ), m_numer ) % a, a ) % a;
+        m_numer = op_modulus() ( op_plus() ( op_modulus() ( op_multiplies() ( op_divides()
+                                             ( l, m_denom ), m_numer ), a ), a ), a );
         m_denom = l;
 
     } else {
-        m_numer = op_plus() ( m_numer % o.m_numer, o.m_numer ) % o.m_numer;
+        m_numer = op_modulus() ( op_plus() ( op_modulus() ( m_numer, o.m_numer ), o.m_numer ),
+                                 o.m_numer );
     }
 
     return gcm ( *this );
@@ -1122,11 +1125,29 @@ inline bool operator>= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n )
 template<typename T, template<typename, bool> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
 struct _approxFract<T, GCD, CHKOP, NumberType, true> {
+private:
+    typedef Rational<T, GCD, CHKOP> rat;
 
-    inline void operator() ( Rational<T, GCD, CHKOP> &r, const NumberType &nt ) const {
+public:
+    void operator() ( rat &r, const NumberType &nt ) const;
 
-        T p[2] = { T(), 1 };
-        T q[2] = { 1, T() };
+private:
+    inline NumberType abs ( const NumberType &nt ) const {
+        return nt < NumberType() ? -nt : nt;
+    }
+};
+
+template<typename T, template<typename, bool> class GCD,
+         template<class, typename, bool> class CHKOP, typename NumberType>
+void _approxFract<T, GCD, CHKOP, NumberType, true>::operator() ( rat &r,
+        const NumberType &nt ) const {
+
+#ifdef __EXCEPTIONS
+    if ( ! ( nt > std::numeric_limits<T>::max() || nt < std::numeric_limits<T>::min() ) ) {
+#endif
+
+        T p[2] = { T(), T ( 1 ) };
+        T q[2] = { T ( 1 ), T() };
 
         NumberType x ( nt );
 
@@ -1137,21 +1158,22 @@ struct _approxFract<T, GCD, CHKOP, NumberType, true> {
             const T &n ( static_cast<T> ( std::floor ( x ) ) );
             x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( n ) );
 
-            r.m_numer = p[0] + n * p[1];
+            r.m_numer = typename rat::op_plus ()
+                        ( p[0], typename rat::op_multiplies () ( n, p[1] ) );
             p[0] = p[1];
             p[1] = r.m_numer;
 
-            r.m_denom = q[0] + n * q[1];
+            r.m_denom = typename rat::op_plus ()
+                        ( q[0], typename rat::op_multiplies () ( n, q[1] ) );
             q[0] = q[1];
             q[1] = r.m_denom;
         }
+#ifdef __EXCEPTIONS
+    } else {
+        throw std::domain_error ( "rational approximation overflow" );
     }
-
-private:
-    inline NumberType abs ( const NumberType &nt ) const {
-        return nt < NumberType() ? -nt : nt;
-    }
-};
+#endif
+}
 
 template<typename T, template<typename, bool> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -1182,8 +1204,9 @@ template<typename T, template<typename, bool> class GCD,
 
     inline pair_type operator() ( const Rational<T, GCD, CHKOP> &r ) const {
 
-        const Rational<T, GCD, CHKOP> &h ( Rational<T, GCD, CHKOP> ( ( r.m_numer % r.m_denom ),
-                                           r.m_denom ) );
+        const Rational<T, GCD, CHKOP> &h ( Rational<T, GCD, CHKOP> (
+                                               ( typename Rational<T, GCD, CHKOP>::op_modulus()
+                                                       ( r.m_numer, r.m_denom ) ), r.m_denom ) );
 
         return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
                                 r.m_denom ), r.m_numer < T() ? -h : h );
@@ -1197,8 +1220,9 @@ template<typename T, template<typename, bool> class GCD,
 
     inline pair_type operator() ( const Rational<T, GCD, CHKOP> &r ) const {
         return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
-                                r.m_denom ), Rational<T, GCD, CHKOP> ( ( r.m_numer % r.m_denom ),
-                                        r.m_denom ) );
+                                r.m_denom ), Rational<T, GCD, CHKOP> (
+                                    ( typename Rational<T, GCD, CHKOP>::op_modulus() ( r.m_numer,
+                                            r.m_denom ) ), r.m_denom ) );
     }
 };
 
@@ -1317,6 +1341,103 @@ struct _changeSign<GCD, CHKOP, false> {
     inline Rational<T, GCD, CHKOP> &operator() ( Rational<T, GCD, CHKOP> &r ) const {
         return r;
     };
+};
+
+template<typename T>
+struct _chkOperator<std::plus<T>, T, true> {
+
+    inline T operator() ( const T &x, const T& y ) const {
+
+        if ( ! ( ( ( y > T() ) && ( x > ( std::numeric_limits<T>::max() - y ) ) ) ||
+                 ( ( y < T() ) && ( x < ( std::numeric_limits<T>::min() - y ) ) ) ) ) {
+
+            return std::plus<T>() ( x, y );
+        }
+
+        throw std::domain_error ( "addition overflow" );
+    }
+};
+
+template<typename T>
+struct _chkOperator<std::minus<T>, T, true> {
+
+    inline T operator() ( const T &x, const T& y ) const {
+
+        if ( ! ( ( y > T() && x < std::numeric_limits<T>::min() + y ) ||
+                 ( y < T() && x > std::numeric_limits<T>::max() + y ) ) ) {
+
+            return std::minus<T>() ( x, y );
+        }
+
+        throw std::domain_error ( "subtraction overflow" );
+    }
+};
+
+template<typename T>
+struct _chkOperator<std::multiplies<T>, T, true> {
+    T operator() ( const T &x, const T& y ) const;
+};
+
+template<typename T>
+T _chkOperator<std::multiplies<T>, T, true>::operator() ( const T &x, const T& y ) const {
+
+    bool overflow = false;
+
+    if ( x > T() ) {
+        if ( y > T() ) {
+            if ( x > ( std::numeric_limits<T>::max() / y ) ) {
+                overflow = true;
+            }
+        } else {
+            if ( y < ( std::numeric_limits<T>::min() / x ) ) {
+                overflow = true;
+            }
+        }
+    } else {
+        if ( y > T() ) {
+            if ( x < ( std::numeric_limits<T>::min() / y ) ) {
+                overflow = true;
+            }
+        } else {
+            if ( ( x != T() ) && ( y < ( std::numeric_limits<T>::max() / x ) ) ) {
+                overflow = true;
+            }
+        }
+    }
+
+    if ( overflow ) throw std::domain_error ( "multiplication overflow" );
+
+    return std::multiplies<T>() ( x, y );
+}
+
+template<typename T>
+struct _chkOperator<std::divides<T>, T, true> {
+    T operator() ( const T &x, const T& y ) const;
+};
+
+template<typename T>
+T _chkOperator<std::divides<T>, T, true>::operator() ( const T &x, const T& y ) const {
+
+    if ( ! ( ( y == T() ) || ( ( x == std::numeric_limits<T>::min() ) && ( y == -1 ) ) ) ) {
+
+        return std::divides<T>() ( x, y );
+    }
+
+    throw std::domain_error ( "division overflow" );
+}
+
+template<typename T>
+struct _chkOperator<std::modulus<T>, T, true> {
+
+    inline T operator() ( const T &x, const T& y ) const {
+
+        if ( ! ( ( y == T() ) || ( ( x == std::numeric_limits<T>::min() ) && ( y == -1 ) ) ) ) {
+
+            return std::modulus<T>() ( x, y );
+        }
+
+        throw std::domain_error ( "modulus overflow" );
+    }
 };
 
 }

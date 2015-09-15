@@ -200,8 +200,12 @@ void RationalTest::testConstructFromDouble() {
     CPPUNIT_ASSERT_EQUAL ( -8, v.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, v.denominator() );
 
-    Rational<uint64_t, GCD_euclid> max_pi_euclid ( 3.141592653589793238462643383279502884l );
-    Rational<uint64_t, GCD_stein>  max_pi_stein ( 3.141592653589793238462643383279502884l );
+#ifdef __EXCEPTIONS
+    CPPUNIT_ASSERT_THROW ( Rational<int8_t> ( 1000.0 ), std::domain_error );
+#endif
+
+    const Rational<uint64_t, GCD_euclid> max_pi_euclid ( 3.141592653589793238462643383279502884l );
+    const Rational<uint64_t, GCD_stein>  max_pi_stein ( 3.141592653589793238462643383279502884l );
 
     CPPUNIT_ASSERT_EQUAL ( 8717442233u, max_pi_euclid.numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), max_pi_euclid.denominator() );
@@ -315,19 +319,19 @@ void RationalTest::testAddition() {
     CPPUNIT_ASSERT_EQUAL ( 2, ( +d_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 15, ( +d_stein ).denominator() );
 
-    const Rational<uint32_t, GCD_euclid> e ( 1, 6 );
+    const Rational<uint32_t, GCD_euclid> e_euclid ( 1, 6 );
     const Rational<uint32_t, GCD_stein> e_stein ( 1, 6 );
     const Rational<uint32_t, GCD_euclid> f ( 2, 15 );
     const Rational<uint32_t, GCD_stein> f_stein ( 2, 15 );
 
-    CPPUNIT_ASSERT_EQUAL ( 3u, ( e + f ).numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 10u, ( e + f ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 3u, ( e_euclid + f ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 10u, ( e_euclid + f ).denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( 3u, ( e_stein + f_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 10u, ( e_stein + f_stein ).denominator() );
 
-    CPPUNIT_ASSERT_EQUAL ( 3u, ( f + e ).numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 10u, ( f + e ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 3u, ( f + e_euclid ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 10u, ( f + e_euclid ).denominator() );
 
     CPPUNIT_ASSERT_EQUAL ( 3u, ( f_stein + e_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 10u, ( f_stein + e_stein ).denominator() );
@@ -338,11 +342,16 @@ void RationalTest::testAddition() {
     CPPUNIT_ASSERT_EQUAL ( 2u, ( +f_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 15u, ( +f_stein ).denominator() );
 
-    Rational<rational_type> knuth_a ( 7, 66 );
-    Rational<rational_type> knuth_b ( 17, 12 );
+    const Rational<rational_type> knuth_a ( 7, 66 );
+    const Rational<rational_type> knuth_b ( 17, 12 );
 
     CPPUNIT_ASSERT_EQUAL ( 67, ( knuth_a + knuth_b ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 44, ( knuth_a + knuth_b ).denominator() );
+
+#ifdef __EXCEPTIONS
+    const Rational<int8_t> overflow ( 127, 1 );
+    CPPUNIT_ASSERT_THROW ( overflow + 1.0, std::domain_error );
+#endif
 }
 
 void RationalTest::testSubtraction() {
@@ -404,6 +413,11 @@ void RationalTest::testSubtraction() {
 
     CPPUNIT_ASSERT_EQUAL ( 2, ( d_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 15, ( d_stein ).denominator() );
+
+#ifdef __EXCEPTIONS
+    const Rational<int8_t> overflow ( -128, 1 );
+    CPPUNIT_ASSERT_THROW ( overflow - 1.0, std::domain_error );
+#endif
 }
 
 void RationalTest::testMultiplication() {
@@ -430,6 +444,11 @@ void RationalTest::testMultiplication() {
 
     CPPUNIT_ASSERT_EQUAL ( 7, ( b * a_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12, ( b * a_stein ).denominator() );
+
+#ifdef __EXCEPTIONS
+    const Rational<int8_t> overflow ( 127, 1 );
+    CPPUNIT_ASSERT_THROW ( overflow * 10.0, std::domain_error );
+#endif
 
 //  produces an overflow despite the test succeeds!
 //  CPPUNIT_ASSERT_DOUBLES_EQUAL ( 2.0f, static_cast<float> ( m_sqrt2 * m_sqrt2 ), 1.e-6 );
