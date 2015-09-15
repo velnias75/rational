@@ -351,6 +351,8 @@ void RationalTest::testAddition() {
 #ifdef __EXCEPTIONS
     const Rational<int8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> overflow ( 127, 1 );
     CPPUNIT_ASSERT_THROW ( overflow + 1.0, std::domain_error );
+    const Rational<uint8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> wrap ( 255, 1 );
+    CPPUNIT_ASSERT_THROW ( wrap + 1.0, std::domain_error );
 #endif
 }
 
@@ -417,6 +419,8 @@ void RationalTest::testSubtraction() {
 #ifdef __EXCEPTIONS
     const Rational<int8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> overflow ( -128, 1 );
     CPPUNIT_ASSERT_THROW ( overflow - 1.0, std::domain_error );
+    const Rational<uint8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> wrap ( 0, 1 );
+    CPPUNIT_ASSERT_THROW ( wrap - 1.0, std::domain_error );
 #endif
 }
 
@@ -448,6 +452,8 @@ void RationalTest::testMultiplication() {
 #ifdef __EXCEPTIONS
     const Rational<int8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> overflow ( 127, 1 );
     CPPUNIT_ASSERT_THROW ( overflow * 10.0, std::domain_error );
+    const Rational<uint8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> wrap ( 255, 1 );
+    CPPUNIT_ASSERT_THROW ( wrap * 2.0, std::domain_error );
     CPPUNIT_ASSERT_THROW ( m_sqrt2 * m_sqrt2, std::domain_error );
 #endif
 }

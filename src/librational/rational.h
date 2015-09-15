@@ -1483,7 +1483,7 @@ struct ENABLE_OVERFLOW_CHECK<std::minus<T>, T, false> {
 
     inline T operator() ( const T &x, const T& y ) const {
 
-        if ( x < y ) return std::minus<T>() ( x, y );
+        if ( ! ( x < y ) ) return std::minus<T>() ( x, y );
 
         throw std::domain_error ( "unsigned subtraction wrap" );
     }

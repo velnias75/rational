@@ -10,15 +10,14 @@ Simple to use, fast, and modifiable for your needs, because its all in the one h
 `rational.h` at your access. It includes all basic mathematical operations as well as comparison 
 operators, and is very flexible. If you would like to see a feature implemented, just ask here.
 
-**Whilst `Rational` tries to avoid overflows where possible, no overflow checking is performed
-for performance reasons. Choose the storage type carefully and use `g++` features like `-ftrapv`
-and `-fsanitize=undefined -fsanitize=signed-integer-overflow`.**
-
 Features
 --------
 
 - exchangeable `GCD` algorithms *[`GCD_euclid` (**default**) and `GCD_stein`, choose as second
  template parameter, i. e. `Rational<long, GCD_stein> foo(3, 4)` for `Stein`]*
+- optional *signed overflow/unsigned wrap* checking by throwing an `std::domain_error` exception
+  (i.e. `Rational<storage_type, GCD_algo, Commons::Math::ENABLE_OVERFLOW_CHECK>`, default is
+   no checking: `Commons::Math::NO_OVERFLOW_CHECK`)
 - optimized for `signed` and `unsigned` types
 - additional operators: 
   - `mod` to split inproper fractions in integer and fraction part
