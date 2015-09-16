@@ -273,9 +273,9 @@ void RationalTest::testAssignedFromDouble() {
 
 void RationalTest::testAddition() {
 
-    const Rational<rational_type, GCD_euclid> a ( 17, 21 );
+    const Rational<rational_type, GCD_euclid_fast> a ( 17, 21 );
     const Rational<rational_type, GCD_stein> a_stein ( 17, 21 );
-    const Rational<rational_type, GCD_euclid> b ( 44, 35 );
+    const Rational<rational_type, GCD_euclid_fast> b ( 44, 35 );
     const Rational<rational_type, GCD_stein> b_stein ( 44, 35 );
 
     CPPUNIT_ASSERT_EQUAL ( 31, ( a + b ).numerator() );

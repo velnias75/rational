@@ -74,13 +74,26 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
 struct GCD_stein;
 
 /**
- * @brief Euclid GCD algorithm implementation
+ * @brief Euclid GCD algorithm (safe) implementation
  *
+ * This implementation supports overlow/wrap checking
+ * 
  * @tparam T storage type
  * @tparam IsSigned specialization for @em signed or @em unsigned types
  */
 template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class>
 struct GCD_euclid;
+
+/**
+ * @brief Euclid GCD algorithm (fast) implementation
+ *
+ * @see GCD_euclid if your number class doesn't support all needed operators
+ *
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ */
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class>
+struct GCD_euclid_fast;
 
 template<typename, template<typename, bool, template<class, typename, bool> class> class,
          template<class, typename, bool> class, bool> struct _lcm;
@@ -97,7 +110,7 @@ template<typename, template<typename, bool, template<class, typename, bool> clas
  * @tparam GCD GCD algorithm
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class>
-class GCD = GCD_euclid,
+class GCD = GCD_euclid_fast,
       template<class, typename = T, bool = std::numeric_limits<T>::is_signed>
       class CHKOP = NO_OPERATOR_CHECK>
 class Rational {
@@ -1271,7 +1284,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 };
 
 template<typename T, template<class, typename, bool> class CHKOP>
-struct GCD_euclid<T, false, CHKOP> {
+struct GCD_euclid_fast<T, false, CHKOP> {
 
     inline T operator() ( const T &a, const T &b ) const {
 
@@ -1285,6 +1298,34 @@ struct GCD_euclid<T, false, CHKOP> {
             y ^= x;
             x ^= y;
             y ^= x;
+        }
+
+        return x;
+    }
+};
+
+template<typename T, template<class, typename, bool> class CHKOP>
+struct GCD_euclid_fast<T, true, CHKOP> {
+
+    inline T operator() ( const T &a, const T &b ) const {
+        const T &h ( GCD_euclid_fast<T, false, CHKOP>() ( a, b ) );
+        return h < T() ? -h : h;
+    }
+};
+
+template<typename T, template<class, typename, bool> class CHKOP>
+struct GCD_euclid<T, false, CHKOP> {
+
+    inline T operator() ( const T &a, const T &b ) const {
+
+        T x ( a ), y ( b );
+
+        while ( y ) {
+
+            const T &h ( typename Rational<T,
+                         GCD_euclid::template GCD_euclid, CHKOP>::op_modulus() ( x, y ) );
+            x = y;
+            y = h;
         }
 
         return x;

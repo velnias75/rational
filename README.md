@@ -13,8 +13,8 @@ operators, and is very flexible. If you would like to see a feature implemented,
 Features
 --------
 
-- exchangeable `GCD` algorithms *[`GCD_euclid` (**default**) and `GCD_stein`, choose as second
- template parameter, i. e. `Rational<long, GCD_stein> foo(3, 4)` for `Stein`]*
+- exchangeable `GCD` algorithms *[`GCD_euclid_fast` (**default**), `GCD_euclid_fast`and `GCD_stein`,
+  choose as second template parameter, i. e. `Rational<long, GCD_stein> foo(3, 4)` for `Stein`]*
 - optional *signed overflow/unsigned wrap* checking by throwing an `std::domain_error` exception
   (i.e. `Rational<storage_type, GCD_algo, Commons::Math::ENABLE_OVERFLOW_CHECK>`, default is
    no checking: `Commons::Math::NO_OVERFLOW_CHECK`)
