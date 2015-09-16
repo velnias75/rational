@@ -1316,7 +1316,7 @@ template<typename T, template<typename, bool> class GCD,
 
         return typename Rational<T, GCD, CHKOP>::op_multiplies()
                ( ( typename Rational<T, GCD, CHKOP>::op_divides() ( static_cast<T> ( x ),
-                       ( a ? GCD<T, false>() ( x, y ) : b ) ) ),static_cast<T> ( y ) );
+                       ( a ? GCD<T, false>() ( x, y ) : b ) ) ), static_cast<T> ( y ) );
     }
 };
 
