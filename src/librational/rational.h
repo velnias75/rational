@@ -82,7 +82,7 @@ struct GCD_stein;
 template<typename T, bool IsSigned>
 struct GCD_euclid;
 
-template<typename, template<typename, bool> class, bool>
+template<typename, template<typename, bool> class, template<class, typename, bool> class, bool>
 struct _lcm;
 
 template<typename, template<typename, bool> class, template<class, typename, bool> class, typename,
@@ -896,7 +896,7 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator%= ( const Rational& o
 
     if ( m_denom != o.m_denom ) {
 
-        const integer_type &l ( _lcm<integer_type, GCD,
+        const integer_type &l ( _lcm<integer_type, GCD, CHKOP,
                                 std::numeric_limits<integer_type>::is_signed>()
                                 ( m_denom, o.m_denom ) );
 
@@ -1307,23 +1307,26 @@ struct GCD_stein<T, true> {
     }
 };
 
-template<typename T, template<typename, bool> class GCD>
-struct _lcm<T, GCD, true> {
+template<typename T, template<typename, bool> class GCD,
+         template<class, typename, bool> class CHKOP> struct _lcm<T, GCD, CHKOP, true> {
 
     inline T operator() ( const T &a, const T &b ) const {
 
         const T &x ( a < T() ? -a : a ), &y ( b < T() ? -b : b );
 
-        return ( static_cast<T> ( x ) / ( a ? GCD<T, false>() ( x, y ) : b ) ) *
-               static_cast<T> ( y ) ;
+        return typename Rational<T, GCD, CHKOP>::op_multiplies()
+               ( ( typename Rational<T, GCD, CHKOP>::op_divides() ( static_cast<T> ( x ),
+                       ( a ? GCD<T, false>() ( x, y ) : b ) ) ),static_cast<T> ( y ) );
     }
 };
 
-template<typename T, template<typename, bool> class GCD>
-struct _lcm<T, GCD, false> {
+template<typename T, template<typename, bool> class GCD,
+         template<class, typename, bool> class CHKOP> struct _lcm<T, GCD, CHKOP, false> {
 
     inline T operator() ( const T &a, const T &b ) const {
-        return ( a / ( a ? GCD<T, false>() ( a, b ) : b ) * b );
+        return typename Rational<T, GCD, CHKOP>::op_multiplies()
+               ( typename Rational<T, GCD, CHKOP>::op_divides()
+                 ( a, ( a ? GCD<T, false>() ( a, b ) : b ) ), b );
     }
 };
 
@@ -1528,3 +1531,5 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 #endif /* COMMONS_MATH_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+
+
