@@ -39,16 +39,31 @@ namespace Commons {
 
 namespace Math {
 
-template<template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, bool> struct _changeSign;
-
 template<typename, template<typename, bool, template<class, typename, bool> class> class,
          template<class, typename, bool> class, bool> struct _mod;
 
 template<typename, template<typename, bool, template<class, typename, bool> class> class,
          template<class, typename, bool> class, bool> struct _abs;
 
-template<class Op, typename T, bool>
+template<typename, template<typename, bool, template<class, typename, bool> class> class,
+         template<class, typename, bool> class, bool> struct _lcm;
+
+template<template<typename, bool, template<class, typename, bool> class> class,
+         template<class, typename, bool> class, bool> struct _changeSign;
+
+template<typename, template<typename, bool, template<class, typename, bool> class> class,
+         template<class, typename, bool> class, typename, bool> struct _approxFract;
+
+/**
+ * @brief unchecked operator
+ *
+ * Delegates the operator @c Op without any overflow/wrap check
+ *
+ * @tparam Op operator functor
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ */
+template<class Op, typename T, bool IsSigned>
 struct NO_OPERATOR_CHECK {
 
     inline T operator() ( const T &x, const T& y ) const {
@@ -56,11 +71,22 @@ struct NO_OPERATOR_CHECK {
     }
 };
 
-template<class Op, typename T, bool b>
+/**
+ * @brief checked operator
+ *
+ * Checks the operands on signed overflows, resp. unsigned wraps
+ * and throws a @c std::domain_error if the check fails, else
+ * delegates to the operator @c Op
+ *
+ * @tparam Op operator functor
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ */
+template<class Op, typename T, bool IsSigned>
 struct ENABLE_OVERFLOW_CHECK {
 
     inline T operator() ( const T &x, const T& y ) const {
-        return NO_OPERATOR_CHECK<Op, T, b>() ( x, y );
+        return NO_OPERATOR_CHECK<Op, T, IsSigned>() ( x, y );
     }
 };
 
@@ -69,19 +95,21 @@ struct ENABLE_OVERFLOW_CHECK {
  *
  * @tparam T storage type
  * @tparam IsSigned specialization for @em signed or @em unsigned types
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class>
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP>
 struct GCD_stein;
 
 /**
  * @brief Euclid GCD algorithm (safe) implementation
  *
  * This implementation supports overlow/wrap checking
- * 
+ *
  * @tparam T storage type
  * @tparam IsSigned specialization for @em signed or @em unsigned types
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class>
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP>
 struct GCD_euclid;
 
 /**
@@ -91,15 +119,10 @@ struct GCD_euclid;
  *
  * @tparam T storage type
  * @tparam IsSigned specialization for @em signed or @em unsigned types
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class>
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP>
 struct GCD_euclid_fast;
-
-template<typename, template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, bool> struct _lcm;
-
-template<typename, template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, typename, bool> struct _approxFract;
 
 /**
  * @brief %Rational (fraction) template class
@@ -108,6 +131,7 @@ template<typename, template<typename, bool, template<class, typename, bool> clas
  *
  * @tparam T storage type
  * @tparam GCD GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class>
 class GCD = GCD_euclid_fast,
@@ -133,26 +157,45 @@ public:
     typedef typename _mod<integer_type, GCD, CHKOP,
             std::numeric_limits<integer_type>::is_signed>::pair_type mod_type;
 
+    /**
+     * @brief addition (@c a @b + @c b) operator
+     */
     typedef CHKOP<std::plus<T> > op_plus;
+
+    /**
+     * @brief subtraction (@c a @b - @c b) operator
+     */
     typedef CHKOP<std::minus<T> > op_minus;
+
+    /**
+     * @brief multiplication (@c a @b * @c b) operator
+     */
     typedef CHKOP<std::multiplies<T> > op_multiplies;
+
+    /**
+     * @brief division (@c a @b / @c b) operator
+     */
     typedef CHKOP<std::divides<T> > op_divides;
+
+    /**
+     * @brief modulus (@c a @b % @c b) operator
+     */
     typedef CHKOP<std::modulus<T> > op_modulus;
 
     /**
-     * @brief Creates a default (null) %Rational
+     * @brief creates a default (null) %Rational
      */
     Rational() : m_numer (), m_denom ( 1 ) {}
 
     /**
-     * @brief Copy constructor
+     * @brief copy constructor
      *
      * @param[in] other the %Rational to copy
      */
     Rational ( const Rational &other ) : m_numer ( other.m_numer ), m_denom ( other.m_denom ) {}
 
     /**
-     * @brief Creates a %Rational
+     * @brief creates a %Rational
      *
      * @param[in] numer the numerator
      * @param[in] denom the denominator
@@ -160,7 +203,7 @@ public:
     Rational ( const integer_type &numer, const integer_type &denom );
 
     /**
-     * @brief Creates a inproper (mixed) %Rational
+     * @brief creates a inproper (mixed) %Rational
      *
      * @param[in] whole whole number part
      * @param[in] numer the numerator
@@ -172,9 +215,10 @@ public:
     }
 
     /**
-     * @brief Creates an approximated %Rational
+     * @brief creates an approximated %Rational
      *
      * @tparam NumberType type of the number to approximate
+     *
      * @param[in] number the number to create an approximated %Rational of
      */
     template<typename NumberType>
@@ -196,11 +240,12 @@ public:
     }
 
     /**
-     * @brief assigns a Number
+     * @brief assigns from a @c NumberType
      *
-     * The Number is approximated to a %Rational and then it gets assigned
+     * The Number is approximated to a %Rational, then it gets assigned
      *
      * @tparam NumberType type of the number to approximate
+     *
      * @param[in] number the number to assign
      */
     template<typename NumberType>
@@ -209,7 +254,7 @@ public:
     }
 
     /**
-     * @brief convert to a Number
+     * @brief convert to @c NumberType
      *
      * @tparam NumberType type of the number to approximate
      *
@@ -639,16 +684,36 @@ public:
     /**
      * @brief generates the string representation of %Rational
      *
-     * @param[in] mixed if @c true, than a mixed fraction is generated
+     * @param[in] mixed if @c true, than a mixed (inproper) fraction is generated
      *
      * @return the string representation of %Rational
      */
     std::string str ( bool mixed = false ) const;
 
+    /**
+     * @brief output stream operator
+     *
+     * Sends a string representation of %Rational to a @c std::ostream
+     *
+     * @see str(bool)
+     *
+     * @param[out] o the stream to send to
+     * @param[in] r the %Rational to send to the stream @c o
+     *
+     * @return the stream @c o
+     */
     friend std::ostream &operator<< ( std::ostream &o, const Rational &r ) {
         return ( o << r.str() );
     }
 
+    /**
+     * @brief reads in a @c double from a @c std::istream and assign it to @c r
+     *
+     * @param[in] i the stream to read from
+     * @param[out] r the %Rational to assign to
+     *
+     * @return the stream @c i
+     */
     friend std::istream &operator>> ( std::istream &i, Rational &r ) {
 
         double d;
@@ -743,6 +808,7 @@ Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class> class GCD,
@@ -757,6 +823,7 @@ inline NumberType &operator+= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -770,6 +837,7 @@ inline Rational<T, GCD, CHKOP> operator+ ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class> class GCD,
@@ -784,6 +852,7 @@ inline Rational<T, GCD, CHKOP> operator+ ( const NumberType &n, const Rational<T
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class> class GCD,
@@ -798,6 +867,7 @@ inline NumberType &operator-= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -811,6 +881,7 @@ inline Rational<T, GCD, CHKOP> operator- ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class> class GCD,
@@ -825,6 +896,7 @@ inline Rational<T, GCD, CHKOP> operator- ( const NumberType &n, const Rational<T
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class> class GCD,
@@ -839,6 +911,7 @@ inline NumberType &operator*= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -852,6 +925,7 @@ inline Rational<T, GCD, CHKOP> operator* ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class> class GCD,
@@ -866,6 +940,7 @@ inline Rational<T, GCD, CHKOP> operator* ( const NumberType &n, const Rational<T
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class> class GCD,
@@ -880,6 +955,7 @@ inline NumberType &operator/= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -893,6 +969,7 @@ inline Rational<T, GCD, CHKOP> operator/ ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class> class GCD,
@@ -980,6 +1057,7 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -994,6 +1072,7 @@ inline NumberType &operator%= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -1007,6 +1086,7 @@ inline Rational<T, GCD, CHKOP> operator% ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1021,6 +1101,7 @@ inline Rational<T, GCD, CHKOP> operator% ( const NumberType &n, const Rational<T
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1035,6 +1116,7 @@ inline bool operator== ( const NumberType &n, const Rational<T, GCD, CHKOP>& o )
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -1048,6 +1130,7 @@ inline bool operator== ( const Rational<T, GCD, CHKOP>& o, const NumberType &n )
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1062,6 +1145,7 @@ inline bool operator!= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o )
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1076,6 +1160,7 @@ inline bool operator!= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n )
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1090,6 +1175,7 @@ inline bool operator< ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) 
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -1103,6 +1189,7 @@ inline bool operator< ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) 
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1117,6 +1204,7 @@ inline bool operator<= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o )
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -1130,6 +1218,7 @@ inline bool operator<= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n )
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1144,6 +1233,7 @@ inline bool operator> ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) 
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1158,6 +1248,7 @@ inline bool operator> ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) 
  * @tparam NumberType the number type
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class> class GCD,
@@ -1172,6 +1263,7 @@ inline bool operator>= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o )
  * @tparam T the storage type
  * @tparam GCD the GCD algorithm
  * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -1313,7 +1405,7 @@ struct GCD_euclid_fast<T, true, CHKOP> {
     }
 };
 
-template<typename T, template<class, typename, bool> class CHKOP>
+template<typename T, template<class, typename = T, bool = false> class CHKOP>
 struct GCD_euclid<T, false, CHKOP> {
 
     inline T operator() ( const T &a, const T &b ) const {
@@ -1322,8 +1414,7 @@ struct GCD_euclid<T, false, CHKOP> {
 
         while ( y ) {
 
-            const T &h ( typename Rational<T,
-                         GCD_euclid::template GCD_euclid, CHKOP>::op_modulus() ( x, y ) );
+            const T &h ( CHKOP<std::modulus<T> >() ( x, y ) );
             x = y;
             y = h;
         }
@@ -1593,6 +1684,23 @@ struct ENABLE_OVERFLOW_CHECK<std::multiplies<T>, T, false> {
 
 namespace std {
 
+/**
+ * @brief Overload of @c std::modf for @c %Rational types
+ *
+ * @see Rational::mod()
+ *
+ * @warning __iptr @b must point to a valid address and @b cannot be @c NULL
+ *
+ * @tparam T the storage type
+ * @tparam GCD the GCD algorithm
+ * @tparam NumberType the number type
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
+ *
+ * @param[in] __x the @c %Rational
+ * @param[out] __iptr address of the @c integer_type to store the integral part
+ *
+ * @return the %Rational part of @c __x
+ */
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP> inline Commons::Math::Rational<T, GCD, CHKOP>
 modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
