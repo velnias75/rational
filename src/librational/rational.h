@@ -71,6 +71,14 @@ struct NO_OPERATOR_CHECK {
     }
 };
 
+template<typename T, bool IsSigned>
+struct NO_OPERATOR_CHECK<std::negate<T>, T, IsSigned> {
+
+    inline T operator() ( const T &x ) const {
+        return std::negate<T>() ( x );
+    }
+};
+
 /**
  * @brief checked operator
  *
@@ -166,6 +174,11 @@ public:
      * @brief subtraction (@c a @b - @c b) operator
      */
     typedef CHKOP<std::minus<T> > op_minus;
+
+    /**
+     * @brief subtraction (@c a @b - @c b) operator
+     */
+    typedef CHKOP<std::negate<T> > op_negate;
 
     /**
      * @brief multiplication (@c a @b * @c b) operator
@@ -438,7 +451,7 @@ public:
      */
     inline Rational operator-() const {
         Rational tmp ( *this );
-        tmp.m_numer = -tmp.m_numer;
+        tmp.m_numer = op_negate() ( tmp.m_numer );
         return tmp;
     }
 
@@ -450,7 +463,7 @@ public:
      * @return the decremented %Rational
      */
     inline Rational& operator--() {
-        m_numer -= m_denom;
+        m_numer = op_minus() ( m_numer, m_denom );
         return gcm ( *this );
     }
 
@@ -1560,6 +1573,22 @@ struct ENABLE_OVERFLOW_CHECK<std::minus<T>, T, true> {
 
 #ifdef __EXCEPTIONS
 template<typename T>
+struct ENABLE_OVERFLOW_CHECK<std::negate<T>, T, true> {
+
+    inline T operator() ( const T &x ) const {
+
+        if ( x != std::numeric_limits<T>::min() ) {
+
+            return std::negate<T>() ( x );
+        }
+
+        throw std::domain_error ( "negation overflow" );
+    }
+};
+#endif
+
+#ifdef __EXCEPTIONS
+template<typename T>
 struct ENABLE_OVERFLOW_CHECK<std::multiplies<T>, T, true> {
     T operator() ( const T &x, const T& y ) const;
 };
@@ -1662,6 +1691,19 @@ struct ENABLE_OVERFLOW_CHECK<std::minus<T>, T, false> {
     }
 };
 #endif
+
+template<typename T>
+struct ENABLE_OVERFLOW_CHECK<std::negate<T>, T, false> {
+
+#ifndef __EXCEPTIONS
+    inline T operator() ( const T &x ) const {
+        return std::negate<T>() ( x );
+#else
+    inline T operator() ( const T & ) const {
+        throw std::domain_error ( "unsigned negation wrap" );
+#endif
+    }
+};
 
 #ifdef __EXCEPTIONS
 template<typename T>

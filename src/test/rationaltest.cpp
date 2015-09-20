@@ -416,11 +416,18 @@ void RationalTest::testSubtraction() {
     CPPUNIT_ASSERT_EQUAL ( 2, ( d_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 15, ( d_stein ).denominator() );
 
+    const Rational<int8_t> fs ( -50, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<int8_t> ( 50 ), ( -fs ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<int8_t> ( 1 ), ( -fs ).denominator() );
+
 #ifdef __EXCEPTIONS
     const Rational<int8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> overflow ( -128, 1 );
     CPPUNIT_ASSERT_THROW ( overflow - 1.0, std::domain_error );
+    CPPUNIT_ASSERT_THROW ( -overflow, std::domain_error );
     const Rational<uint8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> wrap ( 0, 1 );
     CPPUNIT_ASSERT_THROW ( wrap - 1.0, std::domain_error );
+    CPPUNIT_ASSERT_THROW ( -wrap, std::domain_error );
 #endif
 }
 
