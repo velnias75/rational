@@ -266,6 +266,10 @@ public:
         return ( *this = Rational ( number ) );
     }
 
+#ifndef __clang__
+    inline operator void() const {}
+#endif
+
     /**
      * @brief convert to @c NumberType
      *
