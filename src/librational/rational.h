@@ -208,6 +208,34 @@ public:
     Rational ( const Rational &other ) : m_numer ( other.m_numer ), m_denom ( other.m_denom ) {}
 
     /**
+    * @brief creates a %Rational
+    *
+    * Creates a copy of @c numer and divides it by @c denom
+    *
+    * @note to achieve sth like 1/(1/2) you must explicitely cast the numerator, i.e.
+    * @code const Rational<rational_type> x ( Rational<rational_type> ( 1 ),
+    *   Rational<rational_type> ( 1,2 )); @endcode
+    *
+    * @tparam U1 GCD algorithm of the numerator
+    * @tparam V1 operator checker of the numerator
+    *
+    * @tparam U2 GCD algorithm of the denominator
+    * @tparam V2 operator checker of the denominator
+    *
+    * @param[in] numer the numerator
+    * @param[in] denom the denominator
+    */
+    template<template<typename, bool, template<class, typename, bool> class> class U1,
+             template<class, typename, bool> class V1,
+             template<typename, bool, template<class, typename, bool> class> class U2,
+             template<class, typename, bool> class V2>
+    Rational ( const Rational<integer_type, U1, V1> &numer,
+               const Rational<integer_type, U2, V2> &denom ) :
+        m_numer ( numer.numerator() ), m_denom ( numer.denominator() ) {
+        *this *= denom.inverse();
+    }
+
+    /**
      * @brief creates a %Rational
      *
      * @param[in] numer the numerator

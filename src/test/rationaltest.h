@@ -51,6 +51,7 @@ class RationalTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testPrecision );
     CPPUNIT_TEST ( testAlgorithm );
     CPPUNIT_TEST ( testStdMath );
+    CPPUNIT_TEST ( testRatRat );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -79,6 +80,7 @@ public:
     void testPrecision();
     void testAlgorithm();
     void testStdMath();
+    void testRatRat();
 
 private:
     typedef Commons::Math::Rational<uint64_t, Commons::Math::GCD_euclid,

@@ -1030,4 +1030,26 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<uint32_t> ( 11, 3 ).abs().str() );
 }
 
+void RationalTest::testRatRat() {
+
+    const Rational<rational_type> a ( 77, 88 );
+    const Rational<rational_type> b ( 88, 77 );
+    const Rational<rational_type> c ( a, b );
+
+    CPPUNIT_ASSERT_EQUAL ( 49, c.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 64, c.denominator() );
+
+    const Rational<uint32_t, GCD_euclid,      ENABLE_OVERFLOW_CHECK> d ( 7, 8 );
+    const Rational<uint32_t, GCD_euclid_fast, NO_OPERATOR_CHECK>     e ( 8, 7 );
+    const Rational<uint32_t, GCD_stein,       ENABLE_OVERFLOW_CHECK> f ( d, e );
+
+    CPPUNIT_ASSERT_EQUAL ( 49u, f.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 64u, f.denominator() );
+
+    const Rational<rational_type> g ( Rational<rational_type> ( 88 ), a );
+
+    CPPUNIT_ASSERT_EQUAL ( 704, g.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 7, g.denominator() );
+}
+
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
