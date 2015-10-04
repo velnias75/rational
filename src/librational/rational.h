@@ -51,8 +51,20 @@ template<typename, template<typename, bool, template<class, typename, bool> clas
 template<template<typename, bool, template<class, typename, bool> class> class,
          template<class, typename, bool> class, bool> struct _changeSign;
 
+template<typename T> struct TYPE_CONVERT {
+    inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
+
+    template<typename U> inline operator U() const {
+        return static_cast<U> ( val );
+    }
+
+private:
+    const T& val;
+};
+
 template<typename, template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, typename, bool> struct _approxFract;
+         template<class, typename, bool> class, typename, bool,
+         template<typename> class = TYPE_CONVERT> struct _approxFract;
 
 /**
  * @brief unchecked operator
@@ -149,7 +161,8 @@ class Rational {
     friend struct _changeSign<GCD, CHKOP, std::numeric_limits<T>::is_signed>;
     friend struct _mod<T, GCD, CHKOP, std::numeric_limits<T>::is_signed>;
     template<typename, template<typename, bool, template<class, typename, bool> class> class,
-             template<class, typename, bool> class, typename, bool> friend struct _approxFract;
+             template<class, typename, bool> class, typename, bool,
+             template<typename> class> friend struct _approxFract;
 public:
     /**
      * @brief storage type
@@ -806,7 +819,8 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::gcm ( const Rational &o ) {
 
-    const integer_type &x ( o.m_numer ? GCD<T, std::numeric_limits<integer_type>::is_signed,
+    const integer_type &x ( o.m_numer != integer_type() ?
+                            GCD<T, std::numeric_limits<integer_type>::is_signed,
                             CHKOP>() ( o.m_numer, o.m_denom ) : o.m_denom );
 
     if ( x != static_cast<integer_type> ( 1 ) ) {
@@ -1081,7 +1095,7 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
     std::ostringstream os;
 
-    if ( mixed ) {
+    if ( mixed && m_denom != T ( 1 ) ) {
 
         const mod_type &p ( mod() );
 
@@ -1089,8 +1103,17 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
         os << p.second.str ( false );
 
+    } else if ( mixed && m_denom == T ( 1 ) ) {
+
+        const mod_type &p ( mod() );
+
+        os << ( p.first + p.second.numerator() );
+
     } else {
-        os << m_numer << '/' << m_denom;
+
+        os << m_numer;
+
+        if ( m_denom != T ( 1 ) ) os << '/' << m_denom;
     }
 
     return os.str();
@@ -1317,8 +1340,9 @@ inline bool operator>= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n )
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
-struct _approxFract<T, GCD, CHKOP, NumberType, true> {
+         template<class, typename, bool> class CHKOP, typename NumberType,
+         template<typename> class CONV>
+struct _approxFract<T, GCD, CHKOP, NumberType, true, CONV> {
 private:
     typedef Rational<T, GCD, CHKOP> rat;
 
@@ -1327,17 +1351,21 @@ public:
 
 private:
     inline NumberType abs ( const NumberType &nt ) const {
-        return nt < NumberType() ? -nt : nt;
+        return nt < NumberType() ? NumberType ( -nt ) : nt;
     }
 };
 
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#pragma GCC diagnostic push
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
-void _approxFract<T, GCD, CHKOP, NumberType, true>::operator() ( rat &r,
+         template<class, typename, bool> class CHKOP, typename NumberType,
+         template<typename> class CONV>
+void _approxFract<T, GCD, CHKOP, NumberType, true, CONV>::operator() ( rat &r,
         const NumberType &nt ) const {
 
 #ifdef __EXCEPTIONS
-    if ( ! ( nt > std::numeric_limits<T>::max() || nt < std::numeric_limits<T>::min() ) ) {
+    if ( ! ( ! ( std::numeric_limits<T>::max() == T() || std::numeric_limits<T>::min() == T() ) &&
+             ( nt > std::numeric_limits<T>::max() || nt < std::numeric_limits<T>::min() ) ) ) {
 #endif
 
         T p[2] = { T(), T ( 1 ) };
@@ -1345,12 +1373,12 @@ void _approxFract<T, GCD, CHKOP, NumberType, true>::operator() ( rat &r,
 
         NumberType x ( nt );
 
-        while ( ! ( abs ( static_cast<NumberType> ( r.m_numer ) /
-                          static_cast<NumberType> ( r.m_denom ) - nt ) <
+        while ( ! ( abs ( static_cast<NumberType> ( CONV<T> ( r.m_numer ) ) /
+                          static_cast<NumberType> ( CONV<T> ( r.m_denom ) ) - nt ) <
                     std::numeric_limits<NumberType>::epsilon() ) ) {
 
             const T &n ( static_cast<T> ( std::floor ( x ) ) );
-            x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( n ) );
+            x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( CONV<T> ( n ) ) );
 
             r.m_numer = typename rat::op_plus ()
                         ( p[0], typename rat::op_multiplies () ( n, p[1] ) );
@@ -1368,6 +1396,7 @@ void _approxFract<T, GCD, CHKOP, NumberType, true>::operator() ( rat &r,
     }
 #endif
 }
+#pragma GCC diagnostic pop
 
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP, typename NumberType>
@@ -1429,7 +1458,7 @@ struct GCD_euclid_fast<T, false, CHKOP> {
 
         // while ( y ) { const integer_type &h ( x % y ); x = y; y = h; }
 
-        while ( y ) {
+        while ( y != T() ) {
 
             x %= y;
             y ^= x;
@@ -1446,7 +1475,7 @@ struct GCD_euclid_fast<T, true, CHKOP> {
 
     inline T operator() ( const T &a, const T &b ) const {
         const T &h ( GCD_euclid_fast<T, false, CHKOP>() ( a, b ) );
-        return h < T() ? -h : h;
+        return h < T() ? T ( -h ) : h;
     }
 };
 
@@ -1457,7 +1486,7 @@ struct GCD_euclid<T, false, CHKOP> {
 
         T x ( a ), y ( b );
 
-        while ( y ) {
+        while ( y != T() ) {
 
             const T &h ( CHKOP<std::modulus<T> >() ( x, y ) );
             x = y;
@@ -1473,7 +1502,7 @@ struct GCD_euclid<T, true, CHKOP> {
 
     inline T operator() ( const T &a, const T &b ) const {
         const T &h ( GCD_euclid<T, false, CHKOP>() ( a, b ) );
-        return h < T() ? -h : h;
+        return h < T() ? T ( -h ) : h;
     }
 };
 
@@ -1516,7 +1545,7 @@ template<typename T, template<class, typename, bool> class CHKOP>
 struct GCD_stein<T, true, CHKOP> {
 
     inline T operator() ( const T &a, const T &b ) const {
-        return GCD_stein<T, false, CHKOP>() ( a < T() ? -a : a, b < T() ? -b : b );
+        return GCD_stein<T, false, CHKOP>() ( a < T() ? T ( -a ) : a, b < T() ? T ( -b ) : b );
     }
 };
 
@@ -1792,3 +1821,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 #endif /* COMMONS_MATH_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+
