@@ -39,17 +39,18 @@ namespace Commons {
 
 namespace Math {
 
-template<typename, template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, bool> struct _mod;
+template<typename, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class, template<class, typename, bool> class, bool> struct _mod;
 
-template<typename, template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, bool> struct _abs;
+template<typename, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class, template<class, typename, bool> class, bool> struct _abs;
 
-template<typename, template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, bool> struct _lcm;
+template<typename, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class, template<class, typename, bool> class, bool> struct _lcm;
 
-template<template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, bool> struct _changeSign;
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class, template<class, typename, bool> class, bool>
+struct _changeSign;
 
 template<typename T> struct TYPE_CONVERT {
     inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
@@ -68,11 +69,10 @@ template<typename T> struct EPSILON {
     }
 };
 
-template<typename, template<typename, bool, template<class, typename, bool> class> class,
-         template<class, typename, bool> class, typename, bool,
+template<typename, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class, template<class, typename, bool> class, typename, bool,
          template<typename> class = EPSILON,
          template<typename> class = TYPE_CONVERT> struct _approxFract;
-
 /**
  * @brief unchecked operator
  *
@@ -124,8 +124,8 @@ struct ENABLE_OVERFLOW_CHECK {
  * @tparam IsSigned specialization for @em signed or @em unsigned types
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP>
-struct GCD_stein;
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
+         template<typename> class CONV = TYPE_CONVERT> struct GCD_stein;
 
 /**
  * @brief Euclid GCD algorithm (safe) implementation
@@ -136,8 +136,8 @@ struct GCD_stein;
  * @tparam IsSigned specialization for @em signed or @em unsigned types
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP>
-struct GCD_euclid;
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
+         template<typename> class CONV = TYPE_CONVERT> struct GCD_euclid;
 
 /**
  * @brief Euclid GCD algorithm (fast) implementation
@@ -148,8 +148,8 @@ struct GCD_euclid;
  * @tparam IsSigned specialization for @em signed or @em unsigned types
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP>
-struct GCD_euclid_fast;
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
+         template<typename> class CONV = TYPE_CONVERT> struct GCD_euclid_fast;
 
 /**
  * @brief %Rational (fraction) template class
@@ -160,16 +160,16 @@ struct GCD_euclid_fast;
  * @tparam GCD GCD algorithm
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class>
-class GCD = GCD_euclid_fast,
-      template<class, typename = T, bool = std::numeric_limits<T>::is_signed>
-      class CHKOP = NO_OPERATOR_CHECK>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD = GCD_euclid_fast,
+         template<class, typename = T, bool = std::numeric_limits<T>::is_signed>
+         class CHKOP = NO_OPERATOR_CHECK>
 class Rational {
     friend struct _changeSign<GCD, CHKOP, std::numeric_limits<T>::is_signed>;
     friend struct _mod<T, GCD, CHKOP, std::numeric_limits<T>::is_signed>;
-    template<typename, template<typename, bool, template<class, typename, bool> class> class,
-             template<class, typename, bool> class, typename, bool, template<typename> class,
-             template<typename> class> friend struct _approxFract;
+    template<typename, template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class, template<class, typename, bool> class, typename, bool,
+             template<typename> class, template<typename> class> friend struct _approxFract;
 public:
     /**
      * @brief storage type
@@ -245,9 +245,11 @@ public:
     * @param[in] numer the numerator
     * @param[in] denom the denominator
     */
-    template<template<typename, bool, template<class, typename, bool> class> class U1,
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U1,
              template<class, typename, bool> class V1,
-             template<typename, bool, template<class, typename, bool> class> class U2,
+             template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U2,
              template<class, typename, bool> class V2>
     Rational ( const Rational<integer_type, U1, V1> &numer,
                const Rational<integer_type, U2, V2> &denom ) :
@@ -392,8 +394,8 @@ public:
         return knuth_addSub<op_plus> ( other );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational &operator+= ( Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x += Rational ( y.numerator(), y.denominator() ) );
     }
@@ -407,8 +409,8 @@ public:
      */
     Rational operator+ ( const Rational& other ) const;
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational operator+ ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( Rational ( x ) += Rational ( y.numerator(), y.denominator() ) );
     }
@@ -458,8 +460,8 @@ public:
         return knuth_addSub<op_minus> ( other );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational &operator-= ( Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x -= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -475,8 +477,8 @@ public:
         return ( Rational ( *this ) -= other );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational operator- ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( Rational ( x ) -= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -526,8 +528,8 @@ public:
      */
     Rational& operator*= ( const Rational& other );
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational &operator*= ( Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x *= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -541,8 +543,8 @@ public:
      */
     Rational operator* ( const Rational& other ) const;
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational operator* ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( Rational ( x ) *= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -558,8 +560,8 @@ public:
         return ( *this *= other.inverse() );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational &operator/= ( Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x /= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -575,8 +577,8 @@ public:
         return ( Rational ( *this ) /= other );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational operator/ ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( Rational ( x ) /= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -590,8 +592,8 @@ public:
      */
     Rational& operator%= ( const Rational& other );
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational &operator%= ( Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x %= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -607,8 +609,8 @@ public:
         return ( Rational ( *this ) %= other );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend Rational operator% ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( Rational ( x ) %= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -624,8 +626,8 @@ public:
         return ! ( ( *this < other ) || ( *this > other ) );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend bool operator== ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x == Rational ( y.numerator(), y.denominator() ) );
     }
@@ -641,8 +643,8 @@ public:
         return ! ( *this == other );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend bool operator!= ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x != Rational ( y.numerator(), y.denominator() ) );
     }
@@ -656,8 +658,8 @@ public:
      */
     bool operator< ( const Rational &other ) const;
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend bool operator< ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x < Rational ( y.numerator(), y.denominator() ) );
     }
@@ -673,8 +675,8 @@ public:
         return ! ( other < *this );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend bool operator<= ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x <= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -690,8 +692,8 @@ public:
         return other < *this;
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend bool operator> ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x > Rational ( y.numerator(), y.denominator() ) );
     }
@@ -707,8 +709,8 @@ public:
         return ! ( *this < other );
     }
 
-    template<template<typename, bool, template<class, typename, bool> class> class U,
-             template<class, typename, bool> class V>
+    template<template<typename, bool, template<class, typename, bool> class,
+             template<typename> class> class U, template<class, typename, bool> class V>
     inline friend bool operator>= ( const Rational& x, const Rational<integer_type, U, V>& y ) {
         return ( x >= Rational ( y.numerator(), y.denominator() ) );
     }
@@ -778,8 +780,8 @@ private:
     integer_type m_denom;
 };
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>::Rational ( const integer_type &n, const integer_type &d ) : m_numer ( n ),
     m_denom ( d ) {
 
@@ -790,8 +792,8 @@ Rational<T, GCD, CHKOP>::Rational ( const integer_type &n, const integer_type &d
     gcm ( *this );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberType &nt ) :
     m_numer ( static_cast<integer_type> ( nt ) ), m_denom ( 1 ) {
 
@@ -800,17 +802,17 @@ template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberTy
                      std::numeric_limits<NumberType>::is_exact ) >() ( *this, nt );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>::~Rational() {}
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::gcm ( const Rational &o ) {
 
     const integer_type &x ( o.m_numer != integer_type() ?
                             GCD<T, std::numeric_limits<integer_type>::is_signed,
-                            CHKOP>() ( o.m_numer, o.m_denom ) : o.m_denom );
+                            CHKOP, TYPE_CONVERT>() ( o.m_numer, o.m_denom ) : o.m_denom );
 
     if ( x != static_cast<integer_type> ( 1 ) ) {
         m_numer = op_divides() ( m_numer, x );
@@ -820,12 +822,13 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::gcm ( const Rational &o ) {
     return _changeSign<GCD, CHKOP, std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> template<class Op> Rational<T, GCD, CHKOP> &
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+template<class Op> Rational<T, GCD, CHKOP> &
 Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
 
     const integer_type &d1 ( GCD<integer_type, std::numeric_limits<integer_type>::is_signed,
-                             CHKOP>() ( m_denom, o.m_denom ) );
+                             CHKOP, TYPE_CONVERT>() ( m_denom, o.m_denom ) );
 
     if ( d1 == static_cast<integer_type> ( 1 ) ) {
 
@@ -841,7 +844,7 @@ Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
                                             ( op_divides() ( m_denom, d1 ) ) ) ) );
 
         const integer_type &d2 ( GCD<integer_type, std::numeric_limits<integer_type>::is_signed,
-                                 CHKOP>() ( t, d1 ) );
+                                 CHKOP, TYPE_CONVERT>() ( t, d1 ) );
 
         m_numer = op_divides() ( t, d2 );
         m_denom = op_multiplies() ( op_divides() ( m_denom, d1 ), op_divides() ( o.m_denom, d2 ) );
@@ -850,8 +853,8 @@ Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
     return *this;
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::operator+ ( const Rational& other ) const {
     return ( Rational ( *this ) += other );
 }
@@ -865,7 +868,7 @@ Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::operator+ ( const Rational& oth
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 inline NumberType &operator+= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( n = Rational<T, GCD, CHKOP> ( n ) += o );
@@ -879,8 +882,9 @@ inline NumberType &operator+= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline Rational<T, GCD, CHKOP> operator+ ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ( o + Rational<T, GCD, CHKOP> ( n ) );
 }
@@ -894,7 +898,7 @@ inline Rational<T, GCD, CHKOP> operator+ ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 inline Rational<T, GCD, CHKOP> operator+ ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( Rational<T, GCD, CHKOP> ( n ) + o );
@@ -909,7 +913,7 @@ inline Rational<T, GCD, CHKOP> operator+ ( const NumberType &n, const Rational<T
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 inline NumberType &operator-= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( n = Rational<T, GCD, CHKOP> ( n ) -= o );
@@ -923,8 +927,9 @@ inline NumberType &operator-= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline Rational<T, GCD, CHKOP> operator- ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return o - Rational<T, GCD, CHKOP> ( n );
 }
@@ -938,14 +943,14 @@ inline Rational<T, GCD, CHKOP> operator- ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 inline Rational<T, GCD, CHKOP> operator- ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( Rational<T, GCD, CHKOP> ( n ) - o );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::operator* ( const Rational& other ) const {
     return ( Rational ( *this ) *= other );
 }
@@ -959,7 +964,7 @@ Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::operator* ( const Rational& oth
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 inline NumberType &operator*= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( n = Rational<T, GCD, CHKOP> ( n ) *= o );
@@ -973,8 +978,9 @@ inline NumberType &operator*= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline Rational<T, GCD, CHKOP> operator* ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ( o * Rational<T, GCD, CHKOP> ( n ) );
 }
@@ -988,14 +994,14 @@ inline Rational<T, GCD, CHKOP> operator* ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 inline Rational<T, GCD, CHKOP> operator* ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( Rational<T, GCD, CHKOP> ( n ) * o );
 }
 
 template<typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::invert() {
 
@@ -1010,14 +1016,14 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::invert() {
 }
 
 template<typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::inverse() const {
     return Rational ( *this ).invert();
 }
 
 template<typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const {
     return _mod<integer_type, GCD, CHKOP,
@@ -1033,7 +1039,7 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 inline NumberType &operator/= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( n = Rational<T, GCD, CHKOP> ( n ) /= o );
@@ -1047,8 +1053,9 @@ inline NumberType &operator/= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline Rational<T, GCD, CHKOP> operator/ ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ( o / Rational<T, GCD, CHKOP> ( n ) );
 }
@@ -1062,22 +1069,22 @@ inline Rational<T, GCD, CHKOP> operator/ ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T, template<typename, bool,
-         template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 inline Rational<T, GCD, CHKOP> operator/ ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( Rational<T, GCD, CHKOP> ( n ) / o );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator*= ( const Rational& other ) {
 
     const integer_type &d1 ( GCD<integer_type,
-                             std::numeric_limits<integer_type>::is_signed, CHKOP>() ( m_numer,
-                                     other.m_denom ) );
+                             std::numeric_limits<integer_type>::is_signed, CHKOP, TYPE_CONVERT>()
+                             ( m_numer, other.m_denom ) );
     const integer_type &d2 ( GCD<integer_type,
-                             std::numeric_limits<integer_type>::is_signed, CHKOP>() ( m_denom,
-                                     other.m_numer ) );
+                             std::numeric_limits<integer_type>::is_signed, CHKOP, TYPE_CONVERT>()
+                             ( m_denom, other.m_numer ) );
 
     if ( ! ( d1 == static_cast<integer_type> ( 1 ) &&
              d2 == static_cast<integer_type> ( 1 ) ) ) {
@@ -1095,9 +1102,8 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator*= ( const Rational& o
     return *this;
 }
 
-template<typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator%= ( const Rational& o ) {
 
     if ( m_denom != o.m_denom ) {
@@ -1120,8 +1126,8 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator%= ( const Rational& o
     return gcm ( *this );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
     std::ostringstream os;
@@ -1159,8 +1165,8 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline NumberType &operator%= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( n = Rational<T, GCD, CHKOP> ( n ) %= o );
 }
@@ -1173,8 +1179,9 @@ inline NumberType &operator%= ( NumberType &n, const Rational<T, GCD, CHKOP>& o 
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline Rational<T, GCD, CHKOP> operator% ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ( o % Rational<T, GCD, CHKOP> ( n ) );
 }
@@ -1188,8 +1195,8 @@ inline Rational<T, GCD, CHKOP> operator% ( const Rational<T, GCD, CHKOP>& o, con
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline Rational<T, GCD, CHKOP> operator% ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( Rational<T, GCD, CHKOP> ( n ) % o );
 }
@@ -1203,8 +1210,8 @@ inline Rational<T, GCD, CHKOP> operator% ( const NumberType &n, const Rational<T
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline bool operator== ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( Rational<T, GCD, CHKOP> ( n ) == o );
 }
@@ -1217,8 +1224,9 @@ inline bool operator== ( const NumberType &n, const Rational<T, GCD, CHKOP>& o )
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline bool operator== ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ( o == Rational<T, GCD, CHKOP> ( n ) );
 }
@@ -1232,8 +1240,8 @@ inline bool operator== ( const Rational<T, GCD, CHKOP>& o, const NumberType &n )
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline bool operator!= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ! ( Rational<T, GCD, CHKOP> ( n ) == o );
 }
@@ -1246,15 +1254,15 @@ inline bool operator!= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o )
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline bool operator!= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ! ( o == Rational<T, GCD, CHKOP> ( n ) );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 bool Rational<T, GCD, CHKOP>::operator< ( const Rational &other ) const {
     return /* ( m_denom * o.m_denom ) > 0 ? */ ( m_numer * other.m_denom ) <
             ( other.m_numer * m_denom )
@@ -1271,8 +1279,8 @@ bool Rational<T, GCD, CHKOP>::operator< ( const Rational &other ) const {
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline bool operator< ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ( Rational<T, GCD, CHKOP> ( n ) < o );
 }
@@ -1285,8 +1293,9 @@ inline bool operator< ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) 
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline bool operator< ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ( o < Rational<T, GCD, CHKOP> ( n ) );
 }
@@ -1300,8 +1309,8 @@ inline bool operator< ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) 
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline bool operator<= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ! ( o < Rational<T, GCD, CHKOP> ( n ) );
 }
@@ -1314,8 +1323,9 @@ inline bool operator<= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o )
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline bool operator<= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ! ( Rational<T, GCD, CHKOP> ( n ) < o );
 }
@@ -1329,8 +1339,8 @@ inline bool operator<= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n )
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline bool operator> ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return o < Rational<T, GCD, CHKOP> ( n );
 }
@@ -1344,8 +1354,9 @@ inline bool operator> ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) 
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline bool operator> ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return Rational<T, GCD, CHKOP> ( n ) < o;
 }
@@ -1359,8 +1370,8 @@ inline bool operator> ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) 
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
 template<typename NumberType, typename T,
-         template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline bool operator>= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
     return ! ( Rational<T, GCD, CHKOP> ( n ) < o );
 }
@@ -1373,15 +1384,16 @@ inline bool operator>= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o )
  * @tparam NumberType the number type
  * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType>
 inline bool operator>= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ! ( o < Rational<T, GCD, CHKOP> ( n ) );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType,
-         template<typename> class EPSILON, template<typename> class CONV>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
 struct _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV> {
 private:
     typedef Rational<T, GCD, CHKOP> rat;
@@ -1397,9 +1409,9 @@ private:
 
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #pragma GCC diagnostic push
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType,
-         template<typename> class EPSILON, template<typename> class CONV>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
 void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( rat &r,
         const NumberType &nt ) const {
 
@@ -1442,39 +1454,43 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 }
 #pragma GCC diagnostic pop
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP, typename NumberType,
-         template<typename> class EPSILON, template<typename> class CONV>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
 struct _approxFract<T, GCD, CHKOP, NumberType, false, EPSILON, CONV> {
     inline void operator() ( const Rational<T, GCD, CHKOP> &, const NumberType & ) const {}
 };
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _abs<T, GCD, CHKOP, true> {
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _abs<T, GCD, CHKOP, true> {
 
     inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r ) const {
         return r.numerator() < T() ? -r : r;
     }
 };
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _abs<T, GCD, CHKOP, false> {
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _abs<T, GCD, CHKOP, false> {
 
     inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r ) const {
         return r;
     }
 };
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _mod<T, GCD, CHKOP, true> {
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _mod<T, GCD, CHKOP, true> {
 
     typedef std::pair<T, Rational<T, GCD, CHKOP> > pair_type;
 
     pair_type operator() ( const Rational<T, GCD, CHKOP> &r ) const;
 };
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> typename _mod<T, GCD, CHKOP, true>::pair_type
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+typename _mod<T, GCD, CHKOP, true>::pair_type
 _mod<T, GCD, CHKOP, true>::operator() ( const Rational<T, GCD, CHKOP> &r ) const {
 
     const Rational<T, GCD, CHKOP> &h ( Rational<T, GCD, CHKOP> (
@@ -1485,8 +1501,9 @@ _mod<T, GCD, CHKOP, true>::operator() ( const Rational<T, GCD, CHKOP> &r ) const
                             r.m_denom ), r.m_numer < T() ? -h : h );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _mod<T, GCD, CHKOP, false> {
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _mod<T, GCD, CHKOP, false> {
 
     typedef std::pair<T, Rational<T, GCD, CHKOP> > pair_type;
 
@@ -1498,13 +1515,13 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
     }
 };
 
-template<typename T, template<class, typename, bool> class CHKOP>
-struct GCD_euclid_fast<T, false, CHKOP> {
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_euclid_fast<T, false, CHKOP, CONV> {
     T operator() ( const T &a, const T &b ) const;
 };
 
-template<typename T, template<class, typename, bool> class CHKOP>
-T GCD_euclid_fast<T, false, CHKOP>::operator() ( const T &a, const T &b ) const {
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+T GCD_euclid_fast<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
 
     T x ( a ), y ( b );
 
@@ -1521,19 +1538,19 @@ T GCD_euclid_fast<T, false, CHKOP>::operator() ( const T &a, const T &b ) const 
     return x;
 }
 
-template<typename T, template<class, typename, bool> class CHKOP>
-struct GCD_euclid_fast<T, true, CHKOP> {
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_euclid_fast<T, true, CHKOP, CONV> {
     T operator() ( const T &a, const T &b ) const;
 };
 
-template<typename T, template<class, typename, bool> class CHKOP>
-T GCD_euclid_fast<T, true, CHKOP>::operator() ( const T &a, const T &b ) const {
-    const T &h ( GCD_euclid_fast<T, false, CHKOP>() ( a, b ) );
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+T GCD_euclid_fast<T, true, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
+    const T &h ( GCD_euclid_fast<T, false, CHKOP, CONV>() ( a, b ) );
     return h < T() ? T ( -h ) : h;
 }
 
-template<typename T, template<class, typename = T, bool = false> class CHKOP>
-struct GCD_euclid<T, false, CHKOP> {
+template<typename T, template<class, typename = T, bool = false> class CHKOP,
+         template<typename> class CONV> struct GCD_euclid<T, false, CHKOP, CONV> {
 
     inline T operator() ( const T &a, const T &b ) const {
 
@@ -1550,19 +1567,19 @@ struct GCD_euclid<T, false, CHKOP> {
     }
 };
 
-template<typename T, template<class, typename, bool> class CHKOP>
-struct GCD_euclid<T, true, CHKOP> {
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_euclid<T, true, CHKOP, CONV> {
     T operator() ( const T &a, const T &b ) const;
 };
 
-template<typename T, template<class, typename, bool> class CHKOP>
-T GCD_euclid<T, true, CHKOP>::operator() ( const T &a, const T &b ) const {
-    const T &h ( GCD_euclid<T, false, CHKOP>() ( a, b ) );
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+T GCD_euclid<T, true, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
+    const T &h ( GCD_euclid<T, false, CHKOP, CONV>() ( a, b ) );
     return h < T() ? T ( -h ) : h;
 }
 
-template<typename T, template<class, typename, bool> class CHKOP>
-struct GCD_stein<T, false, CHKOP> {
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_stein<T, false, CHKOP, CONV> {
 
     inline T operator() ( const T &a, const T &b ) const {
 
@@ -1596,42 +1613,46 @@ struct GCD_stein<T, false, CHKOP> {
     }
 };
 
-template<typename T, template<class, typename, bool> class CHKOP>
-struct GCD_stein<T, true, CHKOP> {
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_stein<T, true, CHKOP, CONV> {
 
     inline T operator() ( const T &a, const T &b ) const {
-        return GCD_stein<T, false, CHKOP>() ( a < T() ? T ( -a ) : a, b < T() ? T ( -b ) : b );
+        return GCD_stein<T, false, CHKOP, CONV>()
+               ( a < T() ? T ( -a ) : a, b < T() ? T ( -b ) : b );
     }
 };
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _lcm<T, GCD, CHKOP, true> {
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _lcm<T, GCD, CHKOP, true> {
     T operator() ( const T &a, const T &b ) const;
 };
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 T _lcm<T, GCD, CHKOP, true>::operator() ( const T &a, const T &b ) const {
 
     const T &x ( a < T() ? T ( -a ) : a ), &y ( b < T() ? T ( -b ) : b );
 
     return typename Rational<T, GCD, CHKOP>::op_multiplies()
            ( ( typename Rational<T, GCD, CHKOP>::op_divides() ( static_cast<T> ( x ),
-                   ( a != T() ? GCD<T, false, CHKOP>() ( x, y ) : b ) ) ), static_cast<T> ( y ) );
+                   ( a != T() ? GCD<T, false, CHKOP, TYPE_CONVERT>() ( x, y ) : b ) ) ),
+             static_cast<T> ( y ) );
 }
 
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _lcm<T, GCD, CHKOP, false> {
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _lcm<T, GCD, CHKOP, false> {
 
     inline T operator() ( const T &a, const T &b ) const {
         return typename Rational<T, GCD, CHKOP>::op_multiplies()
                ( typename Rational<T, GCD, CHKOP>::op_divides()
-                 ( a, ( a ? GCD<T, false, CHKOP>() ( a, b ) : b ) ), b );
+                 ( a, ( a ? GCD<T, false, CHKOP, TYPE_CONVERT>() ( a, b ) : b ) ), b );
     }
 };
 
-template<template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _changeSign<GCD, CHKOP, true> {
 
     template<typename T>
@@ -1646,8 +1667,8 @@ struct _changeSign<GCD, CHKOP, true> {
     };
 };
 
-template<template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _changeSign<GCD, CHKOP, false> {
 
     template<typename T>
@@ -1862,8 +1883,9 @@ namespace std {
  *
  * @return the %Rational part of @c __x
  */
-template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
-         template<class, typename, bool> class CHKOP> inline Commons::Math::Rational<T, GCD, CHKOP>
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+inline Commons::Math::Rational<T, GCD, CHKOP>
 modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
        typename Commons::Math::Rational<T, GCD, CHKOP>::integer_type * __iptr ) {
 
