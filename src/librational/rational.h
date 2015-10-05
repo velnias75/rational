@@ -1580,47 +1580,51 @@ T GCD_euclid<T, true, CHKOP, CONV>::operator() ( const T &a, const T &b ) const 
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_stein<T, false, CHKOP, CONV> {
-
-    inline T operator() ( const T &a, const T &b ) const {
-
-        T x ( a ), y ( b ), f = T();
-
-        while ( y ) {
-
-            if ( x < y ) {
-
-                y ^= x;
-                x ^= y;
-                y ^= x;
-
-            } else if ( ! ( x & 1 ) ) {
-
-                x >>= 1;
-
-                if ( ! ( y & 1 ) ) {
-                    y >>= 1;
-                    ++f;
-                }
-
-            } else if ( ! ( y & 1 ) ) {
-                y >>= 1;
-            } else {
-                x -= y;
-            }
-        }
-
-        return x << f;
-    }
+    T operator() ( const T &a, const T &b ) const;
 };
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
-struct GCD_stein<T, true, CHKOP, CONV> {
+T GCD_stein<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
 
-    inline T operator() ( const T &a, const T &b ) const {
-        return GCD_stein<T, false, CHKOP, CONV>()
-               ( a < T() ? T ( -a ) : a, b < T() ? T ( -b ) : b );
+    T x ( a ), y ( b ), f = T();
+
+    while ( y != T() ) {
+
+        if ( x < y ) {
+
+            y ^= x;
+            x ^= y;
+            y ^= x;
+
+        } else if ( T ( x & 1 ) == T() ) {
+
+            x >>= 1;
+
+            if ( T ( y & 1 ) == T() ) {
+                y >>= 1;
+                ++f;
+            }
+
+        } else if ( T ( y & 1 ) == T() ) {
+            y >>= 1;
+        } else {
+            x -= y;
+        }
     }
+
+    return x << CONV<T> ( f ).template convert<unsigned long int>();
+}
+
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_stein<T, true, CHKOP, CONV> {
+    T operator() ( const T &a, const T &b ) const;
 };
+
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+T GCD_stein<T, true, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
+    return GCD_stein<T, false, CHKOP, CONV>()
+           ( a < T() ? T ( -a ) : a, b < T() ? T ( -b ) : b );
+}
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>

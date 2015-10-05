@@ -30,7 +30,7 @@ GMPTest::GMPTest() : CppUnit::TestFixture(), m_sqrt2(), m_twosqrt(), m_onethird(
 
 void GMPTest::setUp() {
 
-    m_sqrt2 = unchecked_sqrt ( mpf_class ( std::sqrt ( 2.0 ) ) );
+    m_sqrt2 = unchecked_sqrt ( mpf_class ( std::sqrt ( mpf_class ( 2.0 ) ) ) );
 
     std::fill_n ( std::back_inserter ( m_twosqrt ), 2, m_sqrt2 );
     std::fill_n ( std::back_inserter ( m_onethird ), 3, rat_vector::value_type ( 1, 3 ) );
@@ -46,12 +46,14 @@ void GMPTest::testConstruct() {
 #endif
 
     CPPUNIT_ASSERT_EQUAL (
-        std::string ( "6933950472684408894045574639154274115485852426842518240159" ),
-        m_sqrt2.numerator().get_str() );
+        std::string ( "4016738247910921445183770562792527230871790482730798620920" \
+                      "3242394032674573345714107911694514536898289177933847227109" \
+                      "12324725149799230371316644957" ), m_sqrt2.numerator().get_str() );
 
     CPPUNIT_ASSERT_EQUAL (
-        std::string ( "4903043399646811761765323314534746386982093618212104008044" ),
-        m_sqrt2.denominator().get_str() );
+        std::string ( "2840262853349184214224624055939823380440794351393149143229" \
+                      "9345538280058115643575803799519938893676390738702021028792" \
+                      "52515818756635810738450587537" ), m_sqrt2.denominator().get_str() );
 
     const mpf_class a = Rational<rational_type> ( 1, 2 );
     const mpf_class b = Rational<rational_type> ( 1, -2 );
@@ -196,8 +198,8 @@ void GMPTest::testAddition() {
     CPPUNIT_ASSERT_EQUAL ( 2l, ( +d ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 15l, ( +d ).denominator().get_si() );
 
-    const Rational<rational_type> knuth_a ( 7, 66 );
-    const Rational<rational_type> knuth_b ( 17, 12 );
+    const Rational<rational_type, GCD_stein> knuth_a ( 7, 66 );
+    const Rational<rational_type, GCD_stein> knuth_b ( 17, 12 );
 
     CPPUNIT_ASSERT_EQUAL ( 67l, ( knuth_a + knuth_b ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 44l, ( knuth_a + knuth_b ).denominator().get_si() );

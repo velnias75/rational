@@ -170,7 +170,7 @@ template<> inline long unsigned int TYPE_CONVERT<mpz_class>::convert<long unsign
     return val.get_ui();
 }
 
-template<> mpf_class EPSILON<mpf_class>::value() {
+template<> inline mpf_class EPSILON<mpf_class>::value() {
     return mpf_class ( "1e-21", 30, 10 );
 }
 
@@ -229,7 +229,7 @@ public:
     void testAlgorithm();
 
 private:
-    typedef Commons::Math::Rational<rational_type, Commons::Math::GCD_euclid> unchecked_sqrt;
+    typedef Commons::Math::Rational<rational_type, Commons::Math::GCD_stein> unchecked_sqrt;
     typedef std::vector<unchecked_sqrt> rat_vector_sqrt;
     typedef std::vector<Commons::Math::Rational<rational_type> > rat_vector;
 
