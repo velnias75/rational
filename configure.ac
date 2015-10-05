@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [1.3], [heiko@rangun.de])
+AC_INIT([rational], [1.4], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -18,6 +18,7 @@ AM_PATH_CPPUNIT([1.12])
 
 # Checks for header files.
 AC_LANG_PUSH([C++])
+AC_HEADER_STDBOOL
 AC_CHECK_HEADER([gmpxx.h], [
   AM_CONDITIONAL([WITH_GMPXX], [true])
 ], [
@@ -27,9 +28,15 @@ AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
+AC_TYPE_INT32_T
+AC_TYPE_INT8_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
 AC_LANG_PUSH([C++])
+AC_CHECK_FUNCS([modf])
 AC_CHECK_FUNCS([floor])
 AC_CHECK_FUNCS([sqrt])
 AC_CHECK_FUNCS([ffs])

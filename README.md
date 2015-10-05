@@ -44,3 +44,8 @@ How to use
 See the test cases for examples on how to use `rational.h` with *C++ built-in types* as well
 as with [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) as underlying
 storage type.
+
+The header `gmp_rational.h` contains specializations especially for 
+[the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) as underlying storage type.
+
+If you use the *GMP extensions*, you'll need to link your application with `-lgmpxx -lgmp`

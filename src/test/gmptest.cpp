@@ -42,7 +42,7 @@ void GMPTest::tearDown() {}
 void GMPTest::testConstruct() {
 
 #ifdef __EXCEPTIONS
-    CPPUNIT_ASSERT_THROW ( Rational<rational_type> r ( 1, 0 ), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( gmp_rational r ( 1, 0 ), std::domain_error );
 #endif
 
     CPPUNIT_ASSERT_EQUAL (
@@ -55,36 +55,36 @@ void GMPTest::testConstruct() {
                       "9345538280058115643575803799519938893676390738702021028792" \
                       "52515818756635810738450587537" ), m_sqrt2.denominator().get_str() );
 
-    const mpf_class a = Rational<rational_type> ( 1, 2 );
-    const mpf_class b = Rational<rational_type> ( 1, -2 );
-    const mpf_class c = Rational<rational_type> ( -1, 2 );
-    const mpf_class d = Rational<rational_type> ( -1, -2 );
+    const mpf_class a = gmp_rational ( 1, 2 );
+    const mpf_class b = gmp_rational ( 1, -2 );
+    const mpf_class c = gmp_rational ( -1, 2 );
+    const mpf_class d = gmp_rational ( -1, -2 );
 
     CPPUNIT_ASSERT_EQUAL ( 0.5, a.get_d() );
     CPPUNIT_ASSERT_EQUAL ( -0.5, b.get_d() );
     CPPUNIT_ASSERT_EQUAL ( -0.5, c.get_d() );
     CPPUNIT_ASSERT_EQUAL ( 0.5, d.get_d() );
 
-    CPPUNIT_ASSERT_EQUAL ( -3l, Rational<rational_type> ( 6, -8 ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 4l, Rational<rational_type> ( 6, -8 ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( -3l, gmp_rational ( 6, -8 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 4l, gmp_rational ( 6, -8 ).denominator().get_si() );
 
-    CPPUNIT_ASSERT_EQUAL ( 7l, Rational<rational_type> ( 14, 24 ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 12l, Rational<rational_type> ( 14, 24 ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, gmp_rational ( 14, 24 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, gmp_rational ( 14, 24 ).denominator().get_si() );
 
-    CPPUNIT_ASSERT_EQUAL ( 7l, Rational<rational_type> ( 2, 1, 3 ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 3l, Rational<rational_type> ( 2, 1, 3 ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, gmp_rational ( 2, 1, 3 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 3l, gmp_rational ( 2, 1, 3 ).denominator().get_si() );
 
-    CPPUNIT_ASSERT_EQUAL ( 86l, Rational<rational_type> ( 18, 4, -5 ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( 18, 4, -5 ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 86l, gmp_rational ( 18, 4, -5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 5l, gmp_rational ( 18, 4, -5 ).denominator().get_si() );
 
-    CPPUNIT_ASSERT_EQUAL ( 86l, Rational<rational_type> ( 18, -4, 5 ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( 18, -4, 5 ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 86l, gmp_rational ( 18, -4, 5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 5l, gmp_rational ( 18, -4, 5 ).denominator().get_si() );
 
-    CPPUNIT_ASSERT_EQUAL ( -86l, Rational<rational_type> ( -18, 4, 5 ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( -18, 4, 5 ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( -86l, gmp_rational ( -18, 4, 5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 5l, gmp_rational ( -18, 4, 5 ).denominator().get_si() );
 
-    CPPUNIT_ASSERT_EQUAL ( -94l, Rational<rational_type> ( -18, 4, -5 ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( -18, 4, -5 ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( -94l, gmp_rational ( -18, 4, -5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 5l, gmp_rational ( -18, 4, -5 ).denominator().get_si() );
 }
 
 void GMPTest::testConstructFromDouble() {
@@ -237,8 +237,8 @@ void GMPTest::testSubtraction() {
 
 void GMPTest::testMultiplication() {
 
-    const Rational<rational_type> a ( 2, 8 );
-    const Rational<rational_type> b ( 7, 3 );
+    const gmp_rational a ( 2, 8 );
+    const gmp_rational b ( 7, 3 );
 
     CPPUNIT_ASSERT_EQUAL ( 7l, ( a * b ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 12l, ( a * b ).denominator().get_si() );
@@ -249,26 +249,26 @@ void GMPTest::testMultiplication() {
 
 void GMPTest::testInvert() {
 
-    CPPUNIT_ASSERT_EQUAL ( 7l, Rational<rational_type> ( 161, 49 ).invert().numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, gmp_rational ( 161, 49 ).invert().numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 23l,
-                           Rational<rational_type> ( 161, 49 ).invert().denominator().get_si() );
+                           gmp_rational ( 161, 49 ).invert().denominator().get_si() );
 
-    CPPUNIT_ASSERT_EQUAL ( 7l, Rational<rational_type> ( 161, 49 ).inverse().numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, gmp_rational ( 161, 49 ).inverse().numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 23l,
-                           Rational<rational_type> ( 161, 49 ).inverse().denominator().get_si() );
+                           gmp_rational ( 161, 49 ).inverse().denominator().get_si() );
 
 #ifdef __EXCEPTIONS
-    CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().invert(), std::domain_error );
-    CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().inverse(), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( gmp_rational ().invert(), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( gmp_rational ().inverse(), std::domain_error );
 #endif
 }
 
 void GMPTest::testDivision() {
 
-    const Rational<rational_type> a ( 2, 8 );
-    const Rational<rational_type> b ( 7, 3 );
-    const Rational<rational_type> c ( 0, 1 );
-    const Rational<rational_type> d ( -7, -3 );
+    const gmp_rational a ( 2, 8 );
+    const gmp_rational b ( 7, 3 );
+    const gmp_rational c ( 0, 1 );
+    const gmp_rational d ( -7, -3 );
 
     CPPUNIT_ASSERT_EQUAL ( 3l, ( a / b ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 28l, ( a / b ).denominator().get_si() );
@@ -284,21 +284,21 @@ void GMPTest::testDivision() {
 
 void GMPTest::testModulo() {
 
-    Rational<rational_type> a ( 8, 1 );
+    gmp_rational a ( 8, 1 );
 
-    a %= Rational<rational_type> ( 3, 1 );
+    a %= gmp_rational ( 3, 1 );
 
     CPPUNIT_ASSERT_EQUAL ( 2l, ( a ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, ( a ).denominator().get_si() );
 
-    Rational<rational_type> c ( 41, 7 );
-    c %= Rational<rational_type> ( 3, 2 );
+    gmp_rational c ( 41, 7 );
+    c %= gmp_rational ( 3, 2 );
 
     CPPUNIT_ASSERT_EQUAL ( 19l, ( c ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 14l, ( c ).denominator().get_si() );
 
-    Rational<rational_type> d ( 542, 84 );
-    Rational<rational_type> e ( -65, 28 );
+    gmp_rational d ( 542, 84 );
+    gmp_rational e ( -65, 28 );
 
     CPPUNIT_ASSERT_EQUAL ( -43l, ( d % e ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 84l, ( d % e ).denominator().get_si() );
@@ -306,31 +306,31 @@ void GMPTest::testModulo() {
     CPPUNIT_ASSERT_EQUAL ( 347l, ( e % d ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 84l, ( e % d ).denominator().get_si() );
 
-    Rational<rational_type> h ( 11, 4 );
+    gmp_rational h ( 11, 4 );
 
     CPPUNIT_ASSERT_EQUAL ( 2l, h.mod().first.get_si() );
     CPPUNIT_ASSERT_EQUAL ( 3l, h.mod().second.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 4l, h.mod().second.denominator().get_si() );
 
-    Rational<rational_type> i ( 11, -4 );
+    gmp_rational i ( 11, -4 );
 
     CPPUNIT_ASSERT_EQUAL ( -2l, i.mod().first.get_si() );
     CPPUNIT_ASSERT_EQUAL ( 3l, i.mod().second.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 4l, i.mod().second.denominator().get_si() );
 
-    Rational<rational_type> j ( 18, 8 );
+    gmp_rational j ( 18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( 2l, j.mod().first.get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, j.mod().second.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 4l, j.mod().second.denominator().get_si() );
 
-    Rational<rational_type> k ( -18, 8 );
+    gmp_rational k ( -18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( -2l, k.mod().first.get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, k.mod().second.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 4l, k.mod().second.denominator().get_si() );
 
-    Rational<rational_type> l ( 1, 8 );
+    gmp_rational l ( 1, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, l.mod().first.get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, l.mod().second.numerator().get_si() );
@@ -339,7 +339,7 @@ void GMPTest::testModulo() {
 
 void GMPTest::testIncDec() {
 
-    Rational<rational_type> a ( 2, 4 );
+    gmp_rational a ( 2, 4 );
 
     CPPUNIT_ASSERT_EQUAL ( 3l, ( ++a ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 2l, ( a++ ).denominator().get_si() );
@@ -347,7 +347,7 @@ void GMPTest::testIncDec() {
     CPPUNIT_ASSERT_EQUAL ( 5l, a.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 2l, a.denominator().get_si() );
 
-    Rational<rational_type> b ( 2, 4 );
+    gmp_rational b ( 2, 4 );
 
     CPPUNIT_ASSERT_EQUAL ( -1l, ( --b ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 2l, ( b-- ).denominator().get_si() );
@@ -358,8 +358,8 @@ void GMPTest::testIncDec() {
 
 void GMPTest::testRelOps() {
 
-    const Rational<rational_type> a ( 1, 4 );
-    const Rational<rational_type> b ( 1, 2 );
+    const gmp_rational a ( 1, 4 );
+    const gmp_rational b ( 1, 2 );
 
     CPPUNIT_ASSERT ( a < b );
     CPPUNIT_ASSERT ( a <= b );
@@ -367,7 +367,7 @@ void GMPTest::testRelOps() {
     CPPUNIT_ASSERT ( b > a );
     CPPUNIT_ASSERT ( b >= a );
 
-    const Rational<rational_type> c ( 2, 4 );
+    const gmp_rational c ( 2, 4 );
 
     CPPUNIT_ASSERT ( c == b );
     CPPUNIT_ASSERT ( b == c );
@@ -380,13 +380,13 @@ void GMPTest::testRelOps() {
     CPPUNIT_ASSERT ( b >= c );
     CPPUNIT_ASSERT ( c >= b );
 
-    const Rational<rational_type> d ( 2, 4 );
-    const Rational<rational_type> e ( 2, -4 );
+    const gmp_rational d ( 2, 4 );
+    const gmp_rational e ( 2, -4 );
 
     CPPUNIT_ASSERT ( d > e );
     CPPUNIT_ASSERT ( e < d );
 
-    const Rational<rational_type> f ( -2, 4 );
+    const gmp_rational f ( -2, 4 );
 
     CPPUNIT_ASSERT ( f == e );
     CPPUNIT_ASSERT ( f >= e );
@@ -396,7 +396,7 @@ void GMPTest::testRelOps() {
     CPPUNIT_ASSERT ( e >= f );
     CPPUNIT_ASSERT ( e <= f );
 
-    const Rational<rational_type> g ( -3, 4 );
+    const gmp_rational g ( -3, 4 );
 
     CPPUNIT_ASSERT ( g < d );
     CPPUNIT_ASSERT ( d > g );
@@ -404,37 +404,37 @@ void GMPTest::testRelOps() {
 
 void GMPTest::testString() {
 
-    const Rational<rational_type> h ( 11, 4 );
+    const gmp_rational h ( 11, 4 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/4" ), h.str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "2 3/4" ), h.str ( true ) );
 
-    const Rational<rational_type> i ( 11, -4 );
+    const gmp_rational i ( 11, -4 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "-11/4" ), i.str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "-2 3/4" ), i.str ( true ) );
 
-    const Rational<rational_type> j ( 18, 8 );
+    const gmp_rational j ( 18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "9/4" ), j.str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "2 1/4" ), j.str ( true ) );
 
-    const Rational<rational_type> k ( -18, 8 );
+    const gmp_rational k ( -18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "-9/4" ), k.str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "-2 1/4" ), k.str ( true ) );
 
-    const Rational<rational_type> l ( 1, 8 );
+    const gmp_rational l ( 1, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "1/8" ), l.str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "1/8" ), l.str ( true ) );
 
-    const Rational<rational_type> m ( 8, 1 );
+    const gmp_rational m ( 8, 1 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "8" ), m.str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "8" ), m.str ( true ) );
 
-    const Rational<rational_type> n ( 8, 2, 1 );
+    const gmp_rational n ( 8, 2, 1 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "10" ), n.str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "10" ), n.str ( true ) );
@@ -443,17 +443,17 @@ void GMPTest::testString() {
 void GMPTest::testIOStreamOps() {
 
     std::ostringstream os;
-    os << Rational<rational_type> ( M_PI );
+    os << gmp_rational ( M_PI );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "245850922/78256779" ), os.str() );
 
     os.str ( "" );
-    os << Rational<rational_type> ( 280.0f/375.0f );
+    os << gmp_rational ( 280.0f/375.0f );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "56/75" ), os.str() );
 
     std::istringstream is ( "3.14159265358979323846" );
-    Rational<rational_type> in_pi;
+    gmp_rational in_pi;
 
     is >> in_pi;
 
