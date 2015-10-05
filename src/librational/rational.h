@@ -54,7 +54,7 @@ template<template<typename, bool, template<class, typename, bool> class> class,
 template<typename T> struct TYPE_CONVERT {
     inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
 
-    template<typename U> inline operator U() const {
+    template<typename U> inline U convert() const {
         return static_cast<U> ( val );
     }
 
@@ -1396,11 +1396,11 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
         NumberType x ( nt );
 
-        while ( ! ( abs ( static_cast<NumberType> ( CONV<T> ( r.m_numer ) ) /
-                          static_cast<NumberType> ( CONV<T> ( r.m_denom ) ) - nt ) < eps ) ) {
+        while ( ! ( abs ( ( CONV<T> ( r.m_numer ).template convert<NumberType>() /
+                            CONV<T> ( r.m_denom ).template convert<NumberType>() ) - nt ) < eps ) ) {
 
             const T &n ( static_cast<T> ( std::floor ( x ) ) );
-            x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( CONV<T> ( n ) ) );
+            x = static_cast<NumberType> ( 1 ) / ( x -  CONV<T> ( n ).template convert<NumberType>() );
 
             r.m_numer = typename rat::op_plus ()
                         ( p[0], typename rat::op_multiplies () ( n, p[1] ) );
@@ -1495,12 +1495,14 @@ struct GCD_euclid_fast<T, false, CHKOP> {
 
 template<typename T, template<class, typename, bool> class CHKOP>
 struct GCD_euclid_fast<T, true, CHKOP> {
-
-    inline T operator() ( const T &a, const T &b ) const {
-        const T &h ( GCD_euclid_fast<T, false, CHKOP>() ( a, b ) );
-        return h < T() ? T ( -h ) : h;
-    }
+    T operator() ( const T &a, const T &b ) const;
 };
+
+template<typename T, template<class, typename, bool> class CHKOP>
+T GCD_euclid_fast<T, true, CHKOP>::operator() ( const T &a, const T &b ) const {
+    const T &h ( GCD_euclid_fast<T, false, CHKOP>() ( a, b ) );
+    return h < T() ? T ( -h ) : h;
+}
 
 template<typename T, template<class, typename = T, bool = false> class CHKOP>
 struct GCD_euclid<T, false, CHKOP> {
@@ -1522,12 +1524,14 @@ struct GCD_euclid<T, false, CHKOP> {
 
 template<typename T, template<class, typename, bool> class CHKOP>
 struct GCD_euclid<T, true, CHKOP> {
-
-    inline T operator() ( const T &a, const T &b ) const {
-        const T &h ( GCD_euclid<T, false, CHKOP>() ( a, b ) );
-        return h < T() ? T ( -h ) : h;
-    }
+    T operator() ( const T &a, const T &b ) const;
 };
+
+template<typename T, template<class, typename, bool> class CHKOP>
+T GCD_euclid<T, true, CHKOP>::operator() ( const T &a, const T &b ) const {
+    const T &h ( GCD_euclid<T, false, CHKOP>() ( a, b ) );
+    return h < T() ? T ( -h ) : h;
+}
 
 template<typename T, template<class, typename, bool> class CHKOP>
 struct GCD_stein<T, false, CHKOP> {

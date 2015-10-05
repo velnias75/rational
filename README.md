@@ -37,3 +37,10 @@ Notes for custom number types
 - `std::numeric_limits<custom_type>::is_signed`
 - `std::numeric_limits<custom_type>::is_integer`
 - `std::numeric_limits<custom_type>::is_exact`
+
+How to use
+----------
+
+See the test cases for examples on how to use `rational.h` with *C++ built-in types* as well
+as with [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) as underlying
+storage type.

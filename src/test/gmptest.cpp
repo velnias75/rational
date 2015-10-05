@@ -85,6 +85,49 @@ void GMPTest::testConstruct() {
     CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( -18, 4, -5 ).denominator().get_si() );
 }
 
+void GMPTest::testConstructFromDouble() {
+
+    const Rational<rational_type, GCD_euclid> p ( 19.0 / 51.0 );
+
+    CPPUNIT_ASSERT_EQUAL ( 19l, p.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 51l, p.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> q ( 516901.0 / 740785.0 );
+
+    CPPUNIT_ASSERT_EQUAL ( 516901l, q.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 740785l, q.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> r ( -0.7391304347826086 );
+
+    CPPUNIT_ASSERT_EQUAL ( -17l, r.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 23l, r.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> s ( 0.0 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, s.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, s.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> pi ( M_PI );
+
+    CPPUNIT_ASSERT_EQUAL ( 245850922l, pi.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 78256779l, pi.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> t ( 1.0 );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, t.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, t.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> u ( 2.0 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2l, u.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, u.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> v ( -8 );
+
+    CPPUNIT_ASSERT_EQUAL ( -8l, v.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, v.denominator().get_si() );
+}
+
 void GMPTest::testConstructFrom_mpf_class() {
 
     const Rational<rational_type, GCD_euclid> p ( mpf_class ( mpf_class ( 19.0 ) /

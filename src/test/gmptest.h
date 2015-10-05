@@ -150,13 +150,17 @@ template<> struct TYPE_CONVERT<mpz_class> {
 
     inline explicit TYPE_CONVERT ( const mpz_class &v ) : val ( v ) {}
 
-    inline operator mpf_class() const {
-        return mpf_class ( val );
+    template<typename U> inline U convert() const {
+        return U ( val );
     }
 
 private:
     const mpz_class &val;
 };
+
+template<> inline double TYPE_CONVERT<mpz_class>::convert<double>() const {
+    return val.get_d();
+}
 
 template<> mpf_class EPSILON<mpf_class>::value() {
     return mpf_class ( "1e-21", 30, 10 );
@@ -178,6 +182,7 @@ EPSILON, TYPE_CONVERT>::abs ( const mpf_class &nt ) const {
 class GMPTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE ( GMPTest );
     CPPUNIT_TEST ( testConstruct );
+    CPPUNIT_TEST ( testConstructFromDouble );
     CPPUNIT_TEST ( testConstructFrom_mpf_class );
     CPPUNIT_TEST ( testAlgorithm );
     CPPUNIT_TEST_SUITE_END();
@@ -191,6 +196,7 @@ public:
     void tearDown();
 
     void testConstruct();
+    void testConstructFromDouble();
     void testConstructFrom_mpf_class();
     void testAlgorithm();
 
