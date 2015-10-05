@@ -162,6 +162,14 @@ template<> inline double TYPE_CONVERT<mpz_class>::convert<double>() const {
     return val.get_d();
 }
 
+template<> inline float TYPE_CONVERT<mpz_class>::convert<float>() const {
+    return static_cast<float> ( val.get_d() );
+}
+
+template<> inline long unsigned int TYPE_CONVERT<mpz_class>::convert<long unsigned int>() const {
+    return val.get_ui();
+}
+
 template<> mpf_class EPSILON<mpf_class>::value() {
     return mpf_class ( "1e-21", 30, 10 );
 }
@@ -184,6 +192,16 @@ class GMPTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testConstruct );
     CPPUNIT_TEST ( testConstructFromDouble );
     CPPUNIT_TEST ( testConstructFrom_mpf_class );
+    CPPUNIT_TEST ( testAddition );
+    CPPUNIT_TEST ( testSubtraction );
+    CPPUNIT_TEST ( testMultiplication );
+    CPPUNIT_TEST ( testInvert );
+    CPPUNIT_TEST ( testDivision );
+    CPPUNIT_TEST ( testModulo );
+    CPPUNIT_TEST ( testIncDec );
+    CPPUNIT_TEST ( testRelOps );
+    CPPUNIT_TEST ( testString );
+    CPPUNIT_TEST ( testIOStreamOps );
     CPPUNIT_TEST ( testAlgorithm );
     CPPUNIT_TEST_SUITE_END();
 
@@ -198,6 +216,16 @@ public:
     void testConstruct();
     void testConstructFromDouble();
     void testConstructFrom_mpf_class();
+    void testAddition();
+    void testSubtraction();
+    void testMultiplication();
+    void testInvert();
+    void testDivision();
+    void testModulo();
+    void testIncDec();
+    void testRelOps();
+    void testString();
+    void testIOStreamOps();
     void testAlgorithm();
 
 private:
