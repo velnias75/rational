@@ -285,6 +285,8 @@ public:
     template<typename NumberType>
     Rational ( const NumberType &number );
 
+    ~Rational();
+
     /**
      * @brief assign another %Rational
      *
@@ -418,9 +420,7 @@ public:
      *
      * @return a new %Rational
      */
-    inline Rational operator+ ( const Rational& other ) const {
-        return ( Rational ( *this ) += other );
-    }
+    Rational operator+ ( const Rational& other ) const;
 
     template<template<typename, bool, template<class, typename, bool> class> class U,
              template<class, typename, bool> class V>
@@ -822,6 +822,10 @@ template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberTy
 
 template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
          template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP>::~Rational() {}
+
+template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::gcm ( const Rational &o ) {
 
     const integer_type &x ( o.m_numer != integer_type() ?
@@ -864,6 +868,12 @@ Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
     }
 
     return *this;
+}
+
+template<typename T, template<typename, bool, template<class, typename, bool> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::operator+ ( const Rational& other ) const {
+    return ( Rational ( *this ) += other );
 }
 
 /**
@@ -1379,14 +1389,15 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
              ( nt > std::numeric_limits<T>::max() || nt < std::numeric_limits<T>::min() ) ) ) {
 #endif
 
+        const NumberType &eps ( EPSILON<NumberType>::value() );
+
         T p[2] = { T(), T ( 1 ) };
         T q[2] = { T ( 1 ), T() };
 
         NumberType x ( nt );
 
         while ( ! ( abs ( static_cast<NumberType> ( CONV<T> ( r.m_numer ) ) /
-                          static_cast<NumberType> ( CONV<T> ( r.m_denom ) ) - nt ) <
-                    EPSILON<NumberType>::value() ) ) {
+                          static_cast<NumberType> ( CONV<T> ( r.m_denom ) ) - nt ) < eps ) ) {
 
             const T &n ( static_cast<T> ( std::floor ( x ) ) );
             x = static_cast<NumberType> ( 1 ) / ( x - static_cast<NumberType> ( CONV<T> ( n ) ) );

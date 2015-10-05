@@ -25,12 +25,16 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( GMPTest );
 
 using namespace Commons::Math;
 
-GMPTest::GMPTest() : CppUnit::TestFixture(), m_sqrt2(), m_twosqrt() {}
+GMPTest::GMPTest() : CppUnit::TestFixture(), m_sqrt2(), m_twosqrt(), m_onethird(),
+    m_oneseventh() {}
 
 void GMPTest::setUp() {
+
     m_sqrt2 = unchecked_sqrt ( mpf_class ( std::sqrt ( 2.0 ) ) );
 
     std::fill_n ( std::back_inserter ( m_twosqrt ), 2, m_sqrt2 );
+    std::fill_n ( std::back_inserter ( m_onethird ), 3, rat_vector::value_type ( 1, 3 ) );
+    std::fill_n ( std::back_inserter ( m_oneseventh ), 7, rat_vector::value_type ( 1, 7 ) );
 }
 
 void GMPTest::tearDown() {}
@@ -58,6 +62,72 @@ void GMPTest::testConstruct() {
     CPPUNIT_ASSERT_EQUAL ( -0.5, b.get_d() );
     CPPUNIT_ASSERT_EQUAL ( -0.5, c.get_d() );
     CPPUNIT_ASSERT_EQUAL ( 0.5, d.get_d() );
+
+    CPPUNIT_ASSERT_EQUAL ( -3l, Rational<rational_type> ( 6, -8 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 4l, Rational<rational_type> ( 6, -8 ).denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 7l, Rational<rational_type> ( 14, 24 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, Rational<rational_type> ( 14, 24 ).denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 7l, Rational<rational_type> ( 2, 1, 3 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 3l, Rational<rational_type> ( 2, 1, 3 ).denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 86l, Rational<rational_type> ( 18, 4, -5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( 18, 4, -5 ).denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 86l, Rational<rational_type> ( 18, -4, 5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( 18, -4, 5 ).denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( -86l, Rational<rational_type> ( -18, 4, 5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( -18, 4, 5 ).denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( -94l, Rational<rational_type> ( -18, 4, -5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 5l, Rational<rational_type> ( -18, 4, -5 ).denominator().get_si() );
+}
+
+void GMPTest::testConstructFrom_mpf_class() {
+
+    const Rational<rational_type, GCD_euclid> p ( mpf_class ( mpf_class ( 19.0 ) /
+            mpf_class ( 51.0 ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 19l, p.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 51l, p.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> q ( mpf_class ( mpf_class ( 516901.0 ) /
+            mpf_class ( 740785.0 ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 516901l, q.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 740785l, q.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> r ( mpf_class ( -0.7391304347826086, 65 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "-665749510133023" ), r.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "900719925474090" ), r.denominator().get_str() );
+
+    const Rational<rational_type, GCD_euclid> s ( mpf_class ( 0.0 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, s.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, s.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> pi ( mpf_class ( M_PI ) );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "9978066541" ), pi.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "3176117225" ), pi.denominator().get_str() );
+
+    const Rational<rational_type, GCD_euclid> t ( mpf_class ( 1.0 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, t.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, t.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> u ( mpf_class ( 2.0 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 2l, u.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, u.denominator().get_si() );
+
+    const Rational<rational_type, GCD_euclid> v ( mpf_class ( -8 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( -8l, v.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, v.denominator().get_si() );
 }
 
 void GMPTest::testAlgorithm() {
@@ -68,6 +138,26 @@ void GMPTest::testAlgorithm() {
     mp_exp_t exp;
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "2" ), r.get_str ( exp, 10, 4 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, std::accumulate ( m_onethird.begin(), m_onethird.end(),
+                           Rational<rat_vector::value_type::integer_type>(),
+                           std::plus<Rational<rat_vector::value_type::integer_type> >() )
+                           .numerator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, std::accumulate ( m_onethird.begin(), m_onethird.end(),
+                           Rational<rat_vector::value_type::integer_type>(),
+                           std::plus<Rational<rat_vector::value_type::integer_type> >() )
+                           .denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, std::accumulate ( m_onethird.begin(), m_onethird.end(),
+                           Rational<rat_vector::value_type::integer_type>(),
+                           std::plus<Rational<rat_vector::value_type::integer_type> >() )
+                           .numerator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, std::accumulate ( m_oneseventh.begin(), m_oneseventh.end(),
+                           Rational<rat_vector::value_type::integer_type>(),
+                           std::plus<Rational<rat_vector::value_type::integer_type> >() )
+                           .denominator().get_si() );
 }
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

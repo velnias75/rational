@@ -159,12 +159,12 @@ private:
 };
 
 template<> mpf_class EPSILON<mpf_class>::value() {
-    return mpf_class ( "1e-30", 30, 10 );
+    return mpf_class ( "1e-21", 30, 10 );
 }
 
 template<>
 inline mpf_class _approxFract<mpz_class, GCD_euclid, NO_OPERATOR_CHECK, mpf_class, true,
-TYPE_CONVERT>::abs ( const mpf_class &nt ) const {
+EPSILON, TYPE_CONVERT>::abs ( const mpf_class &nt ) const {
     return ::abs ( nt );
 }
 
@@ -178,6 +178,7 @@ TYPE_CONVERT>::abs ( const mpf_class &nt ) const {
 class GMPTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE ( GMPTest );
     CPPUNIT_TEST ( testConstruct );
+    CPPUNIT_TEST ( testConstructFrom_mpf_class );
     CPPUNIT_TEST ( testAlgorithm );
     CPPUNIT_TEST_SUITE_END();
 
@@ -190,14 +191,18 @@ public:
     void tearDown();
 
     void testConstruct();
+    void testConstructFrom_mpf_class();
     void testAlgorithm();
 
 private:
     typedef Commons::Math::Rational<rational_type, Commons::Math::GCD_euclid> unchecked_sqrt;
     typedef std::vector<unchecked_sqrt> rat_vector_sqrt;
-    
+    typedef std::vector<Commons::Math::Rational<rational_type> > rat_vector;
+
     unchecked_sqrt m_sqrt2;
     rat_vector_sqrt m_twosqrt;
+    rat_vector m_onethird;
+    rat_vector m_oneseventh;
 };
 #pragma GCC diagnostic pop
 
