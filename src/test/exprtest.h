@@ -24,14 +24,24 @@
 
 #include "gmp_rational.h"
 
+#define declare_rat_var(type, var) \
+    RationalExpression<type, RationalVariable<type> > var ( ( RationalVariable<type>() ) )
+
 namespace Commons {
 
 namespace Math {
 
-template<class T>
-struct RationalVar {
+template<class ExprT> struct RationalExpressionTraits {
+    typedef ExprT expr_type;
+    typedef expr_type literal_type;
+};
 
-    Rational<T> &operator () ( Rational<T> &v ) {
+template<class T>
+struct RationalVariable {
+
+    typedef Rational<T> result_type;
+
+    result_type operator() ( Rational<T> v ) {
         return v;
     }
 };
@@ -39,66 +49,80 @@ struct RationalVar {
 template<class T>
 struct RationalConstant {
 
-    explicit RationalConstant ( const Rational<T> &r ) : c ( r ) {}
+    typedef Rational<T> result_type;
+    typedef RationalConstant<T> expr_type;
 
-    Rational<T> operator () ( const Rational<T> & ) {
-        return c;
+    explicit RationalConstant ( Rational<T> c ) : c_ ( c ) {}
+
+    result_type operator() ( const Rational<T> ) {
+        return c_;
     }
 
 private:
-    Rational<T> c;
+    Rational<T> c_;
 };
 
 template<class T, class L, class H, class OP>
 struct RationalBinaryExpression {
 
-    RationalBinaryExpression ( const L &l, const H &h ) : l_ ( l ), h_ ( h ) {}
+    typedef typename OP::result_type result_type;
+    typedef RationalBinaryExpression<T, L, H, OP> expr_type;
+
+    RationalBinaryExpression ( L l, H h ) : l_ ( l ), h_ ( h ) {}
 
     ~RationalBinaryExpression();
 
-    Rational<T> operator () ( const Rational<T> &d );
+    result_type operator() ( Rational<T> d );
 
 private:
-    L l_;
-    H h_;
+    typename RationalExpressionTraits<L>::expr_type l_;
+    typename RationalExpressionTraits<H>::expr_type h_;
 };
 
 template<class T, class L, class H, class OP>
 RationalBinaryExpression<T, L, H, OP>::~RationalBinaryExpression() {}
 
 template<class T, class L, class H, class OP>
-Rational<T> RationalBinaryExpression<T, L, H, OP>::operator () ( const Rational<T> &d ) {
+typename RationalBinaryExpression<T, L, H, OP>::result_type
+RationalBinaryExpression<T, L, H, OP>::operator() ( Rational<T> d ) {
     return OP() ( l_ ( d ), h_ ( d ) );
 }
 
 template<class T, class E>
 struct RationalExpression {
 
-    explicit RationalExpression ( const E &e ) : expr_ ( e ) {}
+    typedef E expr_type;
+    typedef typename RationalExpressionTraits<E>::expr_type::result_type result_type;
 
-    Rational<T> operator() ( const Rational<T> &d = Rational<T>() ) {
+    explicit RationalExpression ( expr_type e )
+        : expr_ ( e ) {}
+
+    result_type operator() ( Rational<T> d ) {
         return expr_ ( d );
     }
 
 private:
-    E expr_;
+    expr_type expr_;
+};
+
+template<class T> struct RationalExpressionTraits<Rational<T> > {
+    typedef RationalConstant<T> literal_type;
+    typedef RationalExpression<T, literal_type> expr_type;
 };
 
 template<class T>
-inline RationalExpression<T, RationalConstant<T> > mk_rat_lit ( const Rational<T> &r ) {
-    return RationalExpression<T, RationalConstant<T> > ( ( RationalConstant<T> ( r ) ) );
+inline typename RationalExpressionTraits<Rational<T> >::expr_type
+mk_rat_lit ( const Rational<T> &r ) {
+    return typename RationalExpressionTraits<Rational<T> >::expr_type ( RationalConstant<T> ( r ) );
 }
 
-template<class T, class N>
-inline RationalExpression<T, RationalConstant<T> > mk_rat_lit ( const N &n, const N &d ) {
-    return RationalExpression<T, RationalConstant<T> > ( ( RationalConstant<T>
-            ( Rational<T> ( n, d ) ) ) );
-}
-
-template<class T, class N> inline
-RationalExpression<T, RationalConstant<T> > mk_rat_lit ( const N &w, const N &n, const N &d ) {
-    return RationalExpression<T, RationalConstant<T> > ( ( RationalConstant<T>
-            ( Rational<T> ( w, n, d ) ) ) );
+template<class T> inline
+typename RationalExpressionTraits<T>::expr_type::result_type eval_rat_exp ( T expr,
+        const typename RationalExpressionTraits<T>::expr_type::result_type &val =
+            typename RationalExpressionTraits<T>::expr_type::result_type() ) {
+    return ( typename RationalExpressionTraits<T>::expr_type
+             ( ( typename RationalExpressionTraits<T>::literal_type ( expr ) ) ) )
+           .operator() ( val );
 }
 
 }
@@ -111,8 +135,8 @@ Commons::Math::RationalExpression<T,
         Commons::Math::RationalExpression<T, A>,
         Commons::Math::RationalExpression<T, B>,
         std::plus<Commons::Math::Rational<T> > > >
-        operator+ ( const Commons::Math::RationalExpression<T, A> &a,
-const Commons::Math::RationalExpression<T, B> &b ) {
+        operator+ ( Commons::Math::RationalExpression<T, A> a,
+Commons::Math::RationalExpression<T, B> b ) {
     typedef Commons::Math::RationalBinaryExpression<T, Commons::Math::RationalExpression<T, A>,
             Commons::Math::RationalExpression<T, B>, std::plus<Commons::Math::Rational<T> > > ExprT;
     return Commons::Math::RationalExpression<T, ExprT> ( ExprT ( a, b ) );
@@ -124,10 +148,38 @@ Commons::Math::RationalExpression<T,
         Commons::Math::RationalExpression<T, A>,
         Commons::Math::RationalExpression<T, B>,
         std::minus<Commons::Math::Rational<T> > > >
-        operator- ( const Commons::Math::RationalExpression<T, A> &a,
-const Commons::Math::RationalExpression<T, B> &b ) {
+        operator- ( Commons::Math::RationalExpression<T, A> a,
+Commons::Math::RationalExpression<T, B> b ) {
     typedef Commons::Math::RationalBinaryExpression<T, Commons::Math::RationalExpression<T, A>,
             Commons::Math::RationalExpression<T, B>, std::minus<Commons::Math::Rational<T> > > ExprT;
+    return Commons::Math::RationalExpression<T, ExprT> ( ExprT ( a, b ) );
+}
+
+template<class T, class A, class B>
+Commons::Math::RationalExpression<T,
+        Commons::Math::RationalBinaryExpression<T,
+        Commons::Math::RationalExpression<T, A>,
+        Commons::Math::RationalExpression<T, B>,
+        std::multiplies<Commons::Math::Rational<T> > > >
+        operator* ( Commons::Math::RationalExpression<T, A> a,
+Commons::Math::RationalExpression<T, B> b ) {
+    typedef Commons::Math::RationalBinaryExpression<T, Commons::Math::RationalExpression<T, A>,
+            Commons::Math::RationalExpression<T, B>,
+            std::multiplies<Commons::Math::Rational<T> > > ExprT;
+    return Commons::Math::RationalExpression<T, ExprT> ( ExprT ( a, b ) );
+}
+
+template<class T, class A, class B>
+Commons::Math::RationalExpression<T,
+        Commons::Math::RationalBinaryExpression<T,
+        Commons::Math::RationalExpression<T, A>,
+        Commons::Math::RationalExpression<T, B>,
+        std::divides<Commons::Math::Rational<T> > > >
+        operator/ ( Commons::Math::RationalExpression<T, A> a,
+Commons::Math::RationalExpression<T, B> b ) {
+    typedef Commons::Math::RationalBinaryExpression<T, Commons::Math::RationalExpression<T, A>,
+            Commons::Math::RationalExpression<T, B>,
+            std::divides<Commons::Math::Rational<T> > > ExprT;
     return Commons::Math::RationalExpression<T, ExprT> ( ExprT ( a, b ) );
 }
 

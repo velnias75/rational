@@ -31,27 +31,41 @@ void ExprTest::tearDown() {}
 
 void ExprTest::testExpression() {
 
-    CPPUNIT_ASSERT_EQUAL ( 23l, ( mk_rat_lit<gmp_rational::integer_type> ( 0, 1, 2 ) +
-                                  mk_rat_lit<gmp_rational::integer_type> ( 2, 3 ) +
-                                  mk_rat_lit<gmp_rational::integer_type> ( 3, 4 ) ) ()
-                           .numerator().get_si() );
+    declare_rat_var ( long, x );
 
-    CPPUNIT_ASSERT_EQUAL ( 12l, ( mk_rat_lit ( gmp_rational ( 1, 2 ) ) +
-                                  mk_rat_lit ( gmp_rational ( 2, 3 ) ) +
-                                  mk_rat_lit ( gmp_rational ( 3, 4 ) ) ) ()
-                           .denominator().get_si() );
+    RationalExpressionTraits<Rational<long> >::expr_type l ( mk_rat_lit
+            ( Rational<long> ( 50.0 ) ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 0l, ( ( mk_rat_lit<gmp_rational::integer_type> ( 0, 1, 2 ) +
-                                   mk_rat_lit<gmp_rational::integer_type> ( 2, 3 ) +
-                                   mk_rat_lit<gmp_rational::integer_type> ( 3, 4 ) ) -
-                                 mk_rat_lit<gmp_rational::integer_type> ( 23, 12 ) ) ()
-                           .numerator().get_si() );
+    const Rational<long> r1 ( eval_rat_exp ( x + l + x, Rational<long> ( 2.0 ) ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 1l, ( ( mk_rat_lit ( gmp_rational ( 1, 2 ) ) +
-                                   mk_rat_lit ( gmp_rational ( 2, 3 ) ) +
-                                   mk_rat_lit ( gmp_rational ( 3, 4 ) ) ) -
-                                 mk_rat_lit ( gmp_rational ( 23, 12 ) ) ) ()
-                           .denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 54l, r1.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, r1.denominator() );
+
+    const Rational<long> r2 ( eval_rat_exp ( mk_rat_lit ( Rational<long> ( 1.0/2.0 ) ) +
+                              mk_rat_lit ( Rational<long> ( 2.0/3.0 ) ) +
+                              mk_rat_lit ( Rational<long> ( 3.0/4.0 ) ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 23l, r2.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r2.denominator() );
+
+    const Rational<long> r3 ( eval_rat_exp ( Rational<long> ( 1.0/2.0 ) +
+                              Rational<long> ( 2.0/3.0 ) + Rational<long> ( 3.0/4.0 ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 23l, r3.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r3.denominator() );
+
+    const gmp_rational r4 ( eval_rat_exp ( mk_rat_lit ( gmp_rational ( 0, 1, 2 ) ) +
+                                           mk_rat_lit ( gmp_rational ( 2, 3 ) ) +
+                                           mk_rat_lit ( gmp_rational ( 3, 4 ) ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 23l, r4.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r4.denominator().get_si() );
+
+    const gmp_rational r5 ( eval_rat_exp ( mk_rat_lit ( r4 ) -
+                                           mk_rat_lit ( gmp_rational ( 23, 12 ) ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, r5.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, r5.denominator().get_si() );
 }
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
