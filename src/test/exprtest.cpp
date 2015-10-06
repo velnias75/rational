@@ -61,8 +61,7 @@ void ExprTest::testExpression() {
     CPPUNIT_ASSERT_EQUAL ( 23l, r4.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 12l, r4.denominator().get_si() );
 
-    const gmp_rational r5 ( eval_rat_exp ( mk_rat_lit ( r4 ) -
-                                           mk_rat_lit ( gmp_rational ( 23, 12 ) ) ) );
+    const gmp_rational r5 ( eval_rat_exp ( mk_rat_lit ( r4 ) - gmp_rational ( 23, 12 ) ) );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, r5.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, r5.denominator().get_si() );
