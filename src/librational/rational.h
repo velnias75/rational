@@ -225,7 +225,7 @@ public:
      *
      * @param[in] other the %Rational to copy
      */
-    Rational ( const Rational &other ) : m_numer ( other.m_numer ), m_denom ( other.m_denom ) {}
+    Rational ( const Rational &other );
 
     /**
     * @brief creates a %Rational
@@ -779,6 +779,11 @@ private:
     integer_type m_numer;
     integer_type m_denom;
 };
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP>::Rational ( const Rational &other ) : m_numer ( other.m_numer ),
+    m_denom ( other.m_denom ) {}
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
