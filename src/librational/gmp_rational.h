@@ -35,6 +35,10 @@
 
 #include "rational.h"
 
+#ifndef GMP_EPSILON
+#define GMP_EPSILON "1e-21", 30, 10
+#endif
+
 #if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
           < 50100
 namespace std {
@@ -235,7 +239,7 @@ struct GCD_gmp<mpz_class, true, CHKOP, CONV> {
 };
 
 template<> inline mpf_class EPSILON<mpf_class>::value() {
-    return mpf_class ( "1e-21", 30, 10 );
+    return mpf_class ( GMP_EPSILON );
 }
 
 template<>
