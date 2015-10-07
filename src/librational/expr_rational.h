@@ -66,8 +66,6 @@ private:
     Rational<T> c_;
 };
 
-template<class, class> struct RationalExpression;
-
 template<class T, class L, class H, class OP>
 struct RationalBinaryExpression {
 
