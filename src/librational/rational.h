@@ -433,7 +433,7 @@ public:
      */
     inline Rational& operator++() {
         m_numer = op_plus() ( m_numer, m_denom );
-        return gcm ( *this );
+        return reduce ( *this );
     }
 
     /**
@@ -503,7 +503,7 @@ public:
      */
     inline Rational& operator--() {
         m_numer = op_minus() ( m_numer, m_denom );
-        return gcm ( *this );
+        return reduce ( *this );
     }
 
     /**
@@ -770,7 +770,7 @@ public:
     }
 
 private:
-    Rational &gcm ( const Rational &o );
+    Rational &reduce ( const Rational &o );
 
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
@@ -794,7 +794,7 @@ Rational<T, GCD, CHKOP>::Rational ( const integer_type &n, const integer_type &d
     if ( m_denom == integer_type() ) throw std::domain_error ( "denominator can't be null" );
 #endif
 
-    gcm ( *this );
+    reduce ( *this );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -813,7 +813,7 @@ Rational<T, GCD, CHKOP>::~Rational() {}
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::gcm ( const Rational &o ) {
+Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::reduce ( const Rational &o ) {
 
     const integer_type &x ( o.m_numer != integer_type() ?
                             GCD<T, std::numeric_limits<integer_type>::is_signed,
@@ -1128,7 +1128,7 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator%= ( const Rational& o
                                  o.m_numer );
     }
 
-    return gcm ( *this );
+    return reduce ( *this );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -1727,7 +1727,6 @@ struct ENABLE_OVERFLOW_CHECK<std::negate<T>, T, true> {
     inline T operator() ( const T &x ) const {
 
         if ( x != std::numeric_limits<T>::min() ) {
-
             return std::negate<T>() ( x );
         }
 
@@ -1789,7 +1788,6 @@ template<typename T>
 T ENABLE_OVERFLOW_CHECK<std::divides<T>, T, true>::operator() ( const T &x, const T& y ) const {
 
     if ( ! ( ( y == T() ) || ( ( x == std::numeric_limits<T>::min() ) && ( y == -1 ) ) ) ) {
-
         return std::divides<T>() ( x, y );
     }
 
@@ -1804,7 +1802,6 @@ struct ENABLE_OVERFLOW_CHECK<std::modulus<T>, T, true> {
     inline T operator() ( const T &x, const T& y ) const {
 
         if ( ! ( ( y == T() ) || ( ( x == std::numeric_limits<T>::min() ) && ( y == -1 ) ) ) ) {
-
             return std::modulus<T>() ( x, y );
         }
 
