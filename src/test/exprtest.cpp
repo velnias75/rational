@@ -31,8 +31,19 @@ void ExprTest::tearDown() {}
 
 void ExprTest::testExpression() {
 
-    const RationalExpressionTraits<Rational<long> >::expr_type &l ( mk_rat_lit
-            ( Rational<long> ( 50.0 ) ) );
+    const RationalExpressionTraits<Rational<long> >::expr_type &a (
+        mk_rat_lit ( Rational<long> ( 1, 8 ) ) );
+
+    const RationalExpressionTraits<Rational<long> >::expr_type &b (
+        mk_rat_lit ( Rational<long> ( 2, 73 ) ) );
+
+    const Rational<long> r_mod ( eval_rat_expr ( a % b ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 9l, r_mod.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 584l, r_mod.denominator() );
+
+    const RationalExpressionTraits<Rational<long> >::expr_type &l (
+        mk_rat_lit ( Rational<long> ( 50.0 ) ) );
 
     const RationalExpressionTraits<Rational<long> >::variable_type &x ( mk_rat_proto_var ( l ) );
 
@@ -57,6 +68,17 @@ void ExprTest::testExpression() {
 
 void ExprTest::testExpression_gmp() {
 #ifdef HAVE_GMPXX_H
+
+    const RationalExpressionTraits<gmp_rational>::expr_type &a (
+        mk_rat_lit ( gmp_rational ( 1, 8 ) ) );
+
+    const RationalExpressionTraits<gmp_rational>::expr_type &b (
+        mk_rat_lit ( gmp_rational ( 2, 73 ) ) );
+
+    const gmp_rational r_mod ( eval_rat_expr ( a % b ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 9l, r_mod.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 584l, r_mod.denominator().get_si() );
 
     const gmp_rational r1 ( eval_rat_expr ( mk_rat_lit ( gmp_rational ( 0, 1, 2 ) ) +
                                             mk_rat_lit ( gmp_rational ( 2, 3 ) ) +
