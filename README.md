@@ -41,6 +41,8 @@ Notes for custom number types
 - `std::numeric_limits<custom_type>::is_integer`
 - `std::numeric_limits<custom_type>::is_exact`
 
+*(`gmp_rational.h` provides this specializations for GMP versions below 5.1)*
+
 How to use
 ----------
 
