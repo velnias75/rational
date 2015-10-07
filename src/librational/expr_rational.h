@@ -38,45 +38,46 @@ template<class ExprT> struct RationalExpressionTraits {
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD>
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct RationalVariable {
 
-    typedef Rational<T, GCD> result_type;
+    typedef Rational<T, GCD, CHKOP> result_type;
 
-    result_type operator() ( const Rational<T, GCD> &v ) const {
+    result_type operator() ( const Rational<T, GCD, CHKOP> &v ) const {
         return v;
     }
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD>
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct RationalConstant {
 
-    typedef Rational<T, GCD> result_type;
-    typedef RationalConstant<T, GCD> expr_type;
+    typedef Rational<T, GCD, CHKOP> result_type;
+    typedef RationalConstant<T, GCD, CHKOP> expr_type;
 
-    explicit RationalConstant ( const Rational<T, GCD> &c ) : c_ ( c ) {}
+    explicit RationalConstant ( const Rational<T, GCD, CHKOP> &c ) : c_ ( c ) {}
 
-    result_type operator() ( const Rational<T, GCD> & ) const {
+    result_type operator() ( const Rational<T, GCD, CHKOP> & ) const {
         return c_;
     }
 
 private:
-    Rational<T, GCD> c_;
+    Rational<T, GCD, CHKOP> c_;
 };
 
 template<class T, class L, class H, class OP, template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD>
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
 struct RationalBinaryExpression {
 
     typedef typename OP::result_type result_type;
-    typedef RationalBinaryExpression<T, L, H, OP, GCD> expr_type;
+    typedef RationalBinaryExpression<T, L, H, OP, GCD, CHKOP> expr_type;
 
     RationalBinaryExpression ( const L &l, const H &h ) : l_ ( l ), h_ ( h ) {}
 
     ~RationalBinaryExpression();
 
-    result_type operator() ( const Rational<T, GCD> &d );
+    result_type operator() ( const Rational<T, GCD, CHKOP> &d );
 
 private:
     typename RationalExpressionTraits<L>::literal_type l_;
@@ -84,25 +85,27 @@ private:
 };
 
 template<class T, class L, class H, class OP, template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD>
-RationalBinaryExpression<T, L, H, OP, GCD>::~RationalBinaryExpression() {}
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+RationalBinaryExpression<T, L, H, OP, GCD, CHKOP>::~RationalBinaryExpression() {}
 
 template<class T, class L, class H, class OP, template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD>
-typename RationalBinaryExpression<T, L, H, OP, GCD>::result_type
-RationalBinaryExpression<T, L, H, OP, GCD>::operator() ( const Rational<T, GCD> &d ) {
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+typename RationalBinaryExpression<T, L, H, OP, GCD, CHKOP>::result_type
+RationalBinaryExpression<T, L, H, OP, GCD, CHKOP>::operator() ( const Rational<T, GCD, CHKOP> &d ) {
     return OP() ( l_ ( d ), h_ ( d ) );
 }
 
 template<class T, class E, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD>
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct RationalExpression {
 
     typedef typename E::result_type result_type;
 
     explicit RationalExpression ( const E &e ) : expr_ ( e ) {}
 
-    result_type operator() ( const Rational<T, GCD> &d ) {
+    result_type operator() ( const Rational<T, GCD, CHKOP> &d ) {
         return expr_ ( d );
     }
 
@@ -111,31 +114,34 @@ private:
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD> struct RationalExpressionTraits<Rational<T, GCD> > {
-    typedef RationalConstant<T, GCD> literal_type;
-    typedef RationalExpression<T, literal_type, GCD> expr_type;
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct RationalExpressionTraits<Rational<T, GCD, CHKOP> > {
+    typedef RationalConstant<T, GCD, CHKOP> literal_type;
+    typedef RationalExpression<T, literal_type, GCD, CHKOP> expr_type;
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD>
-inline RationalExpression<T, RationalConstant<T, GCD>, GCD>
-mk_rat_lit ( const Rational<T, GCD> &r ) {
-    return RationalExpression<T, RationalConstant<T, GCD>, GCD>
-           ( ( RationalConstant<T, GCD> ( r ) ) );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+inline RationalExpression<T, RationalConstant<T, GCD, CHKOP>, GCD, CHKOP>
+mk_rat_lit ( const Rational<T, GCD, CHKOP> &r ) {
+    return RationalExpression<T, RationalConstant<T, GCD, CHKOP>, GCD, CHKOP>
+           ( ( RationalConstant<T, GCD, CHKOP> ( r ) ) );
 }
 
 template<class T, class E, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD>
-inline RationalExpression<T, RationalVariable<T, GCD>, GCD>
-mk_rat_proto_var ( const RationalExpression<T, E, GCD> & ) {
-    return RationalExpression<T, RationalVariable<T, GCD>, GCD> ( ( RationalVariable<T, GCD>() ) );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+inline RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
+mk_rat_proto_var ( const RationalExpression<T, E, GCD, CHKOP> & ) {
+    return RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
+           ( ( RationalVariable<T, GCD, CHKOP>() ) );
 }
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD>
-inline RationalExpression<T, RationalVariable<T, GCD>, GCD>
-mk_rat_proto_var ( const Rational<T, GCD> & ) {
-    return RationalExpression<T, RationalVariable<T, GCD>, GCD> ( ( RationalVariable<T, GCD>() ) );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+inline RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
+mk_rat_proto_var ( const Rational<T, GCD, CHKOP> & ) {
+    return RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
+           ( ( RationalVariable<T, GCD, CHKOP>() ) );
 }
 
 template<class T> inline
@@ -152,169 +158,192 @@ typename RationalExpressionTraits<T>::expr_type::result_type eval_rat_exp ( cons
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD>
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalConstant<B, GCD>,
-        std::plus<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator+ ( const Commons::Math::RationalExpression<T, A, GCD> &a,
-const Commons::Math::Rational<B, GCD> &b ) {
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::RationalConstant<B, GCD, CHKOP>,
+        std::plus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator+ ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
+const Commons::Math::Rational<B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
-            Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalConstant<B, GCD>,
-            std::plus<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT ( a,
-            Commons::Math::RationalConstant<B, GCD> ( b ) ) );
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::RationalConstant<B, GCD, CHKOP>,
+            std::plus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a,
+            Commons::Math::RationalConstant<B, GCD, CHKOP> ( b ) ) );
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalConstant<A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-        std::plus<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator+ ( const Commons::Math::Rational<A, GCD> &a,
-const Commons::Math::RationalExpression<T, B, GCD> &b ) {
+        Commons::Math::RationalConstant<A, GCD, CHKOP>,
+        Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+        std::plus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator+ ( const Commons::Math::Rational<A, GCD, CHKOP> &a,
+const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
-            Commons::Math::RationalConstant<A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-            std::plus<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT (
-                Commons::Math::RationalConstant<A, GCD> ( a ), b ) );
+            Commons::Math::RationalConstant<A, GCD, CHKOP>,
+            Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+            std::plus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
+                Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ), b ) );
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-        std::plus<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator+ ( const Commons::Math::RationalExpression<T, A, GCD> &a,
-const Commons::Math::RationalExpression<T, B, GCD> &b ) {
-    typedef Commons::Math::RationalBinaryExpression<T, Commons::Math::RationalExpression<T, A, GCD>,
-            Commons::Math::RationalExpression<T, B, GCD>,
-            std::plus<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT ( a, b ) );
-}
-
-template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
-Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalConstant<B, GCD>,
-        std::minus<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator- ( const Commons::Math::RationalExpression<T, A, GCD> &a,
-const Commons::Math::Rational<B, GCD> &b ) {
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+        std::plus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator+ ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
+const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
-            Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalConstant<B, GCD>,
-            std::minus<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT ( a,
-            Commons::Math::RationalConstant<B, GCD> ( b ) ) );
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+            std::plus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a, b ) );
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalConstant<A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-        std::minus<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator- ( const Commons::Math::Rational<A, GCD> &a,
-const Commons::Math::RationalExpression<T, B, GCD> &b ) {
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::RationalConstant<B, GCD, CHKOP>,
+        std::minus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator- ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
+const Commons::Math::Rational<B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
-            Commons::Math::RationalConstant<A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-            std::minus<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT (
-                Commons::Math::RationalConstant<A, GCD> ( a ), b ) );
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::RationalConstant<B, GCD, CHKOP>,
+            std::minus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a,
+            Commons::Math::RationalConstant<B, GCD, CHKOP> ( b ) ) );
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-        std::minus<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator- ( const Commons::Math::RationalExpression<T, A, GCD> &a,
-const Commons::Math::RationalExpression<T, B, GCD> &b ) {
-    typedef Commons::Math::RationalBinaryExpression<T, Commons::Math::RationalExpression<T, A, GCD>,
-            Commons::Math::RationalExpression<T, B, GCD>,
-            std::minus<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT ( a, b ) );
-}
-
-template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
-Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalConstant<B, GCD>,
-        std::multiplies<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator* ( const Commons::Math::RationalExpression<T, A, GCD> &a,
-const Commons::Math::Rational<B, GCD> &b ) {
+        Commons::Math::RationalConstant<A, GCD, CHKOP>,
+        Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+        std::minus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator- ( const Commons::Math::Rational<A, GCD, CHKOP> &a,
+const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
-            Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalConstant<B, GCD>,
-            std::multiplies<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT ( a,
-            Commons::Math::RationalConstant<B, GCD> ( b ) ) );
+            Commons::Math::RationalConstant<A, GCD, CHKOP>,
+            Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+            std::minus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
+                Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ), b ) );
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalConstant<A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-        std::multiplies<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator* ( const Commons::Math::Rational<A, GCD> &a,
-const Commons::Math::RationalExpression<T, B, GCD> &b ) {
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+        std::minus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator- ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
+const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
-            Commons::Math::RationalConstant<A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-            std::multiplies<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT (
-                Commons::Math::RationalConstant<A, GCD> ( a ), b ) );
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+            std::minus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a, b ) );
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-        std::multiplies<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator* ( const Commons::Math::RationalExpression<T, A, GCD> &a,
-const Commons::Math::RationalExpression<T, B, GCD> &b ) {
-    typedef Commons::Math::RationalBinaryExpression<T, Commons::Math::RationalExpression<T, A, GCD>,
-            Commons::Math::RationalExpression<T, B, GCD>,
-            std::multiplies<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT ( a, b ) );
-}
-
-template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
-Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalConstant<B, GCD>,
-        std::divides<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator/ ( const Commons::Math::RationalExpression<T, A, GCD> &a,
-const Commons::Math::Rational<B, GCD> &b ) {
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::RationalConstant<B, GCD, CHKOP>,
+        std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator* ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
+const Commons::Math::Rational<B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
-            Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalConstant<B, GCD>,
-            std::divides<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT ( a,
-            Commons::Math::RationalConstant<B, GCD> ( b ) ) );
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::RationalConstant<B, GCD, CHKOP>,
+            std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a,
+            Commons::Math::RationalConstant<B, GCD, CHKOP> ( b ) ) );
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalConstant<A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-        std::divides<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator/ ( const Commons::Math::Rational<A, GCD> &a,
-const Commons::Math::RationalExpression<T, B, GCD> &b ) {
+        Commons::Math::RationalConstant<A, GCD, CHKOP>,
+        Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+        std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator* ( const Commons::Math::Rational<A, GCD, CHKOP> &a,
+const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
-            Commons::Math::RationalConstant<A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-            std::divides<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT (
-                Commons::Math::RationalConstant<A, GCD> ( a ), b ) );
+            Commons::Math::RationalConstant<A, GCD, CHKOP>,
+            Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+            std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
+                Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ), b ) );
 }
 
 template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD>
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
-        Commons::Math::RationalExpression<T, A, GCD>, Commons::Math::RationalExpression<T, B, GCD>,
-        std::divides<Commons::Math::Rational<T, GCD> >, GCD>, GCD>
-        operator/ ( const Commons::Math::RationalExpression<T, A, GCD> &a,
-const Commons::Math::RationalExpression<T, B, GCD> &b ) {
-    typedef Commons::Math::RationalBinaryExpression<T, Commons::Math::RationalExpression<T, A, GCD>,
-            Commons::Math::RationalExpression<T, B, GCD>,
-            std::divides<Commons::Math::Rational<T, GCD> >, GCD> ExprT;
-    return Commons::Math::RationalExpression<T, ExprT, GCD> ( ExprT ( a, b ) );
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+        std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator* ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
+const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
+    typedef Commons::Math::RationalBinaryExpression<T,
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+            std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a, b ) );
 }
 
+template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::RationalConstant<B, GCD, CHKOP>,
+        std::divides<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator/ ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
+const Commons::Math::Rational<B, GCD, CHKOP> &b ) {
+    typedef Commons::Math::RationalBinaryExpression<T,
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::RationalConstant<B, GCD, CHKOP>,
+            std::divides<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a,
+            Commons::Math::RationalConstant<B, GCD, CHKOP> ( b ) ) );
+}
+
+template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
+        Commons::Math::RationalConstant<A, GCD, CHKOP>,
+        Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+        std::divides<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator/ ( const Commons::Math::Rational<A, GCD, CHKOP> &a,
+const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
+    typedef Commons::Math::RationalBinaryExpression<T,
+            Commons::Math::RationalConstant<A, GCD, CHKOP>,
+            Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+            std::divides<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
+                Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ), b ) );
+}
+
+template<class T, class A, class B, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+        std::divides<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+        operator/ ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
+const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
+    typedef Commons::Math::RationalBinaryExpression<T,
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
+            std::divides<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a, b ) );
+}
 
 #endif /* COMMONS_MATH_EXPR_RATIONAL_H */
 
