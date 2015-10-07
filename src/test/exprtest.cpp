@@ -31,12 +31,11 @@ void ExprTest::tearDown() {}
 
 void ExprTest::testExpression() {
 
-    declare_rat_var ( long, x );
-
     RationalExpressionTraits<Rational<long> >::expr_type l ( mk_rat_lit
             ( Rational<long> ( 50.0 ) ) );
 
-    const Rational<long> r1 ( eval_rat_exp ( x + l + x, Rational<long> ( 2.0 ) ) );
+    const Rational<long> r1 ( eval_rat_exp ( mk_rat_proto_var ( l ) + l + mk_rat_proto_var ( l ),
+                              Rational<long> ( 2.0 ) ) );
 
     CPPUNIT_ASSERT_EQUAL ( 54l, r1.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1l, r1.denominator() );
