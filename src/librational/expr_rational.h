@@ -35,6 +35,7 @@ namespace Math {
 template<class ExprT> struct RationalExpressionTraits {
     typedef ExprT expr_type;
     typedef expr_type literal_type;
+    typedef expr_type variable_type;
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
@@ -53,7 +54,6 @@ template<class T, template<typename, bool, template<class, typename, bool> class
 struct RationalConstant {
 
     typedef Rational<T, GCD, CHKOP> result_type;
-    typedef RationalConstant<T, GCD, CHKOP> expr_type;
 
     explicit RationalConstant ( const Rational<T, GCD, CHKOP> &c ) : c_ ( c ) {}
 
@@ -118,6 +118,7 @@ template<class T, template<typename, bool, template<class, typename, bool> class
 struct RationalExpressionTraits<Rational<T, GCD, CHKOP> > {
     typedef RationalConstant<T, GCD, CHKOP> literal_type;
     typedef RationalExpression<T, literal_type, GCD, CHKOP> expr_type;
+    typedef RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP> variable_type;
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
@@ -145,7 +146,7 @@ mk_rat_proto_var ( const Rational<T, GCD, CHKOP> & ) {
 }
 
 template<class T> inline
-typename RationalExpressionTraits<T>::expr_type::result_type eval_rat_exp ( const T &expr,
+typename RationalExpressionTraits<T>::expr_type::result_type eval_rat_expr ( const T &expr,
         const typename RationalExpressionTraits<T>::expr_type::result_type &val =
             typename RationalExpressionTraits<T>::expr_type::result_type() ) {
     return ( typename RationalExpressionTraits<T>::expr_type
