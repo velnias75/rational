@@ -208,6 +208,32 @@ template<> inline long unsigned int TYPE_CONVERT<mpz_class>::convert<long unsign
     return val.get_ui();
 }
 
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
+         template<typename = T> class CONV> struct GCD_gmp;
+
+template<template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_gmp<mpz_class, false, CHKOP, CONV> {
+
+    inline mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
+        return GCD_gmp<mpz_class, true, CHKOP, CONV>() ( a, b );
+    }
+
+};
+
+template<template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_gmp<mpz_class, true, CHKOP, CONV> {
+
+    inline mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
+
+        mpz_class rop;
+
+        mpz_gcd ( rop.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t() );
+
+        return rop;
+    }
+
+};
+
 template<> inline mpf_class EPSILON<mpf_class>::value() {
     return mpf_class ( "1e-21", 30, 10 );
 }
@@ -218,7 +244,22 @@ EPSILON, TYPE_CONVERT>::abs ( const mpf_class &nt ) const {
     return ::abs ( nt );
 }
 
-typedef Rational<mpz_class> gmp_rational;
+template<template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _lcm<mpz_class, GCD, CHKOP, true> {
+
+    inline mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
+
+        mpz_class rop;
+
+        mpz_lcm ( rop.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t() );
+
+        return rop;
+    }
+
+};
+
+typedef Rational<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> gmp_rational;
 
 }
 

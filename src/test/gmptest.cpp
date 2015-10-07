@@ -471,23 +471,19 @@ void GMPTest::testAlgorithm() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "2" ), r.get_str ( exp, 10, 4 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, std::accumulate ( m_onethird.begin(), m_onethird.end(),
-                           Rational<rat_vector::value_type::integer_type>(),
-                           std::plus<Rational<rat_vector::value_type::integer_type> >() )
+                           rat_vector::value_type(), std::plus<rat_vector::value_type>() )
                            .numerator().get_si() );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, std::accumulate ( m_onethird.begin(), m_onethird.end(),
-                           Rational<rat_vector::value_type::integer_type>(),
-                           std::plus<Rational<rat_vector::value_type::integer_type> >() )
+                           rat_vector::value_type(), std::plus<rat_vector::value_type>() )
                            .denominator().get_si() );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, std::accumulate ( m_onethird.begin(), m_onethird.end(),
-                           Rational<rat_vector::value_type::integer_type>(),
-                           std::plus<Rational<rat_vector::value_type::integer_type> >() )
+                           rat_vector::value_type(), std::plus<rat_vector::value_type>() )
                            .numerator().get_si() );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, std::accumulate ( m_oneseventh.begin(), m_oneseventh.end(),
-                           Rational<rat_vector::value_type::integer_type>(),
-                           std::plus<Rational<rat_vector::value_type::integer_type> >() )
+                           rat_vector::value_type(),std::plus<rat_vector::value_type>() )
                            .denominator().get_si() );
 }
 
