@@ -53,18 +53,30 @@ void ExprTest::testExpression() {
 
     CPPUNIT_ASSERT_EQUAL ( 23l, r3.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12l, r3.denominator() );
+}
 
-    const gmp_rational r4 ( eval_rat_exp ( mk_rat_lit ( gmp_rational ( 0, 1, 2 ) ) +
+void ExprTest::testExpression_gmp() {
+#ifdef HAVE_GMPXX_H
+
+    const gmp_rational r1 ( eval_rat_exp ( mk_rat_lit ( gmp_rational ( 0, 1, 2 ) ) +
                                            mk_rat_lit ( gmp_rational ( 2, 3 ) ) +
                                            mk_rat_lit ( gmp_rational ( 3, 4 ) ) ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 23l, r4.numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 12l, r4.denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 23l, r1.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r1.denominator().get_si() );
 
-    const gmp_rational r5 ( eval_rat_exp ( mk_rat_lit ( r4 ) - gmp_rational ( 23, 12 ) ) );
+    const gmp_rational r2 ( eval_rat_exp ( mk_rat_lit ( r1 ) - gmp_rational ( 23, 12 ) ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 0l, r5.numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 1l, r5.denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 0l, r2.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, r2.denominator().get_si() );
+
+    const gmp_rational r3 ( eval_rat_exp ( gmp_rational ( 23, 12 ) -
+                                           mk_rat_lit ( gmp_rational ( 22, 12 ) ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, r3.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r3.denominator().get_si() );
+
+#endif
 }
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

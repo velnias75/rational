@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [1.4], [heiko@rangun.de])
+AC_INIT([rational], [1.5], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -21,6 +21,7 @@ AC_LANG_PUSH([C++])
 AC_HEADER_STDBOOL
 AC_CHECK_HEADER([gmpxx.h], [
   AM_CONDITIONAL([WITH_GMPXX], [true])
+  AC_DEFINE([HAVE_GMPXX_H], [1], [define to 1 if gmpxx.h is available])
 ], [
   AM_CONDITIONAL([WITH_GMPXX], [false])
 ])
