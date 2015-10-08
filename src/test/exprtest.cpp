@@ -64,6 +64,18 @@ void ExprTest::testExpression() {
 
     CPPUNIT_ASSERT_EQUAL ( 23l, r3.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12l, r3.denominator() );
+
+    const Rational<long> r4 ( eval_rat_expr ( mk_rat_lit ( Rational<long> ( 23, 12 ) ) +
+                              ( -mk_rat_lit ( Rational<long> ( 22, 12 ) ) ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, r4.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r4.denominator() );
+
+    const Rational<long> r5 ( eval_rat_expr ( Rational<long> ( 23, 12 ) +
+                              ( -mk_rat_lit ( Rational<long> ( 22, 12 ) ) ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, r5.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r5.denominator() );
 }
 
 void ExprTest::testExpression_gmp() {
@@ -97,6 +109,18 @@ void ExprTest::testExpression_gmp() {
 
     CPPUNIT_ASSERT_EQUAL ( 1l, r3.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 12l, r3.denominator().get_si() );
+
+    const gmp_rational r4 ( eval_rat_expr ( mk_rat_lit ( gmp_rational ( 23, 12 ) ) +
+                                            ( -mk_rat_lit ( gmp_rational ( 22, 12 ) ) ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, r4.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r4.denominator().get_si() );
+
+    const gmp_rational r5 ( eval_rat_expr ( gmp_rational ( 23, 12 ) +
+                                            ( -mk_rat_lit ( gmp_rational ( 22, 12 ) ) ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, r5.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 12l, r5.denominator().get_si() );
 
 #endif
 }
