@@ -174,6 +174,16 @@ typename RationalExpressionTraits<T>::expr_type::result_type eval_rat_expr ( con
            .operator() ( val );
 }
 
+template<class T>
+struct _unaryPlus {
+
+    typedef T result_type;
+
+    inline result_type operator() ( const T &d ) const {
+        return d;
+    }
+};
+
 }
 
 }
@@ -434,6 +444,31 @@ operator- ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
     typedef Commons::Math::RationalUnaryExpression<T,
             Commons::Math::RationalConstant<A, GCD, CHKOP>,
             std::negate<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
+                Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
+}
+
+template<class T, class A, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
+Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+operator+ ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
+    typedef Commons::Math::RationalUnaryExpression<T,
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a ) );
+}
+
+template<class T, class A, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
+Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
+        Commons::Math::RationalConstant<A, GCD, CHKOP>,
+        Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+operator+ ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
+    typedef Commons::Math::RationalUnaryExpression<T,
+            Commons::Math::RationalConstant<A, GCD, CHKOP>,
+            Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
     return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
                 Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
 }
