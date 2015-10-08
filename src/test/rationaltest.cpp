@@ -438,6 +438,12 @@ void RationalTest::testMultiplication() {
     const Rational<rational_type> b ( 7, 3 );
     const Rational<rational_type, GCD_stein> b_stein ( 7, 3 );
 
+    const Rational<rational_type> c ( -1, 1 );
+    const Rational<rational_type, GCD_stein> c_stein ( -1, 1 );
+
+    const Rational<rational_type> d ( 1, -1 );
+    const Rational<rational_type, GCD_stein> d_stein ( 1, -1 );
+
     CPPUNIT_ASSERT_EQUAL ( 7, ( a * b ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12, ( a * b ).denominator() );
 
@@ -456,6 +462,60 @@ void RationalTest::testMultiplication() {
     CPPUNIT_ASSERT_EQUAL ( 7, ( b * a_stein ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12, ( b * a_stein ).denominator() );
 
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * c ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * c ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c_stein * c_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c_stein * c_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c_stein * c ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c_stein * c ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * c_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * c_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * d ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * d ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d_stein * d_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d_stein * d_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d_stein * d ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d_stein * d ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * d_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * d_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * d ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * d ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c_stein * d_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c_stein * d_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c_stein * d ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c_stein * d ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * d_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * d_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * c ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * c ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d_stein * c_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d_stein * c_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d_stein * c ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d_stein * c ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * c_stein ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * c_stein ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -1, ( c * c * c ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( c * c * c ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -1, ( d * d * d ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( d * d * d ).denominator() );
+
 #ifdef __EXCEPTIONS
     const Rational<int8_t, GCD_euclid, ENABLE_OVERFLOW_CHECK> overflow ( 127, 1 );
     CPPUNIT_ASSERT_THROW ( overflow * 10.0, std::domain_error );
@@ -472,6 +532,18 @@ void RationalTest::testInvert() {
 
     CPPUNIT_ASSERT_EQUAL ( 7, Rational<rational_type> ( 161, 49 ).inverse().numerator() );
     CPPUNIT_ASSERT_EQUAL ( 23, Rational<rational_type> ( 161, 49 ).inverse().denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -7, Rational<rational_type> ( -161, 49 ).invert().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 23, Rational<rational_type> ( -161, 49 ).invert().denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -7, Rational<rational_type> ( -161, 49 ).inverse().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 23, Rational<rational_type> ( -161, 49 ).inverse().denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -7, Rational<rational_type> ( 161, -49 ).invert().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 23, Rational<rational_type> ( 161, -49 ).invert().denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( -7, Rational<rational_type> ( 161, -49 ).inverse().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 23, Rational<rational_type> ( 161, -49 ).inverse().denominator() );
 
 #ifdef __EXCEPTIONS
     CPPUNIT_ASSERT_THROW ( Rational<rational_type> ().invert(), std::domain_error );
