@@ -1017,7 +1017,7 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::invert() {
     if ( m_denom == integer_type() ) throw std::domain_error ( "division by zero" );
 #endif
 
-    return *this;
+    return _changeSign<GCD, CHKOP, std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
 template<typename T, template<typename, bool,
