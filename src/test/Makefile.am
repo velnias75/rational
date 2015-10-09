@@ -8,6 +8,7 @@ test_rational_CXXFLAGS = -std=c++98 -fexceptions -I$(top_srcdir)/src/librational
 test_rational_SOURCES = rationaltest.cpp exprtest.cpp test_rational.cpp
 
 if WITH_GMPXX
+test_rational_CXXFLAGS += --param inline-unit-growth=60
 test_rational_SOURCES += gmptest.cpp
 endif
 

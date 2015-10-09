@@ -103,6 +103,36 @@ void ExprTest::testExpression() {
 
     CPPUNIT_ASSERT_EQUAL ( 1l, r5.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12l, r5.denominator() );
+
+    const Rational<long> r6 ( eval_rat_expr ( ( a + b ) + 1ul ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 673l, r6.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 584l, r6.denominator() );
+
+    const Rational<long> r7 ( eval_rat_expr ( ( a + b ) - 0.5 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( -203l, r7.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 584l, r7.denominator() );
+
+    const Rational<long> r8 ( eval_rat_expr ( ( a + b ) * 0.5f ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 89l, r8.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1168l, r8.denominator() );
+
+    const Rational<long> r9 ( eval_rat_expr ( ( a + b ) / 8l ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 89l, r9.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4672l, r9.denominator() );
+
+    const Rational<long> r10 ( eval_rat_expr ( ( a + b ) % -0.3l ) );
+
+    CPPUNIT_ASSERT_EQUAL ( -431l, r10.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 2920l, r10.denominator() );
+
+    const Rational<long> r11 ( eval_rat_expr ( inv ( ( a + b ) % -0.3l ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( -2920l, r11.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 431l, r11.denominator() );
 }
 
 void ExprTest::testExpression_gmp() {
@@ -185,6 +215,36 @@ void ExprTest::testExpression_gmp() {
 
     CPPUNIT_ASSERT_EQUAL ( 1l, r5.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 12l, r5.denominator().get_si() );
+
+    const gmp_rational r6 ( eval_rat_expr ( ( a + b ) + 1ul ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 673l, r6.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 584l, r6.denominator().get_si() );
+
+    const gmp_rational r7 ( eval_rat_expr ( ( a + b ) - 0.5 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( -203l, r7.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 584l, r7.denominator().get_si() );
+
+    const gmp_rational r8 ( eval_rat_expr ( ( a + b ) * 0.5f ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 89l, r8.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1168l, r8.denominator().get_si() );
+
+    const gmp_rational r9 ( eval_rat_expr ( ( a + b ) / 8l ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 89l, r9.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 4672l, r9.denominator().get_si() );
+
+    const gmp_rational r10 ( eval_rat_expr ( ( a + b ) % -0.3 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( -431l, r10.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 2920l, r10.denominator().get_si() );
+
+    const gmp_rational r11 ( eval_rat_expr ( inv ( ( a + b ) % -0.3 ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( -2920l, r11.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 431l, r11.denominator().get_si() );
 
 #endif
 }
