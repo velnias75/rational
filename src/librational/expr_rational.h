@@ -59,12 +59,14 @@ struct RationalConstant {
 
     explicit RationalConstant ( const Rational<T, GCD, CHKOP> &c ) : c_ ( c ) {}
 
+    explicit RationalConstant ( const RationalConstant &o ) : c_ ( o.c_ ) {}
+
     result_type operator() ( const Rational<T, GCD, CHKOP> & ) const {
         return c_;
     }
 
 private:
-    const Rational<T, GCD, CHKOP> c_;
+    Rational<T, GCD, CHKOP> c_;
 };
 
 template<class T, class L, class H, class OP, template<typename, bool,
@@ -76,6 +78,9 @@ struct RationalBinaryExpression {
     typedef RationalBinaryExpression<T, L, H, OP, GCD, CHKOP> expr_type;
 
     RationalBinaryExpression ( const L &l, const H &h );
+
+    explicit RationalBinaryExpression ( const RationalBinaryExpression &o )
+        : l_ ( o.l_ ), h_ ( o.h_ ) {}
 
     ~RationalBinaryExpression();
 
@@ -115,6 +120,8 @@ struct RationalUnaryExpression {
 
     RationalUnaryExpression ( const L &l ) : l_ ( l ) {}
 
+    explicit RationalUnaryExpression ( const RationalUnaryExpression &o ) : l_ ( o.l_ ) {}
+
     ~RationalUnaryExpression() {}
 
     result_type operator() ( const Rational<T, GCD, CHKOP> &d ) {
@@ -131,7 +138,7 @@ struct RationalExpression {
 
     typedef typename E::result_type result_type;
 
-    explicit RationalExpression ( const E &e );
+    explicit RationalExpression ( const E &e ); // Note: can act as both normal ctor and c-ctor!
 
     result_type operator() ( const Rational<T, GCD, CHKOP> &d ) {
         return expr_ ( d );
