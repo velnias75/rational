@@ -59,12 +59,12 @@ void ExprTest::testExpression() {
     CPPUNIT_ASSERT_EQUAL ( -7l, r_cpx.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 3l, r_cpx.denominator() );
 
-    const Rational<long> r_cpx2 ( eval_rat_expr ( a * b / -c % d - e + f ) );
+    const Rational<long> r_cpx2 ( eval_rat_expr ( inv ( a * b / -c % d - e + f ) ) );
 
-    CPPUNIT_ASSERT_EQUAL ( -7l, r_cpx2.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 3l, r_cpx2.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( -3l, r_cpx2.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, r_cpx2.denominator() );
 
-    const Rational<long> r_cpx3 ( eval_rat_expr ( ( a * b ) / -c ) );
+    const Rational<long> r_cpx3 ( eval_rat_expr ( ( ( a * b ) / -c ) ) );
 
     CPPUNIT_ASSERT_EQUAL ( -17l, r_cpx3.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 2336l, r_cpx3.denominator() );

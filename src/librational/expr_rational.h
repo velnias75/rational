@@ -184,6 +184,26 @@ struct _unaryPlus {
     }
 };
 
+template<class T>
+struct _unaryAbs {
+
+    typedef T result_type;
+
+    inline result_type operator() ( const T &d ) const {
+        return d.abs();
+    }
+};
+
+template<class T>
+struct _unaryInv {
+
+    typedef T result_type;
+
+    inline result_type operator() ( const T &d ) const {
+        return d.inverse();
+    }
+};
+
 }
 
 }
@@ -469,6 +489,56 @@ operator+ ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
     typedef Commons::Math::RationalUnaryExpression<T,
             Commons::Math::RationalConstant<A, GCD, CHKOP>,
             Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
+                Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
+}
+
+template<class T, class A, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
+Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+abs ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
+    typedef Commons::Math::RationalUnaryExpression<T,
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a ) );
+}
+
+template<class T, class A, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
+Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
+        Commons::Math::RationalConstant<A, GCD, CHKOP>,
+        Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+abs ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
+    typedef Commons::Math::RationalUnaryExpression<T,
+            Commons::Math::RationalConstant<A, GCD, CHKOP>,
+            Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
+                Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
+}
+
+template<class T, class A, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
+Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
+        Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+        Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+inv ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
+    typedef Commons::Math::RationalUnaryExpression<T,
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a ) );
+}
+
+template<class T, class A, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
+Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
+        Commons::Math::RationalConstant<A, GCD, CHKOP>,
+        Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+inv ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
+    typedef Commons::Math::RationalUnaryExpression<T,
+            Commons::Math::RationalConstant<A, GCD, CHKOP>,
+            Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
     return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
                 Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
 }
