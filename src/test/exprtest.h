@@ -42,6 +42,9 @@ class ExprTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE_END();
 
 public:
+    typedef Commons::Math::Rational<long, Commons::Math::GCD_euclid_fast,
+            Commons::Math::NO_OPERATOR_CHECK> long_rational;
+
     ExprTest();
 
     void setUp();

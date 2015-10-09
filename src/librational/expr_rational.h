@@ -64,7 +64,7 @@ struct RationalConstant {
     }
 
 private:
-    Rational<T, GCD, CHKOP> c_;
+    const Rational<T, GCD, CHKOP> c_;
 };
 
 template<class T, class L, class H, class OP, template<typename, bool,
