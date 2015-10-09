@@ -21,6 +21,8 @@
  * @file
  * @author Heiko Schäfer <heiko@rangun.de>
  * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ *
+ * @defgroup expr Expression templates
  */
 
 #ifndef COMMONS_MATH_EXPR_RATIONAL_H

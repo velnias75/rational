@@ -21,6 +21,17 @@
  * @file
  * @author Heiko Schäfer <heiko@rangun.de>
  * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ *
+ * @defgroup main Rational fraction class
+ *
+ * Include `rational.h` to be able to do fraction calculations. By simply including `rational.h`
+ * and specifying the storage type (any integer variant) you can create and use a fractional data
+ * type. For example, `Rational<long> foo(3, 4)` would create a fraction named `foo` with a value
+ * of `3/4`, and store the fraction using the `long` data type.\n
+ * \n
+ * Simple to use, fast, and modifiable for your needs, because its all in the one header file
+ * `rational.h` at your access. It includes all basic mathematical operations as well as comparison
+ * operators, and is very flexible.
  */
 
 #ifndef COMMONS_MATH_RATIONAL_H
@@ -52,9 +63,28 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class, template<class, typename, bool> class, bool>
 struct _swapSign;
 
+/**
+ * @ingroup main
+ * @brief Type coversion policy class
+ *
+ * Specialize this class to convert a type from @c T to @c U
+ *
+ * @tparam T the type to convert from
+ */
 template<typename T> struct TYPE_CONVERT {
+
+    /**
+     * @brief Constructs a type converter
+     *
+     * @param[in] v the value to convert
+     */
     inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
 
+    /**
+     * @brief converts the value to @c U
+     *
+     * @tparam U the type to convert to
+     */
     template<typename U> inline U convert() const {
         return static_cast<U> ( val );
     }
@@ -63,7 +93,21 @@ private:
     const T& val;
 };
 
+/**
+ * @ingroup main
+ * @brief @c %EPSILON for float approximation
+ *
+ * Specialize this class if you need another @c %EPSILON (error tolerance)
+ *
+ * By default this is @code std::numeric_limits<T>::epsilon() @endcode
+ *
+ * @tparam T storage type of Rational
+ */
 template<typename T> struct EPSILON {
+
+    /**
+     * @brief the value of @c %EPSILON
+     */
     inline static T value() {
         return std::numeric_limits<T>::epsilon();
     }
@@ -73,7 +117,9 @@ template<typename, template<typename, bool, template<class, typename, bool> clas
          template<typename> class> class, template<class, typename, bool> class, typename, bool,
          template<typename> class = EPSILON,
          template<typename> class = TYPE_CONVERT> struct _approxFract;
+
 /**
+ * @ingroup main
  * @brief unchecked operator
  *
  * Delegates the operator @c Op without any overflow/wrap check
@@ -99,6 +145,7 @@ struct NO_OPERATOR_CHECK<std::negate<T>, T, IsSigned> {
 };
 
 /**
+ * @ingroup main
  * @brief checked operator
  *
  * Checks the operands on signed overflows, resp. unsigned wraps
@@ -118,6 +165,8 @@ struct ENABLE_OVERFLOW_CHECK {
 };
 
 /**
+ * @ingroup main
+ * @ingroup gcd
  * @brief Stein GCD algorithm implementation
  *
  * @tparam T storage type
@@ -128,6 +177,8 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
          template<typename> class CONV = TYPE_CONVERT> struct GCD_stein;
 
 /**
+ * @ingroup main
+ * @ingroup gcd
  * @brief Euclid GCD algorithm (safe) implementation
  *
  * This implementation supports overlow/wrap checking
@@ -140,6 +191,8 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
          template<typename> class CONV = TYPE_CONVERT> struct GCD_euclid;
 
 /**
+ * @ingroup main
+ * @ingroup gcd
  * @brief Euclid GCD algorithm (fast) implementation
  *
  * @see GCD_euclid if your number class doesn't support all needed operators
@@ -152,6 +205,7 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
          template<typename> class CONV = TYPE_CONVERT> struct GCD_euclid_fast;
 
 /**
+ * @ingroup main
  * @brief %Rational (fraction) template class
  *
  * @note All %Rational objects are reduced
@@ -228,23 +282,24 @@ public:
     Rational ( const Rational &other );
 
     /**
-    * @brief creates a %Rational
-    *
-    * Creates a copy of @c numer and divides it by @c denom
-    *
-    * @note to achieve sth like 1/(1/2) you must explicitely cast the numerator, i.e.
-    * @code const Rational<rational_type> x ( Rational<rational_type> ( 1 ),
-    *   Rational<rational_type> ( 1,2 )); @endcode
-    *
-    * @tparam U1 GCD algorithm of the numerator
-    * @tparam V1 operator checker of the numerator
-    *
-    * @tparam U2 GCD algorithm of the denominator
-    * @tparam V2 operator checker of the denominator
-    *
-    * @param[in] numer the numerator
-    * @param[in] denom the denominator
-    */
+     * @brief creates a %Rational
+     *
+     * Creates a copy of @c numer and divides it by @c denom
+     *
+     * @note to achieve a continued faction like \f$\frac{1}{\frac{1}{2}}\f$ you must explicitely
+     * cast the @em numerator, i.e.
+     * @code const Rational<rational_type> x ( Rational<rational_type> ( 1 ),
+     *   Rational<rational_type> ( 1,2 )); @endcode
+     *
+     * @tparam U1 GCD algorithm of the numerator
+     * @tparam V1 operator checker of the numerator
+     *
+     * @tparam U2 GCD algorithm of the denominator
+     * @tparam V2 operator checker of the denominator
+     *
+     * @param[in] numer the numerator
+     * @param[in] denom the denominator
+     */
     template<template<typename, bool, template<class, typename, bool> class,
              template<typename> class> class U1,
              template<class, typename, bool> class V1,
@@ -1873,6 +1928,7 @@ struct ENABLE_OVERFLOW_CHECK<std::multiplies<T>, T, false> {
 namespace std {
 
 /**
+ * @ingroup main
  * @brief Overload of @c std::modf for @c %Rational types
  *
  * @see Rational::mod()
@@ -1903,6 +1959,11 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 }
 
 }
+
+/**
+ * @defgroup gcd Greatest common divisor algorithms
+ *
+ */
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
