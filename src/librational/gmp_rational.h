@@ -26,6 +26,14 @@
  *
  * @author Heiko Schäfer <heiko@rangun.de>
  * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ *
+ * @defgroup gmp GNU Multiple Precisions extensions
+ *
+ * The header `gmp_rational.h` contains specializations especially for
+ * [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) as underlying storage
+ * type.\n
+ * \n
+ * If you use the *GMP extensions*, you'll need to link your application with `-lgmpxx -lgmp`
  */
 
 #ifndef COMMONS_MATH_GMP_RATIONAL_H
@@ -36,6 +44,20 @@
 #include "rational.h"
 
 #ifndef GMP_EPSILON
+/**
+ * @ingroup gmp
+ * @def GMP_EPSILON
+ *
+ * The @c EPSILON used for approximating a float
+ *
+ * @see Commons::Math::EPSILON
+ *
+ * This define is passed @em as @em is to the contructor of @c mpz_class
+ *
+ * See [C++ Interface Integers]
+ * (https://gmplib.org/manual/C_002b_002b-Interface-Integers.html#C_002b_002b-Interface-Integers)
+ * for details
+ */
 #define GMP_EPSILON "1e-21", 30, 10
 #endif
 
@@ -144,7 +166,17 @@ template<> inline long signed int TYPE_CONVERT<mpz_class>::convert<long signed i
 template<> inline long unsigned int TYPE_CONVERT<mpz_class>::convert<long unsigned int>() const {
     return val.get_ui();
 }
-
+/**
+ * @ingroup gmp
+ * @ingroup gcd
+ * @brief GMP GCD algorithm
+ *
+ * The gcd algorithm implemented in the GMP library
+ *
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
+ */
 template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
          template<typename = T> class CONV> struct GCD_gmp;
 
@@ -196,6 +228,10 @@ struct _lcm<mpz_class, GCD, CHKOP, true> {
 
 };
 
+/**
+ * @ingroup gmp
+ * @brief Rational class based on the GMP library
+ */
 typedef Rational<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> gmp_rational;
 
 }
