@@ -49,6 +49,9 @@ void ExprTest::testExpression() {
     const RationalExpressionTraits<Rational<long> >::expr_type &f (
         mk_rat_lit ( Rational<long> ( -3, 2, 3 ) ) );
 
+    const RationalExpressionTraits<Rational<long> >::expr_type &g (
+        mk_rat_lit ( Rational<long> ( 50.0 ) ) );
+
     const Rational<long> r_mod ( eval_rat_expr ( a % b ) );
 
     CPPUNIT_ASSERT_EQUAL ( 9l, r_mod.numerator() );
@@ -69,12 +72,9 @@ void ExprTest::testExpression() {
     CPPUNIT_ASSERT_EQUAL ( -17l, r_cpx3.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 2336l, r_cpx3.denominator() );
 
-    const RationalExpressionTraits<Rational<long> >::expr_type &l (
-        mk_rat_lit ( Rational<long> ( 50.0 ) ) );
+    const RationalExpressionTraits<Rational<long> >::variable_type &x ( mk_rat_proto_var ( g ) );
 
-    const RationalExpressionTraits<Rational<long> >::variable_type &x ( mk_rat_proto_var ( l ) );
-
-    const Rational<long> r1 ( eval_rat_expr ( x + l + x, Rational<long> ( 2.0 ) ) );
+    const Rational<long> r1 ( eval_rat_expr ( x + g + x, Rational<long> ( 2.0 ) ) );
 
     CPPUNIT_ASSERT_EQUAL ( 54l, r1.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1l, r1.denominator() );
@@ -126,6 +126,9 @@ void ExprTest::testExpression_gmp() {
     const RationalExpressionTraits<gmp_rational>::expr_type &f (
         mk_rat_lit ( gmp_rational ( -3, 2, 3 ) ) );
 
+    const RationalExpressionTraits<gmp_rational>::expr_type &g (
+        mk_rat_lit ( gmp_rational ( 50.0 ) ) );
+
     const gmp_rational r_mod ( eval_rat_expr ( a % b ) );
 
     CPPUNIT_ASSERT_EQUAL ( 9l, r_mod.numerator().get_si() );
@@ -136,15 +139,22 @@ void ExprTest::testExpression_gmp() {
     CPPUNIT_ASSERT_EQUAL ( -7l, r_cpx.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 3l, r_cpx.denominator().get_si() );
 
-    const gmp_rational r_cpx2 ( eval_rat_expr ( a * b / -c % d - e + f ) );
+    const gmp_rational r_cpx2 ( eval_rat_expr ( inv ( a * b / -c % d - e + f ) ) );
 
-    CPPUNIT_ASSERT_EQUAL ( -7l, r_cpx2.numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 3l, r_cpx2.denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( -3l, r_cpx2.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, r_cpx2.denominator().get_si() );
 
     const gmp_rational r_cpx3 ( eval_rat_expr ( ( a * b ) / -c ) );
 
     CPPUNIT_ASSERT_EQUAL ( -17l, r_cpx3.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 2336l, r_cpx3.denominator().get_si() );
+
+    const RationalExpressionTraits<gmp_rational>::variable_type &x ( mk_rat_proto_var ( g ) );
+
+    const gmp_rational r0 ( eval_rat_expr ( x + g + x, gmp_rational ( 2.0 ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 54l, r0.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, r0.denominator().get_si() );
 
     const gmp_rational r1 ( eval_rat_expr ( mk_rat_lit ( gmp_rational ( 0, 1, 2 ) ) +
                                             mk_rat_lit ( gmp_rational ( 2, 3 ) ) +
