@@ -50,7 +50,7 @@ template<typename, template<typename, bool, template<class, typename, bool> clas
 
 template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class, template<class, typename, bool> class, bool>
-struct _changeSign;
+struct _swapSign;
 
 template<typename T> struct TYPE_CONVERT {
     inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
@@ -165,7 +165,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<class, typename = T, bool = std::numeric_limits<T>::is_signed>
          class CHKOP = NO_OPERATOR_CHECK>
 class Rational {
-    friend struct _changeSign<GCD, CHKOP, std::numeric_limits<T>::is_signed>;
+    friend struct _swapSign<GCD, CHKOP, std::numeric_limits<T>::is_signed>;
     friend struct _mod<T, GCD, CHKOP, std::numeric_limits<T>::is_signed>;
     template<typename, template<typename, bool, template<class, typename, bool> class,
              template<typename> class> class, template<class, typename, bool> class, typename, bool,
@@ -824,7 +824,7 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::reduce ( const Rational &o ) {
         m_denom = op_divides() ( m_denom, x );
     }
 
-    return _changeSign<GCD, CHKOP, std::numeric_limits<integer_type>::is_signed>() ( *this );
+    return _swapSign<GCD, CHKOP, std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -1017,7 +1017,7 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::invert() {
     if ( m_denom == integer_type() ) throw std::domain_error ( "division by zero" );
 #endif
 
-    return _changeSign<GCD, CHKOP, std::numeric_limits<integer_type>::is_signed>() ( *this );
+    return _swapSign<GCD, CHKOP, std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
 template<typename T, template<typename, bool,
@@ -1662,7 +1662,7 @@ struct _lcm<T, GCD, CHKOP, false> {
 
 template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _changeSign<GCD, CHKOP, true> {
+struct _swapSign<GCD, CHKOP, true> {
 
     template<typename T>
     inline Rational<T, GCD, CHKOP> &operator() ( Rational<T, GCD, CHKOP> &r ) const {
@@ -1678,7 +1678,7 @@ struct _changeSign<GCD, CHKOP, true> {
 
 template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _changeSign<GCD, CHKOP, false> {
+struct _swapSign<GCD, CHKOP, false> {
 
     template<typename T>
     inline Rational<T, GCD, CHKOP> &operator() ( Rational<T, GCD, CHKOP> &r ) const {
