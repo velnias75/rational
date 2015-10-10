@@ -42,28 +42,35 @@
  *     const static Commons::Math::gmp_rational two ( 2, 1 );
  *     const Commons::Math::gmp_rational &step ( ( to - from ) / n );
  *
- *     for ( Commons::Math::gmp_rational i ( from + ( step / two ) ); i < to; i += step ) {
+ *     for ( Commons::Math::gmp_rational i ( from + ( step / two ) ); i < to;
+ *          i += step ) {
  *
- *         sum += Commons::Math::eval_rat_expr ( e, i );
+ *          sum += Commons::Math::eval_rat_expr ( e, i );
  *     }
  *
  *     return step * sum;
  * }@endcode
  * next you could call the @c integrate() function like: @code{.cpp}
- * // declare the literal 1
- * const Commons::Math::RationalExpressionTraits<Commons::Math::gmp_rational>::expr_type &one (
- *       Commons::Math::mk_rat_lit ( Commons::Math::gmp_rational ( 1, 1 ) ) );
+ * const // declare the literal 1
+ * Commons::Math::RationalExpressionTraits
+ *   <Commons::Math::gmp_rational>::expr_type
+ *     &one ( Commons::Math::mk_rat_lit ( Commons::Math::gmp_rational ( 1, 1 ) ) );
  *
- * // declare the variable x from prototype one
- * const Commons::Math::RationalExpressionTraits<Commons::Math::gmp_rational>::variable_type &x (
- *       Commons::Math::mk_rat_proto_var ( one ) );
+ * const // declare the variable x from prototype one
+ * Commons::Math::RationalExpressionTraits
+ *   <Commons::Math::gmp_rational>::variable_type
+ *     &x ( Commons::Math::mk_rat_proto_var ( one ) );
  *
  * // approximate the integration for the interval [1, 5) using 10 equidistant points
- * const Commons::Math::gmp_rational &r ( integrate ( x / ( one + x ),
- *                                        Commons::Math::gmp_rational ( 1, 1 ),
- *                                        Commons::Math::gmp_rational ( 5, 1 ), 10 ) );@endcode
+ * const Commons::Math::gmp_rational
+ *       &r ( integrate ( x / ( one + x ), Commons::Math::gmp_rational ( 1, 1 ),
+ *            Commons::Math::gmp_rational ( 5, 1 ), 10 ) );@endcode
  *
  * This would yield the result @f$\frac{422563503196}{145568097675}\approx 2.9@f$ in @c r.
+ *
+ * @see Commons::Math::RationalExpressionTraits
+ * @see Commons::Math::mk_rat_lit()
+ * @see Commons::Math::mk_rat_proto_var()
  */
 
 #ifndef COMMONS_MATH_EXPR_RATIONAL_H
@@ -75,10 +82,30 @@ namespace Commons {
 
 namespace Math {
 
+/**
+ * @ingroup expr
+ * @brief Traits struct for expression templates
+ *
+ * This traits struct can be used to get the types for variable declarations.
+ *
+ * @b Examples: \n @li to create a literal @c l:
+ * @code{.cpp}
+ * const Commons::Math::RationalExpressionTraits
+ *   <Commons::Math::gmp_rational>::expr_type
+ *     &l ( Commons::Math::mk_rat_lit ( Commons::Math::gmp_rational ( 1, 1 ) ) );@endcode
+ * @li to create a variable @c x using the prototype @c l:
+ * @code{.cpp}
+ * const Commons::Math::RationalExpressionTraits
+ *   <Commons::Math::gmp_rational>::variable_type
+ *     &x ( Commons::Math::mk_rat_proto_var ( l ) ); @endcode
+ *
+ * @see Commons::Math::mk_rat_lit()
+ * @see Commons::Math::mk_rat_proto_var()
+ */
 template<class ExprT> struct RationalExpressionTraits {
-    typedef ExprT expr_type;
-    typedef expr_type literal_type;
-    typedef expr_type variable_type;
+    typedef ExprT expr_type; ///< the deduced expression type
+    typedef expr_type literal_type; ///< the deduced literal type
+    typedef expr_type variable_type; ///< the deduced variable type
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
@@ -201,6 +228,21 @@ struct RationalExpressionTraits<Rational<T, GCD, CHKOP> > {
     typedef RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP> variable_type;
 };
 
+/**
+ * @ingroup expr
+ * @brief make a literal for use in expressions
+ *
+ * @b Example: \n to create a literal @c l:
+ * @code{.cpp}
+ * const Commons::Math::RationalExpressionTraits
+ *   <Commons::Math::gmp_rational>::expr_type
+ *     &l ( Commons::Math::mk_rat_lit ( Commons::Math::gmp_rational ( 1, 1 ) ) );@endcode
+ *
+ * @see Commons::Math::RationalExpressionTraits
+ *
+ * @param r the Rational to create a literal for
+ * @return the literal for use in expressions
+ */
 template<class T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline RationalExpression<T, RationalConstant<T, GCD, CHKOP>, GCD, CHKOP>
@@ -209,6 +251,23 @@ mk_rat_lit ( const Rational<T, GCD, CHKOP> &r ) {
            ( ( RationalConstant<T, GCD, CHKOP> ( r ) ) );
 }
 
+/**
+ * @ingroup expr
+ * @brief make a variable from a prototype
+ *
+ * The prototype is needed for the compiler to deduce the right type
+ *
+ * @b Example: \n to create a variable @c x using the prototype @c l
+ *      (a literal created by mk_rat_lit() or by another Rational): @code{.cpp}
+ * const Commons::Math::RationalExpressionTraits
+ *   <Commons::Math::gmp_rational>::variable_type
+ *     &x ( Commons::Math::mk_rat_proto_var ( l ) ); @endcode
+ *
+ * @see Commons::Math::RationalExpressionTraits
+ * @see Commons::Math::mk_rat_lit()
+ *
+ * @return a variable from a prototype
+ */
 template<class T, class E, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
@@ -217,6 +276,10 @@ mk_rat_proto_var ( const RationalExpression<T, E, GCD, CHKOP> & ) {
            ( ( RationalVariable<T, GCD, CHKOP>() ) );
 }
 
+/**
+ * @ingroup expr
+ * @overload
+ */
 template<class T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 inline RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
@@ -225,12 +288,23 @@ mk_rat_proto_var ( const Rational<T, GCD, CHKOP> & ) {
            ( ( RationalVariable<T, GCD, CHKOP>() ) );
 }
 
-template<class T> inline
-typename RationalExpressionTraits<T>::expr_type::result_type eval_rat_expr ( const T &expr,
-        const typename RationalExpressionTraits<T>::expr_type::result_type &val =
-            typename RationalExpressionTraits<T>::expr_type::result_type() ) {
-    return ( typename RationalExpressionTraits<T>::expr_type
-             ( ( typename RationalExpressionTraits<T>::literal_type ( expr ) ) ) )
+/**
+ * @ingroup expr
+ * @brief evaluates an expression
+ *
+ * @tparam ExprT the expression template type
+ *
+ * @param[in] expr the expression to evaluate
+ * @param[in] val the value assigned to the variable
+ *
+ * @return the result of the evaluated expression
+ */
+template<class ExprT> inline
+typename RationalExpressionTraits<ExprT>::expr_type::result_type eval_rat_expr ( const ExprT &expr,
+        const typename RationalExpressionTraits<ExprT>::expr_type::result_type &val =
+            typename RationalExpressionTraits<ExprT>::expr_type::result_type() ) {
+    return ( typename RationalExpressionTraits<ExprT>::expr_type
+             ( ( typename RationalExpressionTraits<ExprT>::literal_type ( expr ) ) ) )
            .operator() ( val );
 }
 
@@ -628,6 +702,12 @@ operator+ ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
                 Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
 }
 
+/**
+ * @ingroup expr
+ * @brief the absolute value of an expression
+ *
+ * @see Commons::Math::Rational::abs()
+ */
 template<class T, class A, template<typename, bool, template<class, typename, bool> class,
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
 Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
@@ -640,6 +720,10 @@ abs ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
     return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a ) );
 }
 
+/**
+ * @ingroup expr
+ * @overload
+ */
 template<class T, class A, template<typename, bool, template<class, typename, bool> class,
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
 Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
@@ -653,6 +737,12 @@ abs ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
                 Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
 }
 
+/**
+ * @ingroup expr
+ * @brief inverts an expression
+ *
+ * @see Commons::Math::Rational::inverse()
+ */
 template<class T, class A, template<typename, bool, template<class, typename, bool> class,
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
 Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
@@ -665,6 +755,10 @@ inv ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
     return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a ) );
 }
 
+/**
+ * @ingroup expr
+ * @overload
+ */
 template<class T, class A, template<typename, bool, template<class, typename, bool> class,
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP> inline
 Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
