@@ -23,6 +23,47 @@
  * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
  *
  * @defgroup expr Expression templates
+ *
+ * The @em expression @em templates @em module allows you to write your code in
+ * @em domain-specific @em expressions (DSE) as well as to lazy evaluate them.
+ *
+ * @b Example: \n
+ * To approximate the integral @f$\int_a^b \! \frac{x}{1+x}@f$
+ * by evaluating the expression @f$\frac{x}{1+x}@f$
+ * for a specified number of equidistant points in the interval @f$\left[ 1, 5\right)@f$,
+ * using the @ref gmp, you could write following @c integrate() template function:@code{.cpp}
+ * template<class ExprT> inline static
+ * Commons::Math::gmp_rational integrate ( const ExprT &e,
+ *                                         const Commons::Math::gmp_rational &from,
+ *                                         const Commons::Math::gmp_rational &to,
+ *                                         std::size_t n ) {
+ *     Commons::Math::gmp_rational sum;
+ *
+ *     const static Commons::Math::gmp_rational two ( 2, 1 );
+ *     const Commons::Math::gmp_rational &step ( ( to - from ) / n );
+ *
+ *     for ( Commons::Math::gmp_rational i ( from + ( step / two ) ); i < to; i += step ) {
+ *
+ *         sum += Commons::Math::eval_rat_expr ( e, i );
+ *     }
+ *
+ *     return step * sum;
+ * }@endcode
+ * next you could call the @c integrate() function like: @code{.cpp}
+ * // declare the literal 1
+ * const Commons::Math::RationalExpressionTraits<Commons::Math::gmp_rational>::expr_type &one (
+ *       Commons::Math::mk_rat_lit ( Commons::Math::gmp_rational ( 1, 1 ) ) );
+ *
+ * // declare the variable x from prototype one
+ * const Commons::Math::RationalExpressionTraits<Commons::Math::gmp_rational>::variable_type &x (
+ *       Commons::Math::mk_rat_proto_var ( one ) );
+ *
+ * // approximate the integration for the interval [1, 5) using 10 equidistant points
+ * const Commons::Math::gmp_rational &r ( integrate ( x / ( one + x ),
+ *                                        Commons::Math::gmp_rational ( 1, 1 ),
+ *                                        Commons::Math::gmp_rational ( 5, 1 ), 10 ) );@endcode
+ *
+ * This would yield the result @f$\frac{422563503196}{145568097675}\approx 2.9@f$ in @c r.
  */
 
 #ifndef COMMONS_MATH_EXPR_RATIONAL_H

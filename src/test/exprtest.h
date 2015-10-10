@@ -39,6 +39,7 @@ class ExprTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE ( ExprTest );
     CPPUNIT_TEST ( testExpression );
     CPPUNIT_TEST ( testExpression_gmp );
+    CPPUNIT_TEST ( testIntegrate );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -52,6 +53,27 @@ public:
 
     void testExpression();
     void testExpression_gmp();
+    void testIntegrate();
+
+private:
+
+#ifdef HAVE_GMPXX_H
+    template<class ExprT> inline static
+    Commons::Math::gmp_rational integrate ( const ExprT &e, const Commons::Math::gmp_rational &from,
+                                            const Commons::Math::gmp_rational &to,
+                                            std::size_t n ) {
+        Commons::Math::gmp_rational sum;
+        const static Commons::Math::gmp_rational two ( 2, 1 );
+        const Commons::Math::gmp_rational &step ( ( to - from ) / n );
+
+        for ( Commons::Math::gmp_rational i ( from + ( step / two ) ); i < to; i += step ) {
+            sum += Commons::Math::eval_rat_expr ( e, i );
+        }
+
+        return step * sum;
+    }
+#endif
+
 };
 #pragma GCC diagnostic pop
 
