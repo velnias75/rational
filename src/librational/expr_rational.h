@@ -300,9 +300,7 @@ template<class ExprT> inline
 typename RationalExpressionTraits<ExprT>::expr_type::result_type eval_rat_expr ( const ExprT &expr,
         const typename RationalExpressionTraits<ExprT>::expr_type::result_type &val =
             typename RationalExpressionTraits<ExprT>::expr_type::result_type() ) {
-    return ( typename RationalExpressionTraits<ExprT>::expr_type
-             ( ( typename RationalExpressionTraits<ExprT>::literal_type ( expr ) ) ) )
-           .operator() ( val );
+    return ( typename RationalExpressionTraits<ExprT>::literal_type ( expr ) ).operator() ( val );
 }
 
 template<class T>
@@ -772,3 +770,4 @@ inv ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
 #endif /* COMMONS_MATH_EXPR_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+
