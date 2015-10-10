@@ -55,7 +55,7 @@
  * const RationalExpressionTraits<gmp_rational>::variable_type
  *     &x ( mk_rat_proto_var ( gmp_rational() ) );
  *
- * // approximate the integration for the interval [1, 5) using 10 equidistant points
+ * // approximate the integration for the interval [1, 5] using 10 equidistant points
  * const gmp_rational &r ( integrate ( x / ( x + 1 ), 1, 5, 10 ) );@endcode
  *
  * This will yield the result @f$\frac{422563503196}{145568097675}\approx 2.9@f$ in @c r.
