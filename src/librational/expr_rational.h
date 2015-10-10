@@ -111,7 +111,7 @@ struct RationalVariable {
 
     typedef Rational<T, GCD, CHKOP> result_type;
 
-    result_type operator() ( const Rational<T, GCD, CHKOP> &v ) const {
+    const result_type &operator() ( const Rational<T, GCD, CHKOP> &v ) const throw() {
         return v;
     }
 };
@@ -124,9 +124,9 @@ struct RationalConstant {
 
     explicit RationalConstant ( const Rational<T, GCD, CHKOP> &c ) : c_ ( c ) {}
 
-    explicit RationalConstant ( const RationalConstant &o ) : c_ ( o.c_ ) {}
+    RationalConstant ( const RationalConstant &o ) : c_ ( o.c_ ) {}
 
-    result_type operator() ( const Rational<T, GCD, CHKOP> & ) const {
+    const result_type &operator() ( const Rational<T, GCD, CHKOP> & ) const throw() {
         return c_;
     }
 
@@ -144,8 +144,7 @@ struct RationalBinaryExpression {
 
     RationalBinaryExpression ( const L &l, const H &h );
 
-    explicit RationalBinaryExpression ( const RationalBinaryExpression &o )
-        : l_ ( o.l_ ), h_ ( o.h_ ) {}
+    RationalBinaryExpression ( const RationalBinaryExpression &o ) : l_ ( o.l_ ), h_ ( o.h_ ) {}
 
     ~RationalBinaryExpression();
 
@@ -183,9 +182,9 @@ struct RationalUnaryExpression {
     typedef typename OP::result_type result_type;
     typedef RationalUnaryExpression<T, L, OP, GCD, CHKOP> expr_type;
 
-    RationalUnaryExpression ( const L &l ) : l_ ( l ) {}
+    explicit RationalUnaryExpression ( const L &l ) : l_ ( l ) {}
 
-    explicit RationalUnaryExpression ( const RationalUnaryExpression &o ) : l_ ( o.l_ ) {}
+    RationalUnaryExpression ( const RationalUnaryExpression &o ) : l_ ( o.l_ ) {}
 
     ~RationalUnaryExpression() {}
 
@@ -308,7 +307,7 @@ struct _unaryPlus {
 
     typedef T result_type;
 
-    inline result_type operator() ( const T &d ) const {
+    inline result_type operator() ( const T &d ) const throw() {
         return d;
     }
 };
@@ -770,4 +769,3 @@ inv ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
 #endif /* COMMONS_MATH_EXPR_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
-
