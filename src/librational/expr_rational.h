@@ -30,7 +30,7 @@
  * @b Example: \n
  * To approximate the integral @f$\int_a^b \! \frac{x}{1+x}@f$
  * by evaluating the expression @f$\frac{x}{1+x}@f$
- * for a specified number of equidistant points in the interval @f$\left[ 1, 5\right)@f$,
+ * for a specified number of equidistant points in the interval @f$\left[ 1, 5\right]@f$,
  * using the @ref gmp, you could write following @c integrate() template function:@code{.cpp}
  * template<class ExprT> inline static
  * Commons::Math::gmp_rational integrate ( const ExprT &e,
@@ -50,23 +50,20 @@
  *
  *     return step * sum;
  * }@endcode
- * next you could call the @c integrate() function like: @code{.cpp}
- * const // declare the literal 1
- * Commons::Math::RationalExpressionTraits
- *   <Commons::Math::gmp_rational>::expr_type
- *     &one ( Commons::Math::mk_rat_lit ( Commons::Math::gmp_rational ( 1, 1 ) ) );
- *
- * const // declare the variable x from prototype one
- * Commons::Math::RationalExpressionTraits
- *   <Commons::Math::gmp_rational>::variable_type
- *     &x ( Commons::Math::mk_rat_proto_var ( one ) );
+ * next you can call the @c integrate() function like: @code{.cpp}
+ * // declare the variable x from prototype gmp_rational
+ * const RationalExpressionTraits<gmp_rational>::variable_type
+ *     &x ( mk_rat_proto_var ( gmp_rational() ) );
  *
  * // approximate the integration for the interval [1, 5) using 10 equidistant points
- * const Commons::Math::gmp_rational
- *       &r ( integrate ( x / ( one + x ), Commons::Math::gmp_rational ( 1, 1 ),
- *            Commons::Math::gmp_rational ( 5, 1 ), 10 ) );@endcode
+ * const gmp_rational &r ( integrate ( x / ( x + 1 ), 1, 5, 10 ) );@endcode
  *
- * This would yield the result @f$\frac{422563503196}{145568097675}\approx 2.9@f$ in @c r.
+ * This will yield the result @f$\frac{422563503196}{145568097675}\approx 2.9@f$ in @c r.
+ *
+ * @note You have to place the literal @c 1 as right operand, since @em non-expressions
+ * and @em non-Rationals cannot appear at the left side of an operator due to a
+ * restriction of the @em C++ overload resolution. In this case it makes no difference
+ * due to the @em commutative @em property of the addition.
  *
  * @see Commons::Math::RationalExpressionTraits
  * @see Commons::Math::mk_rat_lit()

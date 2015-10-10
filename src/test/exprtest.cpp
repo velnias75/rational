@@ -252,13 +252,10 @@ void ExprTest::testExpression_gmp() {
 void ExprTest::testIntegrate() {
 #ifdef HAVE_GMPXX_H
 
-    const RationalExpressionTraits<gmp_rational>::expr_type &a (
-        mk_rat_lit ( gmp_rational ( 1, 1 ) ) );
+    const RationalExpressionTraits<gmp_rational>::variable_type &x (
+        mk_rat_proto_var ( gmp_rational() ) );
 
-    const RationalExpressionTraits<gmp_rational>::variable_type &x ( mk_rat_proto_var ( a ) );
-
-    const gmp_rational &r ( integrate ( x / ( a + x ), gmp_rational ( 1, 1 ),
-                                        gmp_rational ( 5, 1 ), 10 ) );
+    const gmp_rational &r ( integrate ( x / ( x + 1 ), 1, 5, 10 ) );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "422563503196" ), r.numerator().get_str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "145568097675" ), r.denominator().get_str() );
