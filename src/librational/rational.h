@@ -108,7 +108,7 @@ template<typename T> struct EPSILON {
     /**
      * @brief the value of @c %EPSILON
      */
-    inline static T value() {
+    inline static const T value() {
         return std::numeric_limits<T>::epsilon();
     }
 };
@@ -374,7 +374,7 @@ public:
     }
 
 #ifndef __clang__
-    inline operator void() const {}
+    inline operator void() const throw() {}
 #endif
 
     /**
@@ -1518,7 +1518,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
          typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
 struct _approxFract<T, GCD, CHKOP, NumberType, false, EPSILON, CONV> {
-    inline void operator() ( const Rational<T, GCD, CHKOP> &, const NumberType & ) const {}
+    inline void operator() ( const Rational<T, GCD, CHKOP> &, const NumberType & ) const throw() {}
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,

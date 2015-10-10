@@ -203,7 +203,7 @@ struct GCD_gmp<mpz_class, true, CHKOP, CONV> {
 
 };
 
-template<> inline mpf_class EPSILON<mpf_class>::value() {
+template<> inline const mpf_class EPSILON<mpf_class>::value() {
     static mpf_class eps ( GMP_EPSILON );
     return eps;
 }
