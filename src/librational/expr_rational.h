@@ -27,11 +27,17 @@
  * The @em expression @em templates @em module allows you to write your code in
  * @em domain-specific @em expressions (DSE) as well as to lazy evaluate them.
  *
- * @b Example: \n
- * To approximate the integral @f$\int_a^b \! \frac{x}{1+x}@f$
- * by evaluating the expression @f$\frac{x}{1+x}@f$
- * for a specified number of equidistant points in the interval @f$\left[ 1, 5\right]@f$,
- * using the @ref gmp, you could write following @c integrate() template function:@code{.cpp}
+ * @b Caveats: @li With @em C++03 it is @b not possible to store expressions, but
+ *     only to use them directly where expressions are expected as parameters.\n
+ *     With @em C++11 you can use the keyword @c auto to store expressions
+ * @li Number literals are only possible at the right side of binary operators.\n
+ *     This literals get converted by using the @em approximation constructor
+ *     Commons::Math::Rational(const NumberType &number)
+ *
+ * @b Example: \n To approximate the integral @f$\int_a^b \! \frac{x}{1+x}@f$
+ * by evaluating the expression @f$\frac{x}{1+x}@f$ for a specified number of
+ * equidistant points in the interval @f$\left[ 1, 5\right]@f$, using the @ref gmp,
+ * you could write following @c integrate() template function:@code{.cpp}
  * template<class ExprT> inline static
  * Commons::Math::gmp_rational integrate ( const ExprT &e,
  *                                         const Commons::Math::gmp_rational &from,
@@ -49,16 +55,14 @@
  *     }
  *
  *     return step * sum;
- * }@endcode
- * next you can call the @c integrate() function like: @code{.cpp}
+ * }@endcode next you can call the @c integrate() function like: @code{.cpp}
  * // declare the variable x from prototype gmp_rational
  * const RationalExpressionTraits<gmp_rational>::variable_type
  *     &x ( mk_rat_proto_var ( gmp_rational() ) );
  *
  * // approximate the integration for the interval [1, 5] using 10 equidistant points
- * const gmp_rational &r ( integrate ( x / ( x + 1 ), 1, 5, 10 ) );@endcode
- *
- * This will yield the result @f$\frac{422563503196}{145568097675}\approx 2.9@f$ in @c r.
+ * const gmp_rational &r ( integrate ( x / ( x + 1 ), 1, 5, 10 ) );@endcode This will
+ * yield the result @f$\frac{422563503196}{145568097675}\approx 2.9@f$ in @c r.
  *
  * @note You have to place the literal @c 1 as right operand, since @em non-expressions
  * and @em non-Rationals cannot appear at the left side of an operator due to a
