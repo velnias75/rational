@@ -105,6 +105,11 @@ template<class ExprT> struct RationalExpressionTraits {
     typedef expr_type variable_type; ///< the deduced variable type
 };
 
+template<class T>
+struct RationalExprTypeTraits {
+    typedef T type;
+};
+
 template<class T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct RationalVariable {
@@ -114,6 +119,12 @@ struct RationalVariable {
     const result_type &operator() ( const Rational<T, GCD, CHKOP> &v ) const throw() {
         return v;
     }
+};
+
+template<class T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct RationalExprTypeTraits<RationalVariable<T, GCD, CHKOP> > {
+    typedef const RationalVariable<T, GCD, CHKOP> &type;
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
@@ -131,7 +142,7 @@ struct RationalConstant {
     }
 
 private:
-    Rational<T, GCD, CHKOP> c_;
+    typename RationalExprTypeTraits<Rational<T, GCD, CHKOP> >::type c_;
 };
 
 template<class T, class L, class H, class OP, template<typename, bool,
@@ -151,8 +162,8 @@ struct RationalBinaryExpression {
     result_type operator() ( const Rational<T, GCD, CHKOP> &d );
 
 private:
-    typename RationalExpressionTraits<L>::literal_type l_;
-    typename RationalExpressionTraits<H>::literal_type h_;
+    typename RationalExprTypeTraits<typename RationalExpressionTraits<L>::literal_type>::type l_;
+    typename RationalExprTypeTraits<typename RationalExpressionTraits<H>::literal_type>::type h_;
 };
 
 template<class T, class L, class H, class OP, template<typename, bool,
@@ -193,7 +204,7 @@ struct RationalUnaryExpression {
     }
 
 private:
-    typename RationalExpressionTraits<L>::literal_type l_;
+    typename RationalExprTypeTraits<typename RationalExpressionTraits<L>::literal_type>::type l_;
 };
 
 template<class T, class E, template<typename, bool, template<class, typename, bool> class,
@@ -209,7 +220,7 @@ struct RationalExpression {
     }
 
 private:
-    E expr_;
+    typename RationalExprTypeTraits<E>::type expr_;
 };
 
 template<class T, class E, template<typename, bool, template<class, typename, bool> class,
