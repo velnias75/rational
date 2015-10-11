@@ -30,9 +30,9 @@
  * @defgroup gmp GNU Multiple Precisions extensions
  *
  * The header `gmp_rational.h` contains specializations especially for
- * [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) 
+ * [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/)
  * as underlying storage type.\n
- * \n If you use the *GMP extensions*, you'll need to link your 
+ * \n If you use the *GMP extensions*, you'll need to link your
  * application with `-lgmpxx -lgmp`
  */
 
@@ -209,7 +209,7 @@ template<> inline const mpf_class EPSILON<mpf_class>::value() {
 }
 
 template<>
-inline mpf_class _approxFract<mpz_class, GCD_euclid, NO_OPERATOR_CHECK, mpf_class, true,
+inline mpf_class _approxFract<mpz_class, GCD_gmp, NO_OPERATOR_CHECK, mpf_class, true,
 EPSILON, TYPE_CONVERT>::abs ( const mpf_class &nt ) const {
     return ::abs ( nt );
 }
