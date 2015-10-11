@@ -30,7 +30,9 @@ GMPTest::GMPTest() : CppUnit::TestFixture(), m_sqrt2(), m_twosqrt(), m_onethird(
 
 void GMPTest::setUp() {
 
-    m_sqrt2 = unchecked_sqrt ( mpf_class ( std::sqrt ( mpf_class ( 2.0 ) ) ) );
+	using namespace std;
+
+    m_sqrt2 = unchecked_sqrt ( mpf_class ( sqrt ( mpf_class ( 2.0 ) ) ) );
 
     std::fill_n ( std::back_inserter ( m_twosqrt ), 2, m_sqrt2 );
     std::fill_n ( std::back_inserter ( m_onethird ), 3, rat_vector::value_type ( 1, 3 ) );
@@ -487,4 +489,4 @@ void GMPTest::testAlgorithm() {
                            .denominator().get_si() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

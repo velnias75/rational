@@ -1517,7 +1517,9 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
                             CONV<T> ( r.m_denom ).template convert<NumberType>() ) - nt )
                     < eps ) ) {
 
-            const T &n ( static_cast<T> ( std::floor ( x ) ) );
+			using namespace std;
+
+            const T &n ( static_cast<T> ( floor ( x ) ) );
 
             x = static_cast<NumberType> ( 1 ) /
                 ( x -  CONV<T> ( n ).template convert<NumberType>() );
@@ -2009,4 +2011,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

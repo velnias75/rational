@@ -4,7 +4,7 @@ TESTS = $(check_PROGRAMS)
 
 noinst_HEADERS = rationaltest.h gmptest.h
 
-test_rational_CXXFLAGS = -std=c++98 -fexceptions -I$(top_srcdir)/src/librational $(CPPUNIT_CFLAGS)
+test_rational_CXXFLAGS = -std=c++0x -fexceptions -I$(top_srcdir)/src/librational $(CPPUNIT_CFLAGS)
 test_rational_SOURCES = rationaltest.cpp test_rational.cpp
 
 if WITH_GMPXX
