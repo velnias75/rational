@@ -30,7 +30,7 @@ GMPTest::GMPTest() : CppUnit::TestFixture(), m_sqrt2(), m_twosqrt(), m_onethird(
 
 void GMPTest::setUp() {
 
-	using namespace std;
+    using namespace std;
 
     m_sqrt2 = unchecked_sqrt ( mpf_class ( sqrt ( mpf_class ( 2.0 ) ) ) );
 
@@ -489,4 +489,4 @@ void GMPTest::testAlgorithm() {
                            .denominator().get_si() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
