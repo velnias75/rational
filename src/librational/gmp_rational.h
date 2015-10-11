@@ -30,10 +30,10 @@
  * @defgroup gmp GNU Multiple Precisions extensions
  *
  * The header `gmp_rational.h` contains specializations especially for
- * [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) as underlying storage
- * type.\n
- * \n
- * If you use the *GMP extensions*, you'll need to link your application with `-lgmpxx -lgmp`
+ * [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) 
+ * as underlying storage type.\n
+ * \n If you use the *GMP extensions*, you'll need to link your 
+ * application with `-lgmpxx -lgmp`
  */
 
 #ifndef COMMONS_MATH_GMP_RATIONAL_H
