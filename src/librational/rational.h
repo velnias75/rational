@@ -26,12 +26,8 @@
  *
  * Include `rational.h` to be able to do fraction calculations. By simply including `rational.h`
  * and specifying the storage type (any integer variant) you can create and use a fractional data
- * type. For example, `Rational<long> foo(3, 4)` would create a fraction named `foo` with a value
- * of `3/4`, and store the fraction using the `long` data type.\n
- * \n
- * Simple to use, fast, and modifiable for your needs, because its all in the one header file
- * `rational.h` at your access. It includes all basic mathematical operations as well as comparison
- * operators, and is very flexible.
+ * type. For example, `Commons::Math::Rational<long> foo(3, 4)` would create a fraction named `foo`
+ * with a value of @f$ \frac{3}{4} @f$, and store the fraction using the `long` data type.\n
  */
 
 #ifndef COMMONS_MATH_RATIONAL_H
@@ -208,7 +204,7 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
  * @ingroup main
  * @brief %Rational (fraction) template class
  *
- * @note All %Rational objects are reduced
+ * @note All %Rational objects are reduced (see @ref gcd)
  *
  * @tparam T storage type
  * @tparam GCD GCD algorithm
@@ -271,6 +267,8 @@ public:
 
     /**
      * @brief creates a default (null) %Rational
+     *
+     * Creates a fraction @f$ \frac{0}{1} @f$
      */
     Rational() : m_numer (), m_denom ( 1 ) {}
 
@@ -315,6 +313,8 @@ public:
     /**
      * @brief creates a %Rational
      *
+     * Creates a fraction @f$ \frac{numer}{denom} @f$
+     *
      * @param[in] numer the numerator
      * @param[in] denom the denominator
      */
@@ -322,6 +322,8 @@ public:
 
     /**
      * @brief creates a inproper (mixed) %Rational
+     *
+     * Creates a fraction @f$ whole + \frac{numer}{denom} @f$
      *
      * @param[in] whole whole number part
      * @param[in] numer the numerator
@@ -334,6 +336,11 @@ public:
 
     /**
      * @brief creates an approximated %Rational
+     *
+     * @b Example: \n @c Commons::Math::Rational<uint64_t>( std::sqrt( 2.0l ) )
+     * to get @f$ \sqrt{2} \approx \frac{6333631924}{4478554083} @f$
+     *
+     * @see Commons::Math::EPSILON to control the quality of the approximation
      *
      * @tparam NumberType type of the number to approximate
      *
@@ -362,7 +369,10 @@ public:
     /**
      * @brief assigns from a @c NumberType
      *
-     * The Number is approximated to a %Rational, then it gets assigned
+     * The @c number is approximated to a %Rational, then it gets assigned
+     *
+     * @see Rational(const NumberType &number)
+     * @see Commons::Math::EPSILON
      *
      * @tparam NumberType type of the number to approximate
      *
@@ -410,12 +420,18 @@ public:
     /**
      * @brief extract the integral and fractional part
      *
+     * @see mod_type
+     *
      * @return a @c mod_type containing the integral and fractional part
      */
     mod_type mod() const;
 
     /**
      * @brief gets the absolute %Rational
+     *
+     * Returns for @em signed types
+     * @c ( this->numerator() < T() ? -(*this) : (*this) )
+     * and for @em unsigned types @c (*this)
      *
      * @return a copy of the absolute %Rational
      */
@@ -427,12 +443,16 @@ public:
     /**
      * @brief inverts the %Rational
      *
+     * @b Example: \n @f$ \frac{-5}{12} @f$ will become to @f$ \frac{-12}{5} @f$
+     *
      * @return the inverted %Rational
      */
     Rational &invert();
 
     /**
      * @brief gets a copy of the inverted %Rational
+     *
+     * @see invert()
      *
      * @return a copy of the inverted %Rational
      */
@@ -482,7 +502,8 @@ public:
     /**
      * @brief pre-increment a %Rational
      *
-     * the result will be @code (numerator + denominator) / denominator @endcode
+     * the result will be
+     * @f$ \frac{numerator + denominator}{denominator} \Rightarrow numerator + 1@f$
      *
      * @return the incremented %Rational
      */
@@ -494,7 +515,7 @@ public:
     /**
      * @brief post-increment a %Rational
      *
-     * the result will be @code (numerator + denominator) / denominator @endcode
+     * @see operator++()
      *
      * @return a copy of %Rational
      */
@@ -550,12 +571,13 @@ public:
     }
 
     /**
-     * @brief pre-decrement a %Rational
-     *
-     * the result will be @code (numerator - denominator) / denominator @endcode
-     *
-     * @return the decremented %Rational
-     */
+      * @brief pre-decrement a %Rational
+      *
+      * the result will be
+      * @f$ \frac{numerator - denominator}{denominator} \Rightarrow numerator - 1@f$
+      *
+      * @return the incremented %Rational
+      */
     inline Rational& operator--() {
         m_numer = op_minus() ( m_numer, m_denom );
         return reduce ( *this );
@@ -564,7 +586,7 @@ public:
     /**
      * @brief post-decrement a %Rational
      *
-     * the result will be @code (numerator - denominator) / denominator @endcode
+     * @see operator--()
      *
      * @return a copy of %Rational
      */
@@ -774,6 +796,10 @@ public:
      * @brief test if it is the neutral element to addition and subtraction
      *
      * Tests if the @c numerator is equal to the default constructed @c integer_type
+     *
+     * @note @f$ 0 + x = x + 0 = x @f$ and @f$ 0 - x = x - 0 = x @f$
+     *
+     * @warning it does @b not do the test for the neutral element to multiplication and division
      *
      * @return @c true if it is the neutral element to addition and subtraction, @c false otherwise
      */
@@ -1963,6 +1989,22 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 /**
  * @defgroup gcd Greatest common divisor algorithms
  *
+ * The @em greatest @em common @em divisor @em algorithms are used to
+ * reduce a Commons::Math::Rational so that
+ * @f$ numerator \perp denominator @f$, i.e. @f$ gcd ( numerator, denominator ) = 1 @f$
+ *
+ * @b Example: \n A custom GCD algorithm could be implemented as following: @code{.cpp}
+ * template<typename MyType, bool IsSigned, template<class, typename = MyType,
+ *          bool = IsSigned> class CHKOP, template<typename = MyType> class CONV>
+ *
+ * struct GCD_myType {
+ *
+ *   inline MyType operator() ( const MyType &a, const MyType &b ) const {
+ *       return myType_GCD_impl(a, b);
+ *   }
+ *
+ * };@endcode and using it at second template parameter:
+ * @code{.cpp} typedef Commons::Math::Rational<MyType, GCD_myType> myType_rational;@endcode
  */
 
 #endif /* COMMONS_MATH_RATIONAL_H */
