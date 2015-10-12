@@ -31,26 +31,54 @@ void ExprTest::tearDown() {}
 
 void ExprTest::testExpression() {
 
-    const RationalExpressionTraits<long_rational>::expr_type &a (
-        mk_rat_lit ( long_rational ( 1, 8 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &a
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &a
+#endif
+    ( mk_rat_lit ( long_rational ( 1, 8 ) ) );
 
-    const RationalExpressionTraits<long_rational>::expr_type &b (
-        mk_rat_lit ( long_rational ( 2, 73 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &b
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &b
+#endif
+    ( mk_rat_lit ( long_rational ( 2, 73 ) ) );
 
-    const RationalExpressionTraits<long_rational>::expr_type &c (
-        mk_rat_lit ( long_rational ( 8, 17 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &c
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &c
+#endif
+    ( mk_rat_lit ( long_rational ( 8, 17 ) ) );
 
-    const RationalExpressionTraits<long_rational>::expr_type &d (
-        mk_rat_lit ( long_rational ( 876, 2127 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &d
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &d
+#endif
+    ( mk_rat_lit ( long_rational ( 876, 2127 ) ) );
 
-    const RationalExpressionTraits<long_rational>::expr_type &e (
-        mk_rat_lit ( long_rational ( 670059l, 1656224l ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &e
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &e
+#endif
+    ( mk_rat_lit ( long_rational ( 670059l, 1656224l ) ) );
 
-    const RationalExpressionTraits<long_rational>::expr_type &f (
-        mk_rat_lit ( long_rational ( -3, 2, 3 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &f
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &f
+#endif
+    ( mk_rat_lit ( long_rational ( -3, 2, 3 ) ) );
 
-    const RationalExpressionTraits<long_rational>::expr_type &g (
-        mk_rat_lit ( long_rational ( 50.0 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &g
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &g
+#endif
+    ( mk_rat_lit ( long_rational ( 50.0 ) ) );
 
     const long_rational &r_mod ( eval_rat_expr ( a % b ) );
 
@@ -104,32 +132,59 @@ void ExprTest::testExpression() {
     CPPUNIT_ASSERT_EQUAL ( 1l, r5.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12l, r5.denominator() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &expr ( a + b );
+#endif
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r6 ( eval_rat_expr ( expr + 1ul ) );
+#else
     const long_rational &r6 ( eval_rat_expr ( ( a + b ) + 1ul ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( 673l, r6.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 584l, r6.denominator() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r7 ( eval_rat_expr ( expr - 0.5 ) );
+#else
     const long_rational &r7 ( eval_rat_expr ( ( a + b ) - 0.5 ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( -203l, r7.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 584l, r7.denominator() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r8 ( eval_rat_expr ( expr * 0.5f ) );
+#else
     const long_rational &r8 ( eval_rat_expr ( ( a + b ) * 0.5f ) );
-
+#endif
     CPPUNIT_ASSERT_EQUAL ( 89l, r8.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1168l, r8.denominator() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r9 ( eval_rat_expr ( expr / 8l ) );
+#else
     const long_rational &r9 ( eval_rat_expr ( ( a + b ) / 8l ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( 89l, r9.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 4672l, r9.denominator() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r10 ( eval_rat_expr ( expr % -0.3l ) );
+#else
     const long_rational &r10 ( eval_rat_expr ( ( a + b ) % -0.3l ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( -431l, r10.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 2920l, r10.denominator() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r11 ( eval_rat_expr ( inv ( expr % -0.3l ) ) );
+#else
     const long_rational &r11 ( eval_rat_expr ( inv ( ( a + b ) % -0.3l ) ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( -2920l, r11.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 431l, r11.denominator() );
@@ -138,26 +193,54 @@ void ExprTest::testExpression() {
 void ExprTest::testExpression_gmp() {
 #ifdef HAVE_GMPXX_H
 
-    const RationalExpressionTraits<gmp_rational>::expr_type &a (
-        mk_rat_lit ( gmp_rational ( 1, 8 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &a
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &a
+#endif
+    ( mk_rat_lit ( gmp_rational ( 1, 8 ) ) );
 
-    const RationalExpressionTraits<gmp_rational>::expr_type &b (
-        mk_rat_lit ( gmp_rational ( 2, 73 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &b
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &b
+#endif
+    ( mk_rat_lit ( gmp_rational ( 2, 73 ) ) );
 
-    const RationalExpressionTraits<gmp_rational>::expr_type &c (
-        mk_rat_lit ( gmp_rational ( 8, 17 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &c
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &c
+#endif
+    ( mk_rat_lit ( gmp_rational ( 8, 17 ) ) );
 
-    const RationalExpressionTraits<gmp_rational>::expr_type &d (
-        mk_rat_lit ( gmp_rational ( 876, 2127 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &d
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &d
+#endif
+    ( mk_rat_lit ( gmp_rational ( 876, 2127 ) ) );
 
-    const RationalExpressionTraits<gmp_rational>::expr_type &e (
-        mk_rat_lit ( gmp_rational ( 670059l, 1656224l ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &e
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &e
+#endif
+    ( mk_rat_lit ( gmp_rational ( 670059l, 1656224l ) ) );
 
-    const RationalExpressionTraits<gmp_rational>::expr_type &f (
-        mk_rat_lit ( gmp_rational ( -3, 2, 3 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &f
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &f
+#endif
+    ( mk_rat_lit ( gmp_rational ( -3, 2, 3 ) ) );
 
-    const RationalExpressionTraits<gmp_rational>::expr_type &g (
-        mk_rat_lit ( gmp_rational ( 50.0 ) ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &g
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &g
+#endif
+    ( mk_rat_lit ( gmp_rational ( 50.0 ) ) );
 
     const gmp_rational &r_mod ( eval_rat_expr ( a % b ) );
 
@@ -179,7 +262,11 @@ void ExprTest::testExpression_gmp() {
     CPPUNIT_ASSERT_EQUAL ( -17l, r_cpx3.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 2336l, r_cpx3.denominator().get_si() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &x ( mk_rat_proto_var ( g ) );
+#else
     const RationalExpressionTraits<gmp_rational>::variable_type &x ( mk_rat_proto_var ( g ) );
+#endif
 
     const gmp_rational &r0 ( eval_rat_expr ( x + g + x, gmp_rational ( 2.0 ) ) );
 
@@ -216,32 +303,60 @@ void ExprTest::testExpression_gmp() {
     CPPUNIT_ASSERT_EQUAL ( 1l, r5.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 12l, r5.denominator().get_si() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &expr ( a + b );
+#endif
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const gmp_rational &r6 ( eval_rat_expr ( expr + 1ul ) );
+#else
     const gmp_rational &r6 ( eval_rat_expr ( ( a + b ) + 1ul ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( 673l, r6.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 584l, r6.denominator().get_si() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const gmp_rational &r7 ( eval_rat_expr ( expr - 0.5 ) );
+#else
     const gmp_rational &r7 ( eval_rat_expr ( ( a + b ) - 0.5 ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( -203l, r7.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 584l, r7.denominator().get_si() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const gmp_rational &r8 ( eval_rat_expr ( expr * 0.5f ) );
+#else
     const gmp_rational &r8 ( eval_rat_expr ( ( a + b ) * 0.5f ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( 89l, r8.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1168l, r8.denominator().get_si() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const gmp_rational &r9 ( eval_rat_expr ( expr / 8l ) );
+#else
     const gmp_rational &r9 ( eval_rat_expr ( ( a + b ) / 8l ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( 89l, r9.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 4672l, r9.denominator().get_si() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const gmp_rational &r10 ( eval_rat_expr ( expr % -0.3 ) );
+#else
     const gmp_rational &r10 ( eval_rat_expr ( ( a + b ) % -0.3 ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( -431l, r10.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 2920l, r10.denominator().get_si() );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const gmp_rational &r11 ( eval_rat_expr ( inv ( expr % -0.3 ) ) );
+#else
     const gmp_rational &r11 ( eval_rat_expr ( inv ( ( a + b ) % -0.3 ) ) );
+#endif
 
     CPPUNIT_ASSERT_EQUAL ( -2920l, r11.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 431l, r11.denominator().get_si() );
@@ -252,8 +367,12 @@ void ExprTest::testExpression_gmp() {
 void ExprTest::testIntegrate() {
 #ifdef HAVE_GMPXX_H
 
-    const RationalExpressionTraits<gmp_rational>::variable_type &x (
-        mk_rat_proto_var ( gmp_rational() ) );
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &x
+#else
+    const RationalExpressionTraits<gmp_rational>::variable_type &x
+#endif
+    ( mk_rat_proto_var ( gmp_rational() ) );
 
     const gmp_rational &r ( integrate ( x / ( x + 1 ), 1, 5, 10 ) );
 
