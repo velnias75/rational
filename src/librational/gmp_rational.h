@@ -143,13 +143,15 @@ template<> struct TYPE_CONVERT<mpz_class> {
 
     inline explicit TYPE_CONVERT ( const mpz_class &v ) : val ( v ) {}
 
-    template<typename U> inline U convert() const {
-        return U ( val );
-    }
+    template<typename U> U convert() const;
 
 private:
     const mpz_class &val;
 };
+
+template<typename U> U TYPE_CONVERT<mpz_class>::convert() const {
+    return U ( val );
+}
 
 template<> inline double TYPE_CONVERT<mpz_class>::convert<double>() const {
     return val.get_d();

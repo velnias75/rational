@@ -113,7 +113,6 @@ template<typename, template<typename, bool, template<class, typename, bool> clas
          template<typename> class> class, template<class, typename, bool> class, typename, bool,
          template<typename> class = EPSILON,
          template<typename> class = TYPE_CONVERT> struct _approxFract;
-
 /**
  * @ingroup main
  * @brief unchecked operator
@@ -426,7 +425,8 @@ public:
      */
     template<typename NumberType>
     inline operator NumberType() const {
-        return static_cast<NumberType> ( m_numer ) / static_cast<NumberType> ( m_denom );
+        return TYPE_CONVERT<integer_type> ( m_numer ).template convert<NumberType>() /
+               TYPE_CONVERT<integer_type> ( m_denom ).template convert<NumberType>();
     }
 
     /**
@@ -921,7 +921,7 @@ Rational<T, GCD, CHKOP>::Rational ( const integer_type &n, const integer_type &d
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberType &nt ) :
-    m_numer ( static_cast<integer_type> ( nt ) ), m_denom ( 1 ) {
+    m_numer ( TYPE_CONVERT<NumberType> ( nt ).template convert<integer_type> () ), m_denom ( 1 ) {
 
     _approxFract<integer_type, GCD, CHKOP, NumberType,
                  ! ( std::numeric_limits<NumberType>::is_integer ||
@@ -1543,7 +1543,8 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
 #ifdef __EXCEPTIONS
     if ( ! ( ! ( std::numeric_limits<T>::max() == T() || std::numeric_limits<T>::min() == T() ) &&
-             ( nt > std::numeric_limits<T>::max() || nt < std::numeric_limits<T>::min() ) ) ) {
+             ( nt > CONV<T> ( std::numeric_limits<T>::max() ).template convert<NumberType>() ||
+               nt < CONV<T> ( std::numeric_limits<T>::min() ).template convert<NumberType>() ) ) ) {
 #endif
 
         const NumberType &eps ( EPSILON<NumberType>::value() );
@@ -1559,10 +1560,10 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
             using namespace std;
 
-            const T &n ( static_cast<T> ( floor ( x ) ) );
+            const T &n ( CONV<NumberType> ( floor ( x ) ).template convert<T>() );
 
-            x = static_cast<NumberType> ( 1 ) /
-                ( x -  CONV<T> ( n ).template convert<NumberType>() );
+            x = CONV<T> ( 1 ).template convert<NumberType>() /
+                ( x - CONV<T> ( n ).template convert<NumberType>() );
 
             r.m_numer = typename rat::op_plus ()
                         ( p[0], typename rat::op_multiplies () ( n, p[1] ) );
