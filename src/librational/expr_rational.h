@@ -314,7 +314,8 @@ template<class ExprT> inline
 typename RationalExpressionTraits<ExprT>::expr_type::result_type eval_rat_expr ( const ExprT &expr,
         const typename RationalExpressionTraits<ExprT>::expr_type::result_type &val =
             typename RationalExpressionTraits<ExprT>::expr_type::result_type() ) {
-    return ( typename RationalExpressionTraits<ExprT>::literal_type ( expr ) ).operator() ( val );
+    return static_cast<typename RationalExpressionTraits<ExprT>::literal_type> ( expr )
+           .operator() ( val );
 }
 
 template<class T>
