@@ -269,6 +269,25 @@ void RationalTest::testAssignedFromDouble() {
 
     CPPUNIT_ASSERT_EQUAL ( 245850922, pi.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 78256779, pi.denominator() );
+
+    double v = 0.5;
+
+    CPPUNIT_ASSERT_EQUAL ( 1.0, ( v += Rational<rational_type> ( 1, 2 ) ) );
+    CPPUNIT_ASSERT_EQUAL ( 0.5, ( v -= Rational<rational_type> ( 1, 2 ) ) );
+    CPPUNIT_ASSERT_EQUAL ( 0.25, ( v *= Rational<rational_type> ( 1, 2 ) ) );
+    CPPUNIT_ASSERT_EQUAL ( 0.5, ( v /= Rational<rational_type> ( 1, 2 ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( v + Rational<rational_type> ( 1, 2 ) ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( v + Rational<rational_type> ( 1, 2 ) ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 0, ( v - Rational<rational_type> ( 1, 2 ) ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( v - Rational<rational_type> ( 1, 2 ) ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, ( v * Rational<rational_type> ( 1, 2 ) ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, ( v * Rational<rational_type> ( 1, 2 ) ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 2, ( v / Rational<rational_type> ( 1, 4 ) ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, ( v / Rational<rational_type> ( 1, 4 ) ).denominator() );
 }
 
 void RationalTest::testAddition() {
