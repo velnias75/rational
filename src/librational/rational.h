@@ -279,6 +279,15 @@ public:
      */
     Rational ( const Rational &other );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    /**
+     * @brief move constructor
+     *
+     * @param[in] other the %Rational to move
+     */
+    Rational ( Rational &&other );
+#endif
+
     /**
      * @brief creates a %Rational
      *
@@ -365,6 +374,27 @@ public:
 
         return *this;
     }
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    /**
+     * @brief move assign another %Rational
+     *
+     * @param[in] another the %Rational to assign
+     */
+    Rational &operator= ( Rational&& another ) {
+
+        if ( this != &another ) {
+
+            m_numer = another.m_numer;
+            m_denom = another.m_denom;
+
+            another.m_numer = integer_type();
+            another.m_numer = integer_type ( 1 );
+        }
+
+        return *this;
+    }
+#endif
 
     /**
      * @brief assigns from a @c NumberType
@@ -865,6 +895,16 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>::Rational ( const Rational &other ) : m_numer ( other.m_numer ),
     m_denom ( other.m_denom ) {}
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP>::Rational ( Rational &&other )
+    : m_numer ( std::move ( other.m_numer ) ), m_denom ( std::move ( other.m_denom ) ) {
+    other.m_numer = integer_type();
+    other.m_denom = integer_type ( 1 );
+}
+#endif
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
