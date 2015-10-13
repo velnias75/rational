@@ -17,8 +17,8 @@
  * along with rational.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRTESTCASE_H
-#define EXPRTESTCASE_H
+#ifndef EXPRTESTCASE_CLN_H
+#define EXPRTESTCASE_CLN_H
 
 #if defined(HAVE_CONFIG_H) || defined(IN_IDE_PARSER)
 #include "config.h"
@@ -28,54 +28,45 @@
 
 #include "expr_rational.h"
 
-#ifdef HAVE_GMPXX_H
-#include "gmp_rational.h"
-#endif
+#include "cln_rational.h"
 
 #pragma GCC diagnostic ignored "-Winline"
 #pragma GCC diagnostic ignored "-Weffc++"
 #pragma GCC diagnostic push
-class ExprTest : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE ( ExprTest );
+class ExprTestCLN : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE ( ExprTestCLN );
     CPPUNIT_TEST ( testExpression );
-    CPPUNIT_TEST ( testExpression_gmp );
     CPPUNIT_TEST ( testIntegrate );
     CPPUNIT_TEST_SUITE_END();
 
 public:
-    typedef Commons::Math::Rational<long, Commons::Math::GCD_euclid_fast,
-            Commons::Math::NO_OPERATOR_CHECK> long_rational;
-
-    ExprTest();
+    ExprTestCLN();
 
     void setUp();
     void tearDown();
 
     void testExpression();
-    void testExpression_gmp();
     void testIntegrate();
 
 private:
-#ifdef HAVE_GMPXX_H
     template<class ExprT> inline static
-    Commons::Math::gmp_rational integrate ( const ExprT &e, const Commons::Math::gmp_rational &from,
-                                            const Commons::Math::gmp_rational &to,
+    Commons::Math::cln_rational integrate ( const ExprT &e, const Commons::Math::cln_rational &from,
+                                            const Commons::Math::cln_rational &to,
                                             std::size_t n ) {
-        Commons::Math::gmp_rational sum;
-        const static Commons::Math::gmp_rational two ( 2, 1 );
-        const Commons::Math::gmp_rational &step ( ( to - from ) / n );
+        Commons::Math::cln_rational sum;
+        const static Commons::Math::cln_rational two ( 2, 1 );
+        const Commons::Math::cln_rational &step ( ( to - from ) / n );
 
-        for ( Commons::Math::gmp_rational i ( from + ( step / two ) ); i < to; i += step ) {
+        for ( Commons::Math::cln_rational i ( from + ( step / two ) ); i < to; i += step ) {
             sum += Commons::Math::eval_rat_expr ( e, i );
         }
 
         return step * sum;
     }
-#endif
 
 };
 #pragma GCC diagnostic pop
 
-#endif /* EXPRTESTCASE_H */
+#endif /* EXPRTESTCASE_CLN_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
