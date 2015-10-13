@@ -29,6 +29,10 @@ Features
   `2.75`
 - Construction of approximate fractions, i.e. `Rational<long> foo(3.14159265358979323846)`for `π` 
   resp. `245850922/78256779` *(approximation is dependent on compiler and chosen storage type)*
+- Support for 
+  - [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) (include `gmp_rational.h`)
+  - [CLN - Class Library for Numbers](http://www.ginac.de/CLN/) (include `cln_rational.h`)
+  as underlying storage type
 
 Notes for custom number types
 -----------------------------
@@ -37,6 +41,8 @@ Notes for custom number types
 - `std::numeric_limits<custom_type>::is_signed`
 - `std::numeric_limits<custom_type>::is_integer`
 - `std::numeric_limits<custom_type>::is_exact`
+
+*(`gmp_rational.h` provides this specializations for GMP versions below 5.1)*
 
 How to use
 ----------
