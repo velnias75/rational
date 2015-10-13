@@ -33,6 +33,7 @@ Features
     * [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) 
       (include `gmp_rational.h`)
     * [CLN - Class Library for Numbers](http://www.ginac.de/CLN/) (include `cln_rational.h`)
+
   as underlying storage type
 - Expression templates for domain specific programming (include `expr_rational.h`)
 
