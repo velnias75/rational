@@ -26,6 +26,10 @@
 #ifndef COMMONS_MATH_CLN_RATIONAL_H
 #define COMMONS_MATH_CLN_RATIONAL_H
 
+#ifdef COMMONS_MATH_GMP_RATIONAL_H
+#error "cln_rational.h and gmp_rational.h cannot coexist in the same compilation unit"
+#endif
+
 #include <sstream>
 
 #include <cln/integer_io.h>
