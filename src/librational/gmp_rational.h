@@ -34,6 +34,8 @@
  * as underlying storage type.\n
  * \n If you use the *GMP extensions*, you'll need to link your
  * application with `-lgmpxx -lgmp`
+ *
+ * @warning You cannot use @ref gmp and @ref cln in the same compilation unit
  */
 
 #ifndef COMMONS_MATH_GMP_RATIONAL_H
@@ -172,6 +174,7 @@ template<> inline long signed int TYPE_CONVERT<mpz_class>::convert<long signed i
 template<> inline long unsigned int TYPE_CONVERT<mpz_class>::convert<long unsigned int>() const {
     return val.get_ui();
 }
+
 /**
  * @ingroup gmp
  * @ingroup gcd
