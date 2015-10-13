@@ -1795,7 +1795,7 @@ struct _swapSign<GCD, CHKOP, true> {
         }
 
         return r;
-    };
+    }
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
@@ -1805,7 +1805,7 @@ struct _swapSign<GCD, CHKOP, false> {
     template<typename T>
     inline Rational<T, GCD, CHKOP> &operator() ( Rational<T, GCD, CHKOP> &r ) const {
         return r;
-    };
+    }
 };
 
 #ifdef __EXCEPTIONS
