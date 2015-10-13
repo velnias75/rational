@@ -132,14 +132,12 @@ void CLNTest::testConstructFromDouble() {
 
 void CLNTest::testConstructFrom_cl_F_class() {
 
-    const cln_rational &p ( cln::cl_F ( cln::cl_F ( 19.0 ) /
-                                        cln::cl_F ( 51.0 ) ) );
+    const cln_rational &p ( cln::cl_F ( 19.0 ) / cln::cl_F ( 51.0 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 19l ), p.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 51l ), p.denominator() );
 
-    const cln_rational &q ( cln::cl_F ( cln::cl_F ( 516901.0 ) /
-                                        cln::cl_F ( 740785.0 ) ) );
+    const cln_rational &q ( cln::cl_F ( 516901.0 ) / cln::cl_F ( 740785.0 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 516901l ), q.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 740785l ), q.denominator() );
@@ -537,4 +535,4 @@ void CLNTest::testAlgorithm() {
                            std::plus<rat_vector::value_type>() ).denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
