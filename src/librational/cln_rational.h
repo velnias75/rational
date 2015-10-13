@@ -1,0 +1,216 @@
+/*
+ * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ *
+ * This file is part of rational.
+ *
+ * rational is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * rational is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with rational.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file
+ * @author Heiko Schäfer <heiko@rangun.de>
+ * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ */
+
+#ifndef COMMONS_MATH_CLN_RATIONAL_H
+#define COMMONS_MATH_CLN_RATIONAL_H
+
+#include <sstream>
+
+#include <cln/integer_io.h>
+#include <cln/modinteger.h>
+#include <cln/integer.h>
+#include <cln/float.h>
+
+#include "rational.h"
+
+namespace std {
+
+template<> struct numeric_limits<cln::cl_I> {
+
+    static bool const is_specialized = true;
+    static bool const is_signed = true;
+    static bool const is_integer = true;
+    static bool const is_exact = true;
+
+    static cln::cl_I max() {
+        return cln::cl_I();
+    }
+
+    static cln::cl_I min() {
+        return cln::cl_I();
+    }
+
+    static cln::cl_I epsilon() {
+        return cln::cl_I();
+    }
+};
+
+#pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic push
+template<> struct divides<cln::cl_I> :
+    public binary_function<cln::cl_I, cln::cl_I, cln::cl_I> {
+    inline result_type operator() ( const first_argument_type &x,
+                                    const second_argument_type &y ) const {
+        return cln::truncate1 ( x, y );
+    }
+};
+
+template<> struct modulus<cln::cl_I> :
+    public binary_function<cln::cl_I, cln::cl_I, cln::cl_I> {
+    inline result_type operator() ( const first_argument_type &x,
+                                    const second_argument_type &y ) const {
+        return cln::truncate2 ( x, y ).remainder;
+    }
+};
+#pragma GCC diagnostic pop
+
+}
+
+namespace Commons {
+
+namespace Math {
+
+template<> struct TYPE_CONVERT<float> {
+
+    inline explicit TYPE_CONVERT ( float v ) : val ( v ) {}
+
+    template<class U>
+    inline U convert() const {
+        return cln::floor1 ( val );
+    }
+
+private:
+    float val;
+};
+
+template<> struct TYPE_CONVERT<double> {
+
+    inline explicit TYPE_CONVERT ( double v ) : val ( v ) {}
+
+    template<class U>
+    inline U convert() const {
+        return cln::floor1 ( val );
+    }
+
+private:
+    double val;
+};
+
+template<> struct TYPE_CONVERT<cln::cl_F> {
+
+    inline explicit TYPE_CONVERT ( const cln::cl_F &v ) : val ( v ) {}
+
+    inline explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( cln::double_approx ( v ) ) {}
+
+    template<class U>
+    inline U convert() const {
+        return cln::floor1 ( val );
+    }
+
+private:
+    const cln::cl_F val;
+};
+
+template<> struct TYPE_CONVERT<cln::cl_I> {
+
+    inline explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( v ) {}
+
+    template<class U> U convert() const;
+
+private:
+    const cln::cl_I &val;
+};
+
+template<class U>
+U TYPE_CONVERT<cln::cl_I>::convert() const {
+    std::ostringstream os;
+    os << val << "L+0_30";
+    return os.str().c_str();
+}
+
+template<> inline float TYPE_CONVERT<cln::cl_I>::convert<float>() const {
+    return cln::float_approx ( val );
+}
+
+template<> inline double TYPE_CONVERT<cln::cl_I>::convert<double>() const {
+    return cln::double_approx ( val );
+}
+
+template<> inline cln::cl_I TYPE_CONVERT<cln::cl_I>::convert<cln::cl_I>() const {
+    return val;
+}
+
+template<> struct EPSILON<cln::cl_F> {
+    inline static const cln::cl_F value() {
+        return "1L-16_30";
+    }
+};
+
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
+         template<typename = T> class CONV> struct GCD_cln;
+
+template<template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_cln<cln::cl_I, false, CHKOP, CONV> {
+
+    inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
+        return GCD_cln<cln::cl_I, true, CHKOP, CONV>() ( a, b );
+    }
+
+};
+
+template<template<class, typename, bool> class CHKOP, template<typename> class CONV>
+struct GCD_cln<cln::cl_I, true, CHKOP, CONV> {
+
+    inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
+        return cln::gcd ( a, b );
+    }
+
+};
+
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _lcm<cln::cl_I, GCD, CHKOP, true> {
+    inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
+        return cln::lcm ( a, b );
+    }
+};
+
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _lcm<cln::cl_I, GCD, CHKOP, false> {
+
+    inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
+        return _lcm<cln::cl_I, GCD, CHKOP, true>() ( a, b );
+    }
+};
+
+
+typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_CHECK> cln_rational;
+
+}
+
+}
+
+namespace cln {
+
+inline cl_I floor ( const cl_F &f ) {
+    return floor1 ( f );
+}
+
+}
+
+#endif /* COMMONS_MATH_CLN_RATIONAL_H */
+
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

@@ -13,8 +13,15 @@ LT_INIT
 # Checks for programs.
 AC_PROG_CXX
 AM_PATH_CPPUNIT([1.12])
+PKG_PROG_PKG_CONFIG([0.22])
 
 # Checks for libraries.
+PKG_CHECK_MODULES([CLN], [cln >= 1.3.2], [
+  AM_CONDITIONAL([WITH_CLN], [true])
+  AC_DEFINE([HAVE_CLN_RATIONAL], [1], [define to 1 if CLN is available])
+], [
+  AM_CONDITIONAL([WITH_CLN], [false])
+])
 
 # Checks for header files.
 AC_LANG_PUSH([C++])
