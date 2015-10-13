@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [1.4], [heiko@rangun.de])
+AC_INIT([rational], [1.45], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -13,8 +13,14 @@ LT_INIT
 # Checks for programs.
 AC_PROG_CXX
 AM_PATH_CPPUNIT([1.12])
+PKG_PROG_PKG_CONFIG([0.22])
 
 # Checks for libraries.
+PKG_CHECK_MODULES([CLN], [cln >= 1.3.2], [
+  AM_CONDITIONAL([WITH_CLN], [true])
+], [
+  AM_CONDITIONAL([WITH_CLN], [false])
+])
 
 # Checks for header files.
 AC_LANG_PUSH([C++])
