@@ -43,6 +43,7 @@ class GMPTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testString );
     CPPUNIT_TEST ( testIOStreamOps );
     CPPUNIT_TEST ( testAlgorithm );
+    CPPUNIT_TEST ( testStdMath );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -67,6 +68,7 @@ public:
     void testString();
     void testIOStreamOps();
     void testAlgorithm();
+    void testStdMath();
 
 private:
     typedef Commons::Math::Rational<rational_type, Commons::Math::GCD_stein> unchecked_sqrt;

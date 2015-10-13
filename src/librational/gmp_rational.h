@@ -205,6 +205,31 @@ struct GCD_gmp<mpz_class, true, CHKOP, CONV> {
 
 };
 
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _abs<mpz_class, GCD, CHKOP, true> {
+
+    inline Rational<mpz_class, GCD, CHKOP> operator()
+    ( const Rational<mpz_class, GCD, CHKOP> &r ) const {
+
+        mpz_class rop;
+
+        mpz_abs ( rop.get_mpz_t(), r.numerator().get_mpz_t() );
+
+        return Rational<mpz_class, GCD, CHKOP> ( rop, r.denominator() );
+    }
+};
+
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _abs<mpz_class, GCD, CHKOP, false> {
+
+    inline Rational<mpz_class, GCD, CHKOP> operator()
+    ( const Rational<mpz_class, GCD, CHKOP> &r ) const {
+        return _abs<mpz_class, GCD, CHKOP, true>() ( r );
+    }
+};
+
 template<> inline const mpf_class EPSILON<mpf_class>::value() {
     static mpf_class eps ( GMP_EPSILON );
     return eps;

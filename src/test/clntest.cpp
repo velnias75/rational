@@ -530,4 +530,17 @@ void CLNTest::testAlgorithm() {
                            std::plus<rat_vector::value_type>() ).denominator() );
 }
 
+void CLNTest::testStdMath() {
+
+    rational_type rt;
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2/3" ), std::modf ( cln_rational ( 11, 3 ) ,
+                           &rt ).str() );
+    CPPUNIT_ASSERT_EQUAL ( rational_type ( 3 ), rt );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( 11, -3 ).abs().str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( -11, 3 ).abs().str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( 11, 3 ).abs().str() );
+}
+
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
