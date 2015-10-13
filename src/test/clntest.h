@@ -60,6 +60,7 @@ class CLNTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testString );
     CPPUNIT_TEST ( testIOStreamOps );
     CPPUNIT_TEST ( testAlgorithm );
+    CPPUNIT_TEST ( testStdMath );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -84,6 +85,7 @@ public:
     void testString();
     void testIOStreamOps();
     void testAlgorithm();
+    void testStdMath();
 
 private:
     typedef Commons::Math::cln_rational unchecked_sqrt;

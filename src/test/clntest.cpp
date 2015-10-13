@@ -32,12 +32,7 @@ CLNTest::CLNTest()
 
 void CLNTest::setUp() {
 
-    std::ostringstream os;
-
-    os.precision ( std::numeric_limits<long double>::digits );
-    os << std::sqrt ( 2.0l ) << "L+0_30";
-
-    m_sqrt2 = unchecked_sqrt ( cln::cl_F ( os.str().c_str() ) );
+    m_sqrt2 = unchecked_sqrt ( cln::sqrt ( "2.0L+0_6" ) );
 
     std::fill_n ( std::back_inserter ( m_twosqrt ), 2, m_sqrt2 );
     std::fill_n ( std::back_inserter ( m_onethird ), 3, rat_vector::value_type ( 1, 3 ) );
@@ -535,4 +530,17 @@ void CLNTest::testAlgorithm() {
                            std::plus<rat_vector::value_type>() ).denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+void CLNTest::testStdMath() {
+
+    rational_type rt;
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2/3" ), std::modf ( cln_rational ( 11, 3 ) ,
+                           &rt ).str() );
+    CPPUNIT_ASSERT_EQUAL ( rational_type ( 3 ), rt );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( 11, -3 ).abs().str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( -11, 3 ).abs().str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( 11, 3 ).abs().str() );
+}
+
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

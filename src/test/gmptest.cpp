@@ -489,4 +489,17 @@ void GMPTest::testAlgorithm() {
                            .denominator().get_si() );
 }
 
+void GMPTest::testStdMath() {
+
+    rational_type rt;
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2/3" ), std::modf ( gmp_rational ( 11, 3 ) ,
+                           &rt ).str() );
+    CPPUNIT_ASSERT_EQUAL ( rational_type ( 3 ), rt );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( 11, -3 ).abs().str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( -11, 3 ).abs().str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( 11, 3 ).abs().str() );
+}
+
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

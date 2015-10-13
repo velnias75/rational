@@ -196,6 +196,31 @@ struct _lcm<cln::cl_I, GCD, CHKOP, false> {
     }
 };
 
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _abs<cln::cl_I, GCD, CHKOP, true> {
+
+    inline Rational<cln::cl_I, GCD, CHKOP> operator()
+    ( const Rational<cln::cl_I, GCD, CHKOP> &r ) const {
+        return Rational<cln::cl_I, GCD, CHKOP> ( cln::abs ( r.numerator() ), r.denominator() );
+    }
+};
+
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _abs<cln::cl_I, GCD, CHKOP, false> {
+
+    inline Rational<cln::cl_I, GCD, CHKOP> operator()
+    ( const Rational<cln::cl_I, GCD, CHKOP> &r ) const {
+        return _abs<cln::cl_I, GCD, CHKOP, true>() ( r );
+    }
+};
+
+template<>
+inline cln::cl_F _approxFract<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK, cln::cl_F, true,
+EPSILON, TYPE_CONVERT>::abs ( const cln::cl_F &nt ) const {
+    return cln::abs ( nt );
+}
 
 typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_CHECK> cln_rational;
 
