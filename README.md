@@ -42,10 +42,15 @@ How to use
 ----------
 
 See the test cases for examples on how to use `rational.h` with *C++ built-in types* as well
-as with [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) as underlying
-storage type.
+as with [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) or
+the [CLN - Class Library for Numbers](http://www.ginac.de/CLN/) as underlying storage type.
 
-The header `gmp_rational.h` contains specializations especially for 
-[the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) as underlying storage type.
+* The header `gmp_rational.h` contains specializations especially for 
+  [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) as underlying storage type.
 
-If you use the *GMP extensions*, you'll need to link your application with `-lgmpxx -lgmp`
+  If you use the *GMP extensions*, you'll need to link your application with `-lgmpxx -lgmp`
+
+* The header `cln_rational.h` contains specializations especially for the
+  [CLN - Class Library for Numbers](http://www.ginac.de/CLN/) as underlying storage type.
+
+  If you use the *CLN extensions*, you'll need to link your application with `-lcln`
