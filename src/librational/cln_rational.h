@@ -21,6 +21,20 @@
  * @file
  * @author Heiko Schäfer <heiko@rangun.de>
  * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ *
+ * This header contains specialization for use of the
+ * [CLN - Class Library for Numbers](http://www.ginac.de/CLN/) as underlying
+ * storage type.
+ *
+ * @defgroup cln CLN - Class Library for Numbers extensions
+ *
+ * The header `cln_rational.h` contains specializations especially for the
+ * [CLN - Class Library for Numbers](http://www.ginac.de/CLN/)
+ * as underlying storage type.\n
+ * \n If you use the *CLN extensions*, you'll need to link your
+ * application with `-lcln`
+ *
+ * @warning You cannot use @ref cln and @ref gmp in the same compilation unit
  */
 
 #ifndef COMMONS_MATH_CLN_RATIONAL_H
@@ -38,6 +52,36 @@
 #include <cln/float.h>
 
 #include "rational.h"
+
+#ifndef CLN_PRECISION
+/**
+ * @ingroup cln
+ * @def CLN_PRECISION
+ *
+ * The default precision suffix
+ *
+ * @see CLN_EPSILON
+ * @see Commons::Math::EPSILON
+ * @see Commons::Math::TYPE_CONVERT
+ */
+#define CLN_PRECISION "30"
+#endif
+
+
+#ifndef CLN_EPSILON
+/**
+ * @ingroup cln
+ * @def CLN_EPSILON
+ *
+ * The @c EPSILON used for approximating a float
+ *
+ * @see CLN_PRECISION
+ * @see Commons::Math::EPSILON
+ *
+ * This define is passed @em as @em is to the contructor of @c cln::cl_F
+ */
+#define CLN_EPSILON "1L-16_" CLN_PRECISION
+#endif
 
 namespace std {
 
@@ -140,7 +184,7 @@ private:
 template<class U>
 U TYPE_CONVERT<cln::cl_I>::convert() const {
     std::ostringstream os;
-    os << val << "L+0_30";
+    os << val << "L+0_" << CLN_PRECISION;
     return os.str().c_str();
 }
 
@@ -158,10 +202,23 @@ template<> inline cln::cl_I TYPE_CONVERT<cln::cl_I>::convert<cln::cl_I>() const 
 
 template<> struct EPSILON<cln::cl_F> {
     inline static const cln::cl_F value() {
-        return "1L-16_30";
+        return CLN_EPSILON;
     }
 };
 
+/**
+ * @ingroup cln
+ * @ingroup gcd
+ * @brief CLN GCD algorithm
+ *
+ * The gcd algorithm implemented in the CLN library
+ * 
+ * @note this is currently the @b only supported GCD for use with @ref cln
+ *
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
+ */
 template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
          template<typename = T> class CONV> struct GCD_cln;
 
@@ -225,6 +282,11 @@ inline cln::cl_F _approxFract<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK, cln::cl_F, 
 EPSILON, TYPE_CONVERT>::abs ( const cln::cl_F &nt ) const {
     return cln::abs ( nt );
 }
+
+/**
+ * @ingroup cln
+ * @brief Rational class based on the CLN library
+ */
 
 typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_CHECK> cln_rational;
 

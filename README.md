@@ -30,8 +30,9 @@ Features
 - Construction of approximate fractions, i.e. `Rational<long> foo(3.14159265358979323846)`for `π` 
   resp. `245850922/78256779` *(approximation is dependent on compiler and chosen storage type)*
 - Support for 
-  - [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) (include `gmp_rational.h`)
-  - [CLN - Class Library for Numbers](http://www.ginac.de/CLN/) (include `cln_rational.h`)
+    * [the GNU Multiple Precision Arithmetic Library](https://gmplib.org/) 
+      (include `gmp_rational.h`)
+    * [CLN - Class Library for Numbers](http://www.ginac.de/CLN/) (include `cln_rational.h`)
   as underlying storage type
 - Expression templates for domain specific programming (include `expr_rational.h`)
 
