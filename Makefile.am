@@ -5,3 +5,5 @@ ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = README.md
 
 doc_DATA = $(EXTRA_DIST)
+
+AM_DISTCHECK_CONFIGURE_FLAGS = --enable-cln --enable-gmp
