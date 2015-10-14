@@ -16,21 +16,25 @@ AM_PATH_CPPUNIT([1.12])
 PKG_PROG_PKG_CONFIG([0.22])
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CLN], [cln >= 1.3.2], [
+AM_CONDITIONAL([WITH_CLN], [false])
+AC_ARG_ENABLE([cln], [AS_HELP_STRING([--enable-cln], [enable CLN extension])], [
+if test x$enable_cln = xyes; then
+  PKG_CHECK_MODULES([CLN], [cln >= 1.3.2], [
   AM_CONDITIONAL([WITH_CLN], [true])
   AC_DEFINE([HAVE_CLN_RATIONAL], [1], [define to 1 if CLN is available])
-], [
-  AM_CONDITIONAL([WITH_CLN], [false])
-])
+fi
+])])
 
 # Checks for header files.
 AC_LANG_PUSH([C++])
 AC_HEADER_STDBOOL
-AC_CHECK_HEADER([gmpxx.h], [
-  AM_CONDITIONAL([WITH_GMPXX], [true])
-  AC_DEFINE([HAVE_GMPXX_H], [1], [define to 1 if gmpxx.h is available])
-], [
-  AM_CONDITIONAL([WITH_GMPXX], [false])
+AM_CONDITIONAL([WITH_GMPXX], [false])
+AC_ARG_ENABLE([gmp], [AS_HELP_STRING([--enable-gmp], [enable GMP extension])], [
+if test x$enable_gmp = xyes; then
+  AC_CHECK_HEADER([gmpxx.h], [
+    AM_CONDITIONAL([WITH_GMPXX], [true])
+    AC_DEFINE([HAVE_GMPXX_H], [1], [define to 1 if gmpxx.h is available])])
+fi
 ])
 AC_LANG_POP([C++])
 
