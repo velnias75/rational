@@ -269,7 +269,7 @@ public:
      *
      * Creates a fraction @f$ \frac{0}{1} @f$
      */
-    Rational() : m_numer (), m_denom ( 1 ) {}
+    Rational() : m_numer (), m_denom ( one_ ) {}
 
     /**
      * @brief copy constructor
@@ -338,7 +338,7 @@ public:
      * @param[in] denom the denominator
      */
     Rational ( const integer_type &whole, const integer_type &numer,
-               const integer_type &denom ) : m_numer (), m_denom ( 1 ) {
+               const integer_type &denom ) : m_numer (), m_denom ( one_ ) {
         *this += Rational ( numer, denom ) += Rational ( whole );
     }
 
@@ -387,8 +387,8 @@ public:
             m_numer = another.m_numer;
             m_denom = another.m_denom;
 
-            another.m_numer = integer_type();
-            another.m_numer = integer_type ( 1 );
+//             another.m_numer = zero_;
+//             another.m_numer = integer_type ( 1 );
         }
 
         return *this;
@@ -834,7 +834,7 @@ public:
      * @return @c true if it is the neutral element to addition and subtraction, @c false otherwise
      */
     inline bool operator!() const {
-        return m_numer == integer_type();
+        return m_numer == zero_;
     }
 
     /**
@@ -886,10 +886,24 @@ private:
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
 
+public:
+    static const integer_type zero_;
+    static const integer_type one_;
+
 private:
     integer_type m_numer;
     integer_type m_denom;
 };
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+const typename Rational<T, GCD, CHKOP>::integer_type Rational<T, GCD, CHKOP>::zero_
+    = integer_type();
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+const typename Rational<T, GCD, CHKOP>::integer_type Rational<T, GCD, CHKOP>::one_
+    = integer_type ( 1 );
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
@@ -901,8 +915,8 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>::Rational ( Rational &&other )
     : m_numer ( std::move ( other.m_numer ) ), m_denom ( std::move ( other.m_denom ) ) {
-    other.m_numer = integer_type();
-    other.m_denom = integer_type ( 1 );
+//     other.m_numer = integer_type();
+//     other.m_denom = integer_type ( 1 );
 }
 #endif
 
@@ -912,7 +926,7 @@ Rational<T, GCD, CHKOP>::Rational ( const integer_type &n, const integer_type &d
     m_denom ( d ) {
 
 #ifdef __EXCEPTIONS
-    if ( m_denom == integer_type() ) throw std::domain_error ( "denominator can't be null" );
+    if ( m_denom == zero_ ) throw std::domain_error ( "denominator can't be null" );
 #endif
 
     reduce ( *this );
@@ -921,7 +935,7 @@ Rational<T, GCD, CHKOP>::Rational ( const integer_type &n, const integer_type &d
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberType &nt ) :
-    m_numer ( TYPE_CONVERT<NumberType> ( nt ).template convert<integer_type> () ), m_denom ( 1 ) {
+    m_numer ( TYPE_CONVERT<NumberType> ( nt ).template convert<integer_type> () ), m_denom ( one_ ) {
 
     _approxFract<integer_type, GCD, CHKOP, NumberType,
                  ! ( std::numeric_limits<NumberType>::is_integer ||
@@ -936,11 +950,11 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::reduce ( const Rational &o ) {
 
-    const integer_type &x ( o.m_numer != integer_type() ?
+    const integer_type &x ( o.m_numer != zero_ ?
                             GCD<T, std::numeric_limits<integer_type>::is_signed,
                             CHKOP, TYPE_CONVERT>() ( o.m_numer, o.m_denom ) : o.m_denom );
 
-    if ( x != static_cast<integer_type> ( 1 ) ) {
+    if ( x != one_ ) {
         m_numer = op_divides() ( m_numer, x );
         m_denom = op_divides() ( m_denom, x );
     }
@@ -957,7 +971,7 @@ Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
     const integer_type &d1 ( GCD<integer_type, std::numeric_limits<integer_type>::is_signed,
                              CHKOP, TYPE_CONVERT>() ( m_denom, o.m_denom ) );
 
-    if ( d1 == static_cast<integer_type> ( 1 ) ) {
+    if ( d1 == one_ ) {
 
         m_numer = Op() ( op_multiplies() ( m_numer, o.m_denom ),
                          op_multiplies() ( m_denom, o.m_numer ) );
@@ -1136,7 +1150,7 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::invert() {
     swap ( m_numer, m_denom );
 
 #ifdef __EXCEPTIONS
-    if ( m_denom == integer_type() ) throw std::domain_error ( "division by zero" );
+    if ( m_denom == zero_ ) throw std::domain_error ( "division by zero" );
 #endif
 
     return _swapSign<integer_type, GCD, CHKOP,
@@ -1214,8 +1228,7 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator*= ( const Rational& o
                              std::numeric_limits<integer_type>::is_signed, CHKOP, TYPE_CONVERT>()
                              ( m_denom, other.m_numer ) );
 
-    if ( ! ( d1 == static_cast<integer_type> ( 1 ) &&
-             d2 == static_cast<integer_type> ( 1 ) ) ) {
+    if ( ! ( d1 == one_ && d2 == one_ ) ) {
 
         m_numer = op_multiplies() ( ( op_divides() ( m_numer, d1 ) ),
                                     ( op_divides() ( other.m_numer, d2 ) ) );
@@ -1260,15 +1273,15 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
     std::ostringstream os;
 
-    if ( mixed && m_denom != T ( 1 ) ) {
+    if ( mixed && m_denom != one_ ) {
 
         const mod_type &p ( mod() );
 
-        if ( p.first != integer_type() ) os << p.first << ' ';
+        if ( p.first != zero_ ) os << p.first << ' ';
 
         os << p.second.str ( false );
 
-    } else if ( mixed && m_denom == T ( 1 ) ) {
+    } else if ( mixed && m_denom == one_ ) {
 
         const mod_type &p ( mod() );
 
@@ -1278,7 +1291,7 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
         os << m_numer;
 
-        if ( m_denom != T ( 1 ) ) os << '/' << m_denom;
+        if ( m_denom != one_ ) os << '/' << m_denom;
     }
 
     return os.str();
@@ -1533,7 +1546,21 @@ private:
     inline NumberType abs ( const NumberType &nt ) const {
         return nt < NumberType() ? NumberType ( -nt ) : nt;
     }
+
+private:
+    const static T zero_;
+    const static T one_;
 };
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
+const T _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::zero_ = T();
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
+const T _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::one_ = T ( 1 );
 
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #pragma GCC diagnostic push
@@ -1544,15 +1571,16 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
         const NumberType &nt ) const {
 
 #ifdef __EXCEPTIONS
-    if ( ! ( ! ( std::numeric_limits<T>::max() == T() || std::numeric_limits<T>::min() == T() ) &&
+    if ( ! ( ! ( std::numeric_limits<T>::max() == zero_ ||
+                 std::numeric_limits<T>::min() == zero_ ) &&
              ( nt > CONV<T> ( std::numeric_limits<T>::max() ).template convert<NumberType>() ||
                nt < CONV<T> ( std::numeric_limits<T>::min() ).template convert<NumberType>() ) ) ) {
 #endif
 
         const NumberType &eps ( EPSILON<NumberType>::value() );
 
-        T p[2] = { T(), T ( 1 ) };
-        T q[2] = { T ( 1 ), T() };
+        T p[2] = { zero_, one_ };
+        T q[2] = { one_, zero_ };
 
         NumberType x ( nt );
 
@@ -1564,7 +1592,7 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
             const T &n ( CONV<NumberType> ( floor ( x ) ).template convert<T>() );
 
-            x = CONV<T> ( 1 ).template convert<NumberType>() /
+            x = CONV<T> ( one_ ).template convert<NumberType>() /
                 ( x - CONV<T> ( n ).template convert<NumberType>() );
 
             r.m_numer = typename rat::op_plus ()
@@ -1597,7 +1625,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 struct _abs<T, GCD, CHKOP, true> {
 
     inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r ) const {
-        return r.numerator() < T() ? -r : r;
+        return r.numerator() < Rational<T, GCD, CHKOP>::zero_ ? -r : r;
     }
 };
 
@@ -1629,7 +1657,7 @@ _mod<T, GCD, CHKOP, true>::operator() ( const Rational<T, GCD, CHKOP> &r ) const
                                                    ( r.m_numer, r.m_denom ) ), r.m_denom ) );
 
     return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
-                            r.m_denom ), r.m_numer < T() ? -h : h );
+                            r.m_denom ), r.m_numer < Rational<T, GCD, CHKOP>::zero_ ? -h : h );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -1648,15 +1676,22 @@ struct _mod<T, GCD, CHKOP, false> {
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_euclid_fast<T, false, CHKOP, CONV> {
+
     T operator() ( const T &a, const T &b ) const;
+
+private:
+    static const T zero_;
 };
+
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+const T GCD_euclid_fast<T, false, CHKOP, CONV>::zero_ = T();
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 T GCD_euclid_fast<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
 
     T x ( a ), y ( b );
 
-    while ( y != T() ) {
+    while ( y != zero_ ) {
 
         x %= y;
         y ^= x;
@@ -1669,13 +1704,20 @@ T GCD_euclid_fast<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) 
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_euclid_fast<T, true, CHKOP, CONV> {
+
     T operator() ( const T &a, const T &b ) const;
+
+private:
+    static const T zero_;
 };
+
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+const T GCD_euclid_fast<T, true, CHKOP, CONV>::zero_ = T();
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 T GCD_euclid_fast<T, true, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
     const T &h ( GCD_euclid_fast<T, false, CHKOP, CONV>() ( a, b ) );
-    return h < T() ? T ( -h ) : h;
+    return h < zero_ ? T ( -h ) : h;
 }
 
 template<typename T, template<class, typename = T, bool = false> class CHKOP,
@@ -1685,7 +1727,7 @@ template<typename T, template<class, typename = T, bool = false> class CHKOP,
 
         T x ( a ), y ( b );
 
-        while ( y != T() ) {
+        while ( y != zero_ ) {
 
             const T &h ( CHKOP<std::modulus<T> >() ( x, y ) );
             x = y;
@@ -1694,30 +1736,52 @@ template<typename T, template<class, typename = T, bool = false> class CHKOP,
 
         return x;
     }
+
+private:
+    static const T zero_;
 };
+
+template<typename T, template<class, typename = T, bool = false> class CHKOP,
+         template<typename> class CONV>
+const T GCD_euclid<T, false, CHKOP, CONV>::zero_ = T();
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_euclid<T, true, CHKOP, CONV> {
+
     T operator() ( const T &a, const T &b ) const;
+
+private:
+    static const T zero_;
 };
+
+template<typename T, template<class, typename = T, bool = false> class CHKOP,
+         template<typename> class CONV>
+const T GCD_euclid<T, true, CHKOP, CONV>::zero_ = T();
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 T GCD_euclid<T, true, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
     const T &h ( GCD_euclid<T, false, CHKOP, CONV>() ( a, b ) );
-    return h < T() ? T ( -h ) : h;
+    return h < zero_ ? T ( -h ) : h;
 }
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_stein<T, false, CHKOP, CONV> {
+
     T operator() ( const T &a, const T &b ) const;
+
+private:
+    static const T zero_;
 };
+
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+const T GCD_stein<T, false, CHKOP, CONV>::zero_ = T();
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 T GCD_stein<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
 
-    T x ( a ), y ( b ), f = T();
+    T x ( a ), y ( b ), f = zero_;
 
-    while ( y != T() ) {
+    while ( y != zero_ ) {
 
         if ( x < y ) {
 
@@ -1725,16 +1789,16 @@ T GCD_stein<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) const 
             x ^= y;
             y ^= x;
 
-        } else if ( T ( x & 1 ) == T() ) {
+        } else if ( T ( x & 1 ) == zero_ ) {
 
             x >>= 1;
 
-            if ( T ( y & 1 ) == T() ) {
+            if ( T ( y & 1 ) == zero_ ) {
                 y >>= 1;
                 ++f;
             }
 
-        } else if ( T ( y & 1 ) == T() ) {
+        } else if ( T ( y & 1 ) == zero_ ) {
             y >>= 1;
         } else {
             x -= y;
@@ -1746,13 +1810,20 @@ T GCD_stein<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) const 
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_stein<T, true, CHKOP, CONV> {
+
     T operator() ( const T &a, const T &b ) const;
+
+private:
+    static const T zero_;
 };
+
+template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
+const T GCD_stein<T, true, CHKOP, CONV>::zero_ = T();
 
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 T GCD_stein<T, true, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
     return GCD_stein<T, false, CHKOP, CONV>()
-           ( a < T() ? T ( -a ) : a, b < T() ? T ( -b ) : b );
+           ( a < zero_ ? T ( -a ) : a, b < zero_ ? T ( -b ) : b );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -1765,12 +1836,13 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 T _lcm<T, GCD, CHKOP, true>::operator() ( const T &a, const T &b ) const {
 
-    const T &x ( a < T() ? T ( -a ) : a ), &y ( b < T() ? T ( -b ) : b );
+    const T &x ( a < Rational<T, GCD, CHKOP>::zero_ ? T ( -a ) : a ),
+          &y ( b < Rational<T, GCD, CHKOP>::zero_ ? T ( -b ) : b );
 
     return typename Rational<T, GCD, CHKOP>::op_multiplies()
            ( ( typename Rational<T, GCD, CHKOP>::op_divides() ( static_cast<T> ( x ),
-                   ( a != T() ? GCD<T, false, CHKOP, TYPE_CONVERT>() ( x, y ) : b ) ) ),
-             static_cast<T> ( y ) );
+                   ( a != Rational<T, GCD, CHKOP>::zero_ ? GCD<T, false,
+                     CHKOP, TYPE_CONVERT>() ( x, y ) : b ) ) ), static_cast<T> ( y ) );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
