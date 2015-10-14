@@ -212,7 +212,7 @@ template<> struct EPSILON<cln::cl_F> {
  * @brief CLN GCD algorithm
  *
  * The gcd algorithm implemented in the CLN library
- * 
+ *
  * @note this is currently the @b only supported GCD for use with @ref cln
  *
  * @tparam T storage type
@@ -282,6 +282,29 @@ inline cln::cl_F _approxFract<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK, cln::cl_F, 
 EPSILON, TYPE_CONVERT>::abs ( const cln::cl_F &nt ) const {
     return cln::abs ( nt );
 }
+
+template<template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _swapSign<cln::cl_I, GCD, CHKOP, true> {
+
+    inline Rational<cln::cl_I, GCD, CHKOP> &
+    operator() ( Rational<cln::cl_I, GCD, CHKOP> &r ) const {
+
+        if ( cln::signum ( r.m_denom ) < zero_ ) {
+            r.m_numer = -r.m_numer;
+            r.m_denom = -r.m_denom;
+        }
+
+        return r;
+    }
+
+private:
+    static const cln::cl_I zero_;
+};
+
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+const cln::cl_I _swapSign<cln::cl_I, GCD, CHKOP, true>::zero_ ( 0 );
 
 /**
  * @ingroup cln

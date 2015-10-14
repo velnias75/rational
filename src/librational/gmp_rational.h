@@ -250,6 +250,23 @@ EPSILON, TYPE_CONVERT>::abs ( const mpf_class &nt ) const {
 
 template<template<typename, bool, template<class, typename, bool> class,
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _swapSign<mpz_class, GCD, CHKOP, true> {
+
+    inline Rational<mpz_class, GCD, CHKOP> &
+    operator() ( Rational<mpz_class, GCD, CHKOP> &r ) const {
+
+        if ( mpz_sgn ( r.m_denom.get_mpz_t() ) == -1 ) {
+            r.m_numer = -r.m_numer;
+            r.m_denom = -r.m_denom;
+        }
+
+        return r;
+    }
+
+};
+
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _lcm<mpz_class, GCD, CHKOP, true> {
 
     inline mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
