@@ -30,3 +30,4 @@ release/
 core*
 *~
 callgrind.out.*
+rational.pc
