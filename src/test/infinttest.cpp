@@ -74,10 +74,12 @@ void InfIntTest::testConstruct() {
     CPPUNIT_ASSERT_EQUAL ( 86l, infint_rational ( 18, -4, 5 ).numerator().toLong() );
     CPPUNIT_ASSERT_EQUAL ( 5l, infint_rational ( 18, -4, 5 ).denominator().toLong() );
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "-86" ), infint_rational ( -18, 4, 5 ).numerator().toString() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "-86" ),
+                           infint_rational ( -18, 4, 5 ).numerator().toString() );
     CPPUNIT_ASSERT_EQUAL ( 5l, infint_rational ( -18, 4, 5 ).denominator().toLong() );
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "-94" ), infint_rational ( -18, 4, -5 ).numerator().toString() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "-94" ),
+                           infint_rational ( -18, 4, -5 ).numerator().toString() );
     CPPUNIT_ASSERT_EQUAL ( 5l, infint_rational ( -18, 4, -5 ).denominator().toLong() );
 }
 

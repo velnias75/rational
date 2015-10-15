@@ -34,39 +34,40 @@
 #pragma GCC diagnostic ignored "-Weffc++"
 #pragma GCC diagnostic push
 class ExprTestInfInt : public CppUnit::TestFixture {
-     CPPUNIT_TEST_SUITE ( ExprTestInfInt );
-     CPPUNIT_TEST ( testExpression );
-     CPPUNIT_TEST ( testIntegrate );
-     CPPUNIT_TEST_SUITE_END();
+    CPPUNIT_TEST_SUITE ( ExprTestInfInt );
+    CPPUNIT_TEST ( testExpression );
+    CPPUNIT_TEST ( testIntegrate );
+    CPPUNIT_TEST_SUITE_END();
 
 public:
-     ExprTestInfInt();
+    ExprTestInfInt();
 
-     void setUp();
-     void tearDown();
+    void setUp();
+    void tearDown();
 
-     void testExpression();
-     void testIntegrate();
+    void testExpression();
+    void testIntegrate();
 
 private:
-     template<class ExprT> inline static
-     Commons::Math::infint_rational integrate ( const ExprT &e, const Commons::Math::infint_rational &from,
-               const Commons::Math::infint_rational &to,
-               std::size_t n ) {
-          Commons::Math::infint_rational sum;
-          const static Commons::Math::infint_rational two ( 2, 1 );
-          const Commons::Math::infint_rational &step ( ( to - from ) / n );
+    template<class ExprT> inline static
+    Commons::Math::infint_rational integrate ( const ExprT &e,
+            const Commons::Math::infint_rational &from,
+            const Commons::Math::infint_rational &to, std::size_t n ) {
 
-          for ( Commons::Math::infint_rational i ( from + ( step / two ) ); i < to; i += step ) {
-               sum += Commons::Math::eval_rat_expr ( e, i );
-          }
+        Commons::Math::infint_rational sum;
+        const static Commons::Math::infint_rational two ( 2, 1 );
+        const Commons::Math::infint_rational &step ( ( to - from ) / n );
 
-          return step * sum;
-     }
+        for ( Commons::Math::infint_rational i ( from + ( step / two ) ); i < to; i += step ) {
+            sum += Commons::Math::eval_rat_expr ( e, i );
+        }
+
+        return step * sum;
+    }
 
 };
 #pragma GCC diagnostic pop
 
 #endif /* EXPRTESTCASE_INFINT_H */
 
-// kate: indent-mode cstyle; indent-width 5; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
