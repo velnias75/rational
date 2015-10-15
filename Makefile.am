@@ -22,9 +22,14 @@ PKGCFG_GMP_CFLAGS = ${GMP_CFLAGS}
 PKGCFG_GMP_LIBS = ${GMP_LIBS}
 endif
 
+if WITH_INFINT
+PKGCFG_GMP_CFLAGS = ${INFINT_CFLAGS}
+endif
+
 rational.pc: $(top_srcdir)/rational.pc.in
 	$(AM_V_GEN)$(SED) \
 	-e 's|@requires_cln[@]|$(PKGCFG_WITH_CLN)|g' \
+	-e 's|@INFINT_CFLAGS[@]|$(PKGCFG_INFINT_CFLAGS)|g' \
 	-e 's|@GMP_CFLAGS[@]|$(PKGCFG_GMP_CFLAGS)|g' \
 	-e 's|@GMP_LIBS[@]|$(PKGCFG_GMP_LIBS)|g' \
 	-e 's|@prefix[@]|$(prefix)|g' \

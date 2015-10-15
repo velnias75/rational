@@ -42,7 +42,7 @@
 #define COMMONS_MATH_GMP_RATIONAL_H
 
 #ifdef COMMONS_MATH_CLN_RATIONAL_H
-#error "gmp_rational.h and cln_rational.h cannot coexist in the same compilation unit"
+#error "gmp_rational.h and cln_rational.h or infint_rational.h cannot coexist in the same compilation unit"
 #endif
 
 #include <gmpxx.h>

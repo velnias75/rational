@@ -7,3 +7,7 @@ endif
 if WITH_GMPXX
 pkginclude_HEADERS += gmp_rational.h
 endif
+
+if WITH_INFINT
+pkginclude_HEADERS += infint_rational.h
+endif

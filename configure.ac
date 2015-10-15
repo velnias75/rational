@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [1.5], [heiko@rangun.de])
+AC_INIT([rational], [1.6], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -46,6 +46,21 @@ if test x$enable_gmp = xyes; then
   fi
 fi
 ])
+AM_CONDITIONAL([WITH_INFINT], [false])
+AC_ARG_ENABLE([infint], [AS_HELP_STRING([--enable-infint], [enable InfInt extension])], [
+if test x$enable_infint = xyes; then
+  if test -n "${INFINT_CFLAGS}" ; then
+    ac_save_cppflags="${CPPFLAGS}"
+    CPPFLAGS="${CPPFLAGS} ${INFINT_CFLAGS}"
+  fi
+  AC_CHECK_HEADER([InfInt.h], [
+    AM_CONDITIONAL([WITH_INFINT], [true])
+    AC_DEFINE([HAVE_INFINT_H], [1], [define to 1 if InfInt.h is available])])
+  if test -n "${INFINT_CFLAGS}" ; then
+    CPPFLAGS=$ac_save_cppflags
+  fi
+fi
+])
 AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -67,6 +82,7 @@ AC_LANG_POP([C++])
 
 AC_ARG_VAR([GMP_CFLAGS], [C compiler flags for GMP, useful if installed in a non-standard location])
 AC_ARG_VAR([GMP_LIBS], [linker flags for GMP, useful if installed in a non-standard location])
+AC_ARG_VAR([INFINT_CFLAGS], [C compiler flags for InfInt, useful if installed in a non-standard location])
 
 AC_OUTPUT([
 	Makefile

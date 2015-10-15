@@ -8,4 +8,4 @@ Description: rational template class
 Version: @PACKAGE_VERSION@
 Requires: @requires_cln@
 Libs: -L${libdir} @GMP_LIBS@
-Cflags: -I${includedir} @GMP_CFLAGS@
+Cflags: -I${includedir} @GMP_CFLAGS@ @INFINT_CFLAGS@
