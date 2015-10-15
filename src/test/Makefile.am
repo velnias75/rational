@@ -13,7 +13,7 @@ test_rational_SOURCES += clntest.cpp exprtest_cln.cpp
 endif
 
 if WITH_GMPXX
-test_rational_CXXFLAGS += --param inline-unit-growth=60
+test_rational_CXXFLAGS += --param inline-unit-growth=60 $(GMP_CFLAGS)
 test_rational_SOURCES += gmptest.cpp
 endif
 
@@ -25,5 +25,5 @@ test_rational_LDADD += $(CLN_LIBS)
 endif
 
 if WITH_GMPXX
-test_rational_LDADD += -lgmpxx -lgmp
+test_rational_LDADD += $(GMP_LIBS)
 endif

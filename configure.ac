@@ -31,9 +31,19 @@ AC_HEADER_STDBOOL
 AM_CONDITIONAL([WITH_GMPXX], [false])
 AC_ARG_ENABLE([gmp], [AS_HELP_STRING([--enable-gmp], [enable GMP extension])], [
 if test x$enable_gmp = xyes; then
+  if test -n "${GMP_CFLAGS}" ; then
+    ac_save_cppflags="${CPPFLAGS}"
+    CPPFLAGS="${CPPFLAGS} ${GMP_CFLAGS}"
+  fi
   AC_CHECK_HEADER([gmpxx.h], [
     AM_CONDITIONAL([WITH_GMPXX], [true])
     AC_DEFINE([HAVE_GMPXX_H], [1], [define to 1 if gmpxx.h is available])])
+  if test -n "${GMP_CFLAGS}" ; then
+    CPPFLAGS=$ac_save_cppflags
+  fi
+  if test -z "${GMP_LIBS}" ; then
+    GMP_LIBS="-lgmpxx -lgmp"
+  fi
 fi
 ])
 AC_LANG_POP([C++])
@@ -54,6 +64,9 @@ AC_CHECK_FUNCS([floor])
 AC_CHECK_FUNCS([sqrt])
 AC_CHECK_FUNCS([ffs])
 AC_LANG_POP([C++])
+
+AC_ARG_VAR([GMP_CFLAGS], [C compiler flags for GMP, useful if installed in a non-standard location])
+AC_ARG_VAR([GMP_LIBS], [linker flags for GMP, useful if installed in a non-standard location])
 
 AC_OUTPUT([
 	Makefile
