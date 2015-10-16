@@ -17,6 +17,23 @@
  * along with rational.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ *
+ * This header contains specialization for use of
+ * [InfInt](http://sercantutar.github.io/infint/) as underlying
+ * storage type.
+ *
+ * @author Heiko Schäfer <heiko@rangun.de>
+ * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ *
+ * @defgroup infint InfInt extensions
+ *
+ * The header `gmp_rational.h` contains specializations especially for
+ * [InfInt](http://sercantutar.github.io/infint/) as underlying
+ * as underlying storage type.\n
+ */
+
 #ifndef COMMONS_MATH_INFINT_RATIONAL_H
 #define COMMONS_MATH_INFINT_RATIONAL_H
 
@@ -34,18 +51,18 @@ namespace std {
 
 template<> struct numeric_limits<InfInt> {
 
-     static const bool is_specialized = true;
-     static const bool is_signed = true;
-     static const bool is_integer = true;
-     static const bool is_exact = false;
+    static const bool is_specialized = true;
+    static const bool is_signed = true;
+    static const bool is_integer = true;
+    static const bool is_exact = false;
 
-     static const InfInt min() {
-          return InfInt();
-     }
+    static const InfInt min() {
+        return InfInt();
+    }
 
-     static const InfInt max() {
-          return InfInt();
-     }
+    static const InfInt max() {
+        return InfInt();
+    }
 };
 
 }
@@ -56,82 +73,79 @@ namespace Math {
 
 template<> struct TYPE_CONVERT<InfInt> {
 
-     inline explicit TYPE_CONVERT ( const InfInt &v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const InfInt &v ) : val ( v ) {}
 
-     template<typename U> U convert() const;
+    template<typename U> U convert() const;
 
 private:
-     const InfInt &val;
+    const InfInt &val;
 };
 
-template<> inline InfInt TYPE_CONVERT<InfInt>::convert<InfInt>() const
-{
-     return val;
+template<> inline InfInt TYPE_CONVERT<InfInt>::convert<InfInt>() const {
+    return val;
 }
 
-template<> inline long double TYPE_CONVERT<InfInt>::convert<long double>() const
-{
-     std::istringstream is ( val.toString() );
+template<> inline long double TYPE_CONVERT<InfInt>::convert<long double>() const {
+    std::istringstream is ( val.toString() );
 
-     long double ld;
-     is >> ld;
+    long double ld;
+    is >> ld;
 
-     return ld;
+    return ld;
 }
 
-template<> inline double TYPE_CONVERT<InfInt>::convert<double>() const
-{
-     std::istringstream is ( val.toString() );
+template<> inline double TYPE_CONVERT<InfInt>::convert<double>() const {
+    std::istringstream is ( val.toString() );
 
-     double d;
-     is >> d;
+    double d;
+    is >> d;
 
-     return d;
+    return d;
 }
 
-template<> inline float TYPE_CONVERT<InfInt>::convert<float>() const
-{
-     std::istringstream is ( val.toString() );
+template<> inline float TYPE_CONVERT<InfInt>::convert<float>() const {
+    std::istringstream is ( val.toString() );
 
-     float f;
-     is >> f;
+    float f;
+    is >> f;
 
-     return f;
+    return f;
 }
 
-template<> inline InfInt TYPE_CONVERT<float>::convert<InfInt>() const
-{
+template<> inline InfInt TYPE_CONVERT<float>::convert<InfInt>() const {
 
-     std::ostringstream os;
+    std::ostringstream os;
 
-     os.precision ( std::numeric_limits<float>::digits );
-     os << val;
+    os.precision ( std::numeric_limits<float>::digits );
+    os << val;
 
-     return os.str();
+    return os.str();
 }
 
-template<> inline InfInt TYPE_CONVERT<double>::convert<InfInt>() const
-{
+template<> inline InfInt TYPE_CONVERT<double>::convert<InfInt>() const {
 
-     std::ostringstream os;
+    std::ostringstream os;
 
-     os.precision ( std::numeric_limits<double>::digits );
-     os << val;
+    os.precision ( std::numeric_limits<double>::digits );
+    os << val;
 
-     return os.str();
+    return os.str();
 }
 
-template<> inline InfInt TYPE_CONVERT<long double>::convert<InfInt>() const
-{
+template<> inline InfInt TYPE_CONVERT<long double>::convert<InfInt>() const {
 
-     std::ostringstream os;
+    std::ostringstream os;
 
-     os.precision ( std::numeric_limits<long double>::digits );
-     os << val;
+    os.precision ( std::numeric_limits<long double>::digits );
+    os << val;
 
-     return os.str();
+    return os.str();
 }
 
+/**
+ * @ingroup infint
+ * @brief Rational class based on InfInt
+ */
 typedef Rational<InfInt, GCD_euclid> infint_rational;
 
 }
@@ -140,4 +154,4 @@ typedef Rational<InfInt, GCD_euclid> infint_rational;
 
 #endif /* COMMONS_MATH_INFINT_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 5; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
