@@ -123,6 +123,42 @@ private:
     const T& val;
 };
 
+template<> struct TYPE_CONVERT<float> {
+
+    inline explicit TYPE_CONVERT ( const float v ) : val ( v ) {}
+
+    template<class U> inline U convert() const {
+        return static_cast<U>(val);
+    }
+
+private:
+    const float val;
+};
+
+template<> struct TYPE_CONVERT<double> {
+
+    inline explicit TYPE_CONVERT ( const double v ) : val ( v ) {}
+
+    template<class U> inline U convert() const {
+        return static_cast<U>(val);
+    }
+
+private:
+    const double val;
+};
+
+template<> struct TYPE_CONVERT<long double> {
+
+    inline explicit TYPE_CONVERT ( const long double v ) : val ( v ) {}
+
+    template<class U> inline U convert() const{
+        return static_cast<U>(val);
+    }
+
+private:
+    const long double val;
+};
+
 /**
  * @ingroup main
  * @brief @c %EPSILON for float approximation

@@ -33,16 +33,10 @@
  * as underlying storage type.\n
  * \n If you use the *CLN extensions*, you'll need to link your
  * application with `-lcln`
- *
- * @warning You cannot use @ref cln and @ref gmp in the same compilation unit
  */
 
 #ifndef COMMONS_MATH_CLN_RATIONAL_H
 #define COMMONS_MATH_CLN_RATIONAL_H
-
-#ifdef COMMONS_MATH_GMP_RATIONAL_H
-#error "cln_rational.h and gmp_rational.h cannot coexist in the same compilation unit"
-#endif
 
 #include <sstream>
 
@@ -130,32 +124,6 @@ namespace Commons {
 
 namespace Math {
 
-template<> struct TYPE_CONVERT<float> {
-
-    inline explicit TYPE_CONVERT ( float v ) : val ( v ) {}
-
-    template<class U>
-    inline U convert() const {
-        return cln::floor1 ( val );
-    }
-
-private:
-    float val;
-};
-
-template<> struct TYPE_CONVERT<double> {
-
-    inline explicit TYPE_CONVERT ( double v ) : val ( v ) {}
-
-    template<class U>
-    inline U convert() const {
-        return cln::floor1 ( val );
-    }
-
-private:
-    double val;
-};
-
 template<> struct TYPE_CONVERT<cln::cl_F> {
 
     inline explicit TYPE_CONVERT ( const cln::cl_F &v ) : val ( v ) {}
@@ -198,6 +166,14 @@ template<> inline double TYPE_CONVERT<cln::cl_I>::convert<double>() const {
 
 template<> inline cln::cl_I TYPE_CONVERT<cln::cl_I>::convert<cln::cl_I>() const {
     return val;
+}
+
+template<> inline cln::cl_I TYPE_CONVERT<float>::convert<cln::cl_I>() const {
+    return cln::floor1 ( val );
+}
+
+template<> inline cln::cl_I TYPE_CONVERT<double>::convert<cln::cl_I>() const {
+    return cln::floor1 ( val );
 }
 
 template<> struct EPSILON<cln::cl_F> {

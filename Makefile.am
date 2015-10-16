@@ -11,7 +11,7 @@ doc_DATA = README.md
 pkgconfigdir = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA = rational.pc
 
-AM_DISTCHECK_CONFIGURE_FLAGS = --enable-cln --enable-gmp
+AM_DISTCHECK_CONFIGURE_FLAGS = --enable-cln --enable-gmp --enable-infint
 
 if WITH_CLN
 PKGCFG_WITH_CLN = cln >= 1.3.2

@@ -34,16 +34,10 @@
  * as underlying storage type.\n
  * \n If you use the *GMP extensions*, you'll need to link your
  * application with `-lgmpxx -lgmp`
- *
- * @warning You cannot use @ref gmp and @ref cln in the same compilation unit
  */
 
 #ifndef COMMONS_MATH_GMP_RATIONAL_H
 #define COMMONS_MATH_GMP_RATIONAL_H
-
-#ifdef COMMONS_MATH_CLN_RATIONAL_H
-#error "gmp_rational.h and cln_rational.h or infint_rational.h cannot coexist in the same compilation unit"
-#endif
 
 #include <gmpxx.h>
 

@@ -20,10 +20,6 @@
 #ifndef COMMONS_MATH_INFINT_RATIONAL_H
 #define COMMONS_MATH_INFINT_RATIONAL_H
 
-#ifdef COMMONS_MATH_GMP_RATIONAL_H
-#error "infint_rational.h and gmp_rational.h cannot coexist in the same compilation unit"
-#endif
-
 #ifdef __EXCEPTIONS
 #ifndef INFINT_RATIONAL_EXCEPTIONS
 #define INFINT_USE_EXCEPTIONS 1
@@ -38,18 +34,18 @@ namespace std {
 
 template<> struct numeric_limits<InfInt> {
 
-    static const bool is_specialized = true;
-    static const bool is_signed = true;
-    static const bool is_integer = true;
-    static const bool is_exact = false;
+     static const bool is_specialized = true;
+     static const bool is_signed = true;
+     static const bool is_integer = true;
+     static const bool is_exact = false;
 
-    static const InfInt min() {
-        return InfInt();
-    }
+     static const InfInt min() {
+          return InfInt();
+     }
 
-    static const InfInt max() {
-        return InfInt();
-    }
+     static const InfInt max() {
+          return InfInt();
+     }
 };
 
 }
@@ -58,110 +54,82 @@ namespace Commons {
 
 namespace Math {
 
-template<> struct TYPE_CONVERT<long double> {
-
-    inline explicit TYPE_CONVERT ( long double v ) : val ( v ) {}
-
-    template<class U>
-    inline U convert() const {
-
-        std::ostringstream os;
-
-        os.precision ( std::numeric_limits<long double>::digits );
-        os << val;
-
-        return os.str();
-    }
-
-private:
-    long double val;
-};
-
-template<> inline long TYPE_CONVERT<long double>::convert<long>() const {
-    return std::floor ( val );
-}
-
-template<> struct TYPE_CONVERT<double> {
-
-    inline explicit TYPE_CONVERT ( double v ) : val ( v ) {}
-
-    template<class U>
-    inline U convert() const {
-
-        std::ostringstream os;
-
-        os.precision ( std::numeric_limits<double>::digits );
-        os << val;
-
-        return os.str();
-    }
-
-private:
-    double val;
-};
-
-template<> inline long TYPE_CONVERT<double>::convert<long>() const {
-    return std::floor ( val );
-}
-
-template<> struct TYPE_CONVERT<float> {
-
-    inline explicit TYPE_CONVERT ( float v ) : val ( v ) {}
-
-    template<class U>
-    inline U convert() const {
-
-        std::ostringstream os;
-
-        os.precision ( std::numeric_limits<float>::digits );
-        os << val;
-
-        return os.str();
-    }
-
-private:
-    float val;
-};
-
 template<> struct TYPE_CONVERT<InfInt> {
 
-    inline explicit TYPE_CONVERT ( const InfInt &v ) : val ( v ) {}
+     inline explicit TYPE_CONVERT ( const InfInt &v ) : val ( v ) {}
 
-    template<typename U> U convert() const;
+     template<typename U> U convert() const;
 
 private:
-    const InfInt &val;
+     const InfInt &val;
 };
 
-template<> inline InfInt TYPE_CONVERT<InfInt>::convert<InfInt>() const {
-    return val;
+template<> inline InfInt TYPE_CONVERT<InfInt>::convert<InfInt>() const
+{
+     return val;
 }
 
-template<> inline long double TYPE_CONVERT<InfInt>::convert<long double>() const {
-    std::istringstream is ( val.toString() );
+template<> inline long double TYPE_CONVERT<InfInt>::convert<long double>() const
+{
+     std::istringstream is ( val.toString() );
 
-    long double ld;
-    is >> ld;
+     long double ld;
+     is >> ld;
 
-    return ld;
+     return ld;
 }
 
-template<> inline double TYPE_CONVERT<InfInt>::convert<double>() const {
-    std::istringstream is ( val.toString() );
+template<> inline double TYPE_CONVERT<InfInt>::convert<double>() const
+{
+     std::istringstream is ( val.toString() );
 
-    double d;
-    is >> d;
+     double d;
+     is >> d;
 
-    return d;
+     return d;
 }
 
-template<> inline float TYPE_CONVERT<InfInt>::convert<float>() const {
-    std::istringstream is ( val.toString() );
+template<> inline float TYPE_CONVERT<InfInt>::convert<float>() const
+{
+     std::istringstream is ( val.toString() );
 
-    float f;
-    is >> f;
+     float f;
+     is >> f;
 
-    return f;
+     return f;
+}
+
+template<> inline InfInt TYPE_CONVERT<float>::convert<InfInt>() const
+{
+
+     std::ostringstream os;
+
+     os.precision ( std::numeric_limits<float>::digits );
+     os << val;
+
+     return os.str();
+}
+
+template<> inline InfInt TYPE_CONVERT<double>::convert<InfInt>() const
+{
+
+     std::ostringstream os;
+
+     os.precision ( std::numeric_limits<double>::digits );
+     os << val;
+
+     return os.str();
+}
+
+template<> inline InfInt TYPE_CONVERT<long double>::convert<InfInt>() const
+{
+
+     std::ostringstream os;
+
+     os.precision ( std::numeric_limits<long double>::digits );
+     os << val;
+
+     return os.str();
 }
 
 typedef Rational<InfInt, GCD_euclid> infint_rational;
@@ -172,4 +140,4 @@ typedef Rational<InfInt, GCD_euclid> infint_rational;
 
 #endif /* COMMONS_MATH_INFINT_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 5; replace-tabs on; 
