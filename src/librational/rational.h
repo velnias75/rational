@@ -1005,6 +1005,9 @@ private:
         return ( op == 1 || op == 2 ) ? 2 : ( ( op == '*' || op == '/' ) ? 1 : 0 );
     }
 
+    typedef std::stack<long double, std::vector<long double> > evalStack;
+    static void eval ( const char op, evalStack &s );
+
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
 
@@ -1073,8 +1076,8 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
     std::set<char> tok_delimiters ( operators );
     std::stack<char, std::vector<char> > stk;
-    std::vector<std::string> out;
     std::string token;
+    evalStack rpn;
 
     tok_delimiters.insert ( '\t' );
     tok_delimiters.insert ( ' ' );
@@ -1082,6 +1085,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
     tok_delimiters.insert ( ')' );
 
     const char *ptr = expr;
+    char prev = 0;
 
     while ( *ptr ) {
 
@@ -1090,25 +1094,28 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
             token.append ( 1, *ptr );
 
             if ( ! * ( ptr + 1 ) ) {
-                out.push_back ( token );
+                rpn.push ( TYPE_CONVERT<const char *>
+                           ( token.c_str() ).template convert<long double>() );
             }
 
-            ++ptr;
+            prev = *ptr++;
             continue;
 
         } else if ( !token.empty() ) {
-            out.push_back ( token );
+            rpn.push ( TYPE_CONVERT<const char *>
+                       ( token.c_str() ).template convert<long double>() );
             token.clear();
         }
 
         if ( *ptr == '(' ) {
-
+            prev = *ptr;
             stk.push ( *ptr );
-
         } else if ( *ptr == ')' ) {
 
+            prev = *ptr;
+
             while ( !stk.empty() && stk.top() != '(' ) {
-                out.push_back ( std::string ( 1, stk.top() ) );
+                eval ( stk.top(), rpn );
                 stk.pop();
             }
 
@@ -1118,12 +1125,12 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
             char op = *ptr;
 
-            if ( *ptr == '-' && ( stk.empty() || ( stk.top() == '(' || operators.find ( stk.top() )
+            if ( *ptr == '-' && ( stk.empty() || ( prev == '(' || operators.find ( prev )
                                                    != operators.end() ) ) ) {
                 op = 1;
 
-            } else if ( *ptr == '+' && ( stk.empty() || ( stk.top() == '(' ||
-                                         operators.find ( stk.top() ) != operators.end() ) ) ) {
+            } else if ( *ptr == '+' && ( stk.empty() || ( prev == '(' ||
+                                         operators.find ( prev ) != operators.end() ) ) ) {
                 op = 2;
 
             } else {
@@ -1133,12 +1140,13 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                     if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( stk.top() ) ) ||
                             ( !isLeftAssoc ( op ) && getPrec ( op ) < getPrec ( stk.top() ) ) ) {
 
-                        out.push_back ( std::string ( 1, stk.top() ) );
+                        eval ( stk.top(), rpn );
                         stk.pop();
                     }
                 }
             }
 
+            prev = *ptr;
             stk.push ( op );
         }
 
@@ -1146,62 +1154,8 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
     }
 
     while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
-        out.push_back ( std::string ( 1, stk.top() ) );
+        eval ( stk.top(), rpn );
         stk.pop();
-    }
-
-
-    std::stack<long double, std::vector<long double> > rpn;
-
-    for ( std::vector<std::string>::const_iterator i ( out.begin() ); i != out.end(); ++i ) {
-
-        if ( operators.find ( i->at ( 0 ) ) == operators.end() ) {
-            rpn.push ( TYPE_CONVERT<const char *> ( i->c_str() ).template convert<long double>() );
-        } else {
-
-            long double op[2];
-
-            switch ( i->at ( 0 ) ) {
-            case 1:
-                op[0] = rpn.top();
-                rpn.pop();
-                rpn.push ( -op[0] );
-                break;
-            case 2:
-                op[0] = rpn.top();
-                rpn.pop();
-                rpn.push ( op[0] );
-                break;
-            case '+':
-                op[0] = rpn.top();
-                rpn.pop();
-                op[1] = rpn.top();
-                rpn.pop();
-                rpn.push ( op[1] + op[0] );
-                break;
-            case '-':
-                op[0] = rpn.top();
-                rpn.pop();
-                op[1] = rpn.top();
-                rpn.pop();
-                rpn.push ( op[1] - op[0] );
-                break;
-            case '*':
-                op[0] = rpn.top();
-                rpn.pop();
-                op[1] = rpn.top();
-                rpn.pop();
-                rpn.push ( op[1] * op[0] );
-                break;
-            case '/':
-                op[0] = rpn.top();
-                rpn.pop();
-                op[1] = rpn.top();
-                rpn.pop();
-                rpn.push ( op[1] / op[0] );
-                break;
-            }
-        }
     }
 
     _approxFract<integer_type, GCD, CHKOP, long double, true>() ( *this, rpn.top() );
@@ -1572,6 +1526,54 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
     }
 
     return os.str();
+}
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+void Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
+
+    long double operand[2];
+
+    switch ( op ) {
+    case 1:
+        operand[0] = s.top();
+        s.pop();
+        s.push ( -operand[0] );
+        break;
+    case 2:
+        operand[0] = s.top();
+        s.pop();
+        s.push ( operand[0] );
+        break;
+    case '+':
+        operand[0] = s.top();
+        s.pop();
+        operand[1] = s.top();
+        s.pop();
+        s.push ( operand[1] + operand[0] );
+        break;
+    case '-':
+        operand[0] = s.top();
+        s.pop();
+        operand[1] = s.top();
+        s.pop();
+        s.push ( operand[1] - operand[0] );
+        break;
+    case '*':
+        operand[0] = s.top();
+        s.pop();
+        operand[1] = s.top();
+        s.pop();
+        s.push ( operand[1] * operand[0] );
+        break;
+    case '/':
+        operand[0] = s.top();
+        s.pop();
+        operand[1] = s.top();
+        s.pop();
+        s.push ( operand[1] / operand[0] );
+        break;
+    }
 }
 
 /**

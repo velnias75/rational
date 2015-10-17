@@ -253,20 +253,34 @@ void RationalTest::testConstructFromExpression() {
 
     CPPUNIT_ASSERT_EQUAL ( -44, w.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, w.denominator() );
-    
-    const Rational<rational_type> &x ( "(11/2) * +8" );
+
+    const Rational<rational_type> &x ( "(11/2) * +(4.25+3.75)" );
 
     CPPUNIT_ASSERT_EQUAL ( 44, x.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, x.denominator() );
-    
+
     const Rational<rational_type> &y ( "8 * -(11/2)" );
 
     CPPUNIT_ASSERT_EQUAL ( -44, y.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1, y.denominator() );
 
+    const Rational<rational_type> &z ( "\t8 *11.0/-2 " );
+
+    CPPUNIT_ASSERT_EQUAL ( -44, z.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, z.denominator() );
+
 #ifdef __EXCEPTIONS
     CPPUNIT_ASSERT_THROW ( Rational<int8_t> ( "1000" ), std::domain_error );
 #endif
+
+    const Rational<uint64_t, GCD_euclid> max_pi_euclid ( "3.141592653589793238462643383279502884" );
+    const Rational<uint64_t, GCD_stein>  max_pi_stein ( "3.141592653589793238462643383279502884" );
+
+    CPPUNIT_ASSERT_EQUAL ( 8717442233u, max_pi_euclid.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), max_pi_euclid.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 8717442233u, max_pi_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), max_pi_stein.denominator() );
 }
 
 void RationalTest::testAssignedFromDouble() {
