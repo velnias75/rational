@@ -139,6 +139,13 @@ namespace Commons {
 
 namespace Math {
 
+template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() const {
+    std::ostringstream os;
+    os.precision ( std::numeric_limits<long double>::digits );
+    os << val;
+    return mpz_class ( os.str() );
+}
+
 template<> struct TYPE_CONVERT<mpz_class> {
 
     inline explicit TYPE_CONVERT ( const mpz_class &v ) : val ( v ) {}
@@ -155,6 +162,10 @@ template<typename U> U TYPE_CONVERT<mpz_class>::convert() const {
 
 template<> inline double TYPE_CONVERT<mpz_class>::convert<double>() const {
     return val.get_d();
+}
+
+template<> inline long double TYPE_CONVERT<mpz_class>::convert<long double>() const {
+    return static_cast<long double> ( val.get_d() );
 }
 
 template<> inline float TYPE_CONVERT<mpz_class>::convert<float>() const {

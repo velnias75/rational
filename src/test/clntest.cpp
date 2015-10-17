@@ -493,10 +493,10 @@ void CLNTest::testIOStreamOps() {
 
     cln_rational in_pi;
 
-    ( std::istringstream ( "3.14159265358979323846" ) ) >> in_pi;
+    ( std::istringstream ( "6.14159265358979323846 - (1 + 2)" ) ) >> in_pi;
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 245850922l ), in_pi.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 78256779l ), in_pi.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "6167950454" ), in_pi.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "1963319607" ), in_pi.denominator() );
 
 }
 

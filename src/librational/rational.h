@@ -972,11 +972,8 @@ public:
      */
     friend std::istream &operator>> ( std::istream &i, Rational &r ) {
 
-        double d;
-
-        i >> d;
-        r = d;
-
+        r = Rational ( std::string ( std::istreambuf_iterator<char> ( i ),
+                                     std::istreambuf_iterator<char>() ).c_str() );
         return i;
     }
 
@@ -1006,7 +1003,7 @@ private:
     }
 
     typedef std::stack<long double, std::vector<long double> > evalStack;
-    static void eval ( const char op, evalStack &s );
+    static bool eval ( const char op, evalStack &s );
 
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
@@ -1072,93 +1069,132 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( one_ ) {
 
-    const std::set<char> operators ( sy_operators() );
+    if ( expr && *expr ) {
 
-    std::set<char> tok_delimiters ( operators );
-    std::stack<char, std::vector<char> > stk;
-    std::string token;
-    evalStack rpn;
+        const std::set<char> operators ( sy_operators() );
 
-    tok_delimiters.insert ( '\t' );
-    tok_delimiters.insert ( ' ' );
-    tok_delimiters.insert ( '(' );
-    tok_delimiters.insert ( ')' );
+        std::set<char> tok_delimiters ( operators );
+        std::stack<char, std::vector<char> > stk;
+        std::string token;
+        evalStack rpn;
 
-    const char *ptr = expr;
-    char prev = 0;
+        tok_delimiters.insert ( '\t' );
+        tok_delimiters.insert ( ' ' );
+        tok_delimiters.insert ( '(' );
+        tok_delimiters.insert ( ')' );
 
-    while ( *ptr ) {
+        const char *ptr = expr;
+        char prev = 0;
 
-        if ( tok_delimiters.find ( *ptr ) == tok_delimiters.end() ) {
+        while ( *ptr ) {
 
-            token.append ( 1, *ptr );
+            if ( tok_delimiters.find ( *ptr ) == tok_delimiters.end() ) {
 
-            if ( ! * ( ptr + 1 ) ) {
+                if ( ( *ptr >= '0' && *ptr <= '9' ) || *ptr == '.' ) {
+                    token.append ( 1, *ptr );
+                } else {
+#ifdef __EXCEPTIONS
+                    throw std::runtime_error ( std::string
+                                               ( "invalid character(s) in expression: " )
+                                               .append ( expr ) );
+#endif
+                }
+
+                if ( ! * ( ptr + 1 ) ) {
+                    rpn.push ( TYPE_CONVERT<const char *>
+                               ( token.c_str() ).template convert<long double>() );
+                }
+
+                prev = *ptr++;
+                continue;
+
+            } else if ( !token.empty() ) {
                 rpn.push ( TYPE_CONVERT<const char *>
                            ( token.c_str() ).template convert<long double>() );
+                token.clear();
             }
 
-            prev = *ptr++;
-            continue;
+            if ( *ptr == '(' ) {
+                prev = *ptr;
+                stk.push ( *ptr );
+            } else if ( *ptr == ')' ) {
 
-        } else if ( !token.empty() ) {
-            rpn.push ( TYPE_CONVERT<const char *>
-                       ( token.c_str() ).template convert<long double>() );
-            token.clear();
+                prev = *ptr;
+
+                while ( !stk.empty() && stk.top() != '(' ) {
+                    if ( !eval ( stk.top(), rpn ) ) {
+#ifdef __EXCEPTIONS
+                        throw std::runtime_error ( std::string ( "invalid expression: " )
+                                                   .append ( expr ) );
+#endif
+                    }
+                    stk.pop();
+                }
+
+                if ( !stk.empty() && stk.top() == '(' ) {
+                    stk.pop();
+                } else {
+#ifdef __EXCEPTIONS
+                    throw std::runtime_error ( "mismatched braces" );
+#endif
+                }
+
+            } else if ( operators.find ( *ptr ) != operators.end() ) {
+
+                char op = *ptr;
+
+                if ( *ptr == '-' && ( ( ptr == expr ) || ( prev == '(' || operators.find ( prev )
+                                      != operators.end() ) ) ) {
+                    op = 1;
+
+                } else if ( *ptr == '+' && ( ( ptr == expr ) || ( prev == '(' ||
+                                             operators.find ( prev ) != operators.end() ) ) ) {
+                    op = 2;
+
+                } else {
+
+                    while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
+
+                        if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( stk.top() ) ) ||
+                                ( !isLeftAssoc ( op ) && getPrec ( op ) <
+                                  getPrec ( stk.top() ) ) ) {
+
+                            if ( !eval ( stk.top(), rpn ) ) {
+#ifdef __EXCEPTIONS
+                                throw std::runtime_error ( std::string ( "invalid expression: " )
+                                                           .append ( expr ) );
+#endif
+                            }
+                            stk.pop();
+                        }
+                    }
+                }
+
+                prev = *ptr;
+                stk.push ( op );
+            }
+
+            ++ptr;
         }
 
-        if ( *ptr == '(' ) {
-            prev = *ptr;
-            stk.push ( *ptr );
-        } else if ( *ptr == ')' ) {
-
-            prev = *ptr;
-
-            while ( !stk.empty() && stk.top() != '(' ) {
-                eval ( stk.top(), rpn );
-                stk.pop();
+        while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
+            if ( !eval ( stk.top(), rpn ) ) {
+#ifdef __EXCEPTIONS
+                throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
+#endif
             }
 
             stk.pop();
-
-        } else if ( operators.find ( *ptr ) != operators.end() ) {
-
-            char op = *ptr;
-
-            if ( *ptr == '-' && ( stk.empty() || ( prev == '(' || operators.find ( prev )
-                                                   != operators.end() ) ) ) {
-                op = 1;
-
-            } else if ( *ptr == '+' && ( stk.empty() || ( prev == '(' ||
-                                         operators.find ( prev ) != operators.end() ) ) ) {
-                op = 2;
-
-            } else {
-
-                while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
-
-                    if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( stk.top() ) ) ||
-                            ( !isLeftAssoc ( op ) && getPrec ( op ) < getPrec ( stk.top() ) ) ) {
-
-                        eval ( stk.top(), rpn );
-                        stk.pop();
-                    }
-                }
-            }
-
-            prev = *ptr;
-            stk.push ( op );
         }
 
-        ++ptr;
+        if ( ! ( !stk.empty() || rpn.empty() || rpn.size() > 1 ) ) {
+            _approxFract<integer_type, GCD, CHKOP, long double, true>() ( *this, rpn.top() );
+        } else {
+#ifdef __EXCEPTIONS
+            throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
+#endif
+        }
     }
-
-    while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
-        eval ( stk.top(), rpn );
-        stk.pop();
-    }
-
-    _approxFract<integer_type, GCD, CHKOP, long double, true>() ( *this, rpn.top() );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -1530,50 +1566,58 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-void Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
+bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
 
     long double operand[2];
+
+    if ( s.empty() ) return false;
 
     switch ( op ) {
     case 1:
         operand[0] = s.top();
         s.pop();
         s.push ( -operand[0] );
-        break;
+        return true;
     case 2:
         operand[0] = s.top();
         s.pop();
         s.push ( operand[0] );
-        break;
+        return true;
     case '+':
         operand[0] = s.top();
         s.pop();
+        if ( s.empty() ) return false;
         operand[1] = s.top();
         s.pop();
         s.push ( operand[1] + operand[0] );
-        break;
+        return true;
     case '-':
         operand[0] = s.top();
         s.pop();
+        if ( s.empty() ) return false;
         operand[1] = s.top();
         s.pop();
         s.push ( operand[1] - operand[0] );
-        break;
+        return true;
     case '*':
         operand[0] = s.top();
         s.pop();
+        if ( s.empty() ) return false;
         operand[1] = s.top();
         s.pop();
         s.push ( operand[1] * operand[0] );
-        break;
+        return true;
     case '/':
         operand[0] = s.top();
         s.pop();
+        if ( s.empty() ) return false;
         operand[1] = s.top();
         s.pop();
         s.push ( operand[1] / operand[0] );
-        break;
+        return true;
     }
+
+    return false;
 }
 
 /**

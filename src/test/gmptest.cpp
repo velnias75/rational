@@ -456,10 +456,10 @@ void GMPTest::testIOStreamOps() {
 
     gmp_rational in_pi;
 
-    ( std::istringstream ( "3.14159265358979323846" ) ) >> in_pi;
+    ( std::istringstream ( "(3 + 0.14159265358979323846)" ) ) >> in_pi;
 
-    CPPUNIT_ASSERT_EQUAL ( 245850922l, in_pi.numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 78256779l, in_pi.denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "8717442233" ), in_pi.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2774848045" ), in_pi.denominator().get_str() );
 }
 
 void GMPTest::testAlgorithm() {

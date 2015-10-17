@@ -124,6 +124,13 @@ namespace Commons {
 
 namespace Math {
 
+template<> inline cln::cl_I TYPE_CONVERT<long double>::convert<cln::cl_I>() const {
+    std::ostringstream os;
+    os.precision ( std::numeric_limits<long double>::digits );
+    os << val;
+    return os.str().c_str();
+}
+
 template<> struct TYPE_CONVERT<cln::cl_F> {
 
     inline explicit TYPE_CONVERT ( const cln::cl_F &v ) : val ( v ) {}
@@ -166,6 +173,10 @@ template<> inline float TYPE_CONVERT<cln::cl_I>::convert<float>() const {
 
 template<> inline double TYPE_CONVERT<cln::cl_I>::convert<double>() const {
     return cln::double_approx ( val );
+}
+
+template<> inline long double TYPE_CONVERT<cln::cl_I>::convert<long double>() const {
+    return static_cast<long double> ( cln::double_approx ( val ) );
 }
 
 template<> inline cln::cl_I TYPE_CONVERT<cln::cl_I>::convert<cln::cl_I>() const {

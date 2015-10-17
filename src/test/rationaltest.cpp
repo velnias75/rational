@@ -1078,12 +1078,12 @@ void RationalTest::testIOStreamOps() {
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "56/75" ), os.str() );
 
-    Rational<rational_type> in_pi;
+    Rational<uint64_t> in_pi;
 
     ( std::istringstream ( "3.14159265358979323846" ) ) >> in_pi;
 
-    CPPUNIT_ASSERT_EQUAL ( 245850922, in_pi.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 78256779, in_pi.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 8717442233u ), in_pi.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), in_pi.denominator() );
 }
 
 void RationalTest::testPrecision() {
