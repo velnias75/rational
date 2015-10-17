@@ -139,6 +139,10 @@ private:
     const cln::cl_F val;
 };
 
+template<> inline cln::cl_F TYPE_CONVERT<cln::cl_F>::convert<cln::cl_F>() const {
+    return val;
+}
+
 template<> struct TYPE_CONVERT<cln::cl_I> {
 
     inline explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( v ) {}
