@@ -86,28 +86,28 @@ template<> inline InfInt TYPE_CONVERT<InfInt>::convert<InfInt>() const {
 }
 
 template<> inline long double TYPE_CONVERT<InfInt>::convert<long double>() const {
-    std::istringstream is ( val.toString() );
 
     long double ld;
-    is >> ld;
+    
+    ( std::istringstream( val.toString() ) ) >> ld;
 
     return ld;
 }
 
 template<> inline double TYPE_CONVERT<InfInt>::convert<double>() const {
-    std::istringstream is ( val.toString() );
 
     double d;
-    is >> d;
+
+    ( std::istringstream( val.toString() ) ) >> d;
 
     return d;
 }
 
 template<> inline float TYPE_CONVERT<InfInt>::convert<float>() const {
-    std::istringstream is ( val.toString() );
 
     float f;
-    is >> f;
+
+    ( std::istringstream( val.toString() ) ) >> f;
 
     return f;
 }
@@ -155,3 +155,4 @@ typedef Rational<InfInt, GCD_euclid> infint_rational;
 #endif /* COMMONS_MATH_INFINT_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+

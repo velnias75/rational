@@ -401,13 +401,12 @@ void InfIntTest::testIOStreamOps() {
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "56/75" ), os.str() );
 
-    std::istringstream is ( "3.14159265358979323846" );
     infint_rational in_pi;
 
-    is >> in_pi;
+    ( std::istringstream ( "3.14159265358979323846" ) ) >> in_pi;
 
-    CPPUNIT_ASSERT_EQUAL ( 245850922l, in_pi.numerator().toLong() );
-    CPPUNIT_ASSERT_EQUAL ( 78256779l, in_pi.denominator().toLong() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "8717442233" ), in_pi.numerator().toString() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2774848045" ), in_pi.denominator().toString() );
 }
 
 void InfIntTest::testAlgorithm() {

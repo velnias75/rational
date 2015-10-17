@@ -1082,7 +1082,7 @@ void RationalTest::testIOStreamOps() {
 
     ( std::istringstream ( "3.14159265358979323846" ) ) >> in_pi;
 
-    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 8717442233u ), in_pi.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 8717442233u, in_pi.numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), in_pi.denominator() );
 }
 
