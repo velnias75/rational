@@ -36,6 +36,7 @@ class RationalTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testNullRational );
     CPPUNIT_TEST ( testConstruct );
     CPPUNIT_TEST ( testConstructFromDouble );
+    CPPUNIT_TEST ( testConstructFromExpression );
     CPPUNIT_TEST ( testAssignedFromDouble );
     CPPUNIT_TEST ( testAddition );
     CPPUNIT_TEST ( testSubtraction );
@@ -65,6 +66,7 @@ public:
     void testNullRational();
     void testConstruct();
     void testConstructFromDouble();
+    void testConstructFromExpression();
     void testAssignedFromDouble();
     void testAddition();
     void testSubtraction();

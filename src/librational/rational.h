@@ -36,7 +36,10 @@
 #include <functional>
 #include <sstream>
 #include <limits>
+#include <vector>
+#include <stack>
 #include <cmath>
+#include <set>
 
 #ifdef __EXCEPTIONS
 #include <stdexcept>
@@ -121,6 +124,30 @@ template<typename T> struct TYPE_CONVERT {
 
 private:
     const T& val;
+};
+
+template<> struct TYPE_CONVERT<const char *> {
+
+    /**
+     * @brief Constructs a type converter
+     *
+     * @param[in] v the value to convert
+     */
+    inline explicit TYPE_CONVERT ( const char *v ) : val ( v ) {}
+
+    /**
+     * @brief converts the value to @c U
+     *
+     * @tparam U the type to convert to
+     */
+    template<typename U> inline U convert() const {
+        U aux;
+        ( std::istringstream ( val ) ) >> aux;
+        return aux;
+    }
+
+private:
+    const char *val;
 };
 
 template<> struct TYPE_CONVERT<float> {
@@ -427,6 +454,9 @@ public:
     template<typename NumberType>
     Rational ( const NumberType &number );
 
+    Rational ( const char *expr );
+
+public:
     ~Rational();
 
     /**
@@ -953,6 +983,28 @@ public:
 private:
     Rational &reduce ( const Rational &o );
 
+    inline static std::set<char> sy_operators() {
+
+        std::set<char> ops;
+
+        ops.insert ( 1 ); // unary minus
+        ops.insert ( 2 ); // unary plus
+        ops.insert ( '+' );
+        ops.insert ( '-' );
+        ops.insert ( '*' );
+        ops.insert ( '/' );
+
+        return ops;
+    }
+
+    inline static bool isLeftAssoc ( const char op ) {
+        return ! ( op == 1 || op == 2 );
+    }
+
+    inline static unsigned char getPrec ( const char op ) {
+        return ( op == 1 || op == 2 ) ? 2 : ( ( op == '*' || op == '/' ) ? 1 : 0 );
+    }
+
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
 
@@ -1011,6 +1063,148 @@ template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberTy
     _approxFract<integer_type, GCD, CHKOP, NumberType,
                  ! ( std::numeric_limits<NumberType>::is_integer ||
                      std::numeric_limits<NumberType>::is_exact ) >() ( *this, nt );
+}
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( one_ ) {
+
+    const std::set<char> operators ( sy_operators() );
+
+    std::set<char> tok_delimiters ( operators );
+    std::stack<char, std::vector<char> > stk;
+    std::vector<std::string> out;
+    std::string token;
+
+    tok_delimiters.insert ( '\t' );
+    tok_delimiters.insert ( ' ' );
+    tok_delimiters.insert ( '(' );
+    tok_delimiters.insert ( ')' );
+
+    const char *ptr = expr;
+
+    while ( *ptr ) {
+
+        if ( tok_delimiters.find ( *ptr ) == tok_delimiters.end() ) {
+
+            token.append ( 1, *ptr );
+
+            if ( ! * ( ptr + 1 ) ) {
+                out.push_back ( token );
+            }
+
+            ++ptr;
+            continue;
+
+        } else if ( !token.empty() ) {
+            out.push_back ( token );
+            token.clear();
+        }
+
+        if ( *ptr == '(' ) {
+
+            stk.push ( *ptr );
+
+        } else if ( *ptr == ')' ) {
+
+            while ( !stk.empty() && stk.top() != '(' ) {
+                out.push_back ( std::string ( 1, stk.top() ) );
+                stk.pop();
+            }
+
+            stk.pop();
+
+        } else if ( operators.find ( *ptr ) != operators.end() ) {
+
+            char op = *ptr;
+
+            if ( *ptr == '-' && ( stk.empty() || ( stk.top() == '(' || operators.find ( stk.top() )
+                                                   != operators.end() ) ) ) {
+                op = 1;
+
+            } else if ( *ptr == '+' && ( stk.empty() || ( stk.top() == '(' ||
+                                         operators.find ( stk.top() ) != operators.end() ) ) ) {
+                op = 2;
+
+            } else {
+
+                while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
+
+                    if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( stk.top() ) ) ||
+                            ( !isLeftAssoc ( op ) && getPrec ( op ) < getPrec ( stk.top() ) ) ) {
+
+                        out.push_back ( std::string ( 1, stk.top() ) );
+                        stk.pop();
+                    }
+                }
+            }
+
+            stk.push ( op );
+        }
+
+        ++ptr;
+    }
+
+    while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
+        out.push_back ( std::string ( 1, stk.top() ) );
+        stk.pop();
+    }
+
+
+    std::stack<long double, std::vector<long double> > rpn;
+
+    for ( std::vector<std::string>::const_iterator i ( out.begin() ); i != out.end(); ++i ) {
+
+        if ( operators.find ( i->at ( 0 ) ) == operators.end() ) {
+            rpn.push ( TYPE_CONVERT<const char *> ( i->c_str() ).template convert<long double>() );
+        } else {
+
+            long double op[2];
+
+            switch ( i->at ( 0 ) ) {
+            case 1:
+                op[0] = rpn.top();
+                rpn.pop();
+                rpn.push ( -op[0] );
+                break;
+            case 2:
+                op[0] = rpn.top();
+                rpn.pop();
+                rpn.push ( op[0] );
+                break;
+            case '+':
+                op[0] = rpn.top();
+                rpn.pop();
+                op[1] = rpn.top();
+                rpn.pop();
+                rpn.push ( op[1] + op[0] );
+                break;
+            case '-':
+                op[0] = rpn.top();
+                rpn.pop();
+                op[1] = rpn.top();
+                rpn.pop();
+                rpn.push ( op[1] - op[0] );
+                break;
+            case '*':
+                op[0] = rpn.top();
+                rpn.pop();
+                op[1] = rpn.top();
+                rpn.pop();
+                rpn.push ( op[1] * op[0] );
+                break;
+            case '/':
+                op[0] = rpn.top();
+                rpn.pop();
+                op[1] = rpn.top();
+                rpn.pop();
+                rpn.push ( op[1] / op[0] );
+                break;
+            }
+        }
+    }
+
+    _approxFract<integer_type, GCD, CHKOP, long double, true>() ( *this, rpn.top() );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,

@@ -214,6 +214,61 @@ void RationalTest::testConstructFromDouble() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), max_pi_stein.denominator() );
 }
 
+void RationalTest::testConstructFromExpression() {
+
+    const Rational<rational_type, GCD_euclid> &p ( "19/51" );
+    const Rational<rational_type, GCD_stein> &p_stein ( "19/51" );
+
+    CPPUNIT_ASSERT_EQUAL ( 19, p.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 51, p.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 19, p_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 51, p_stein.denominator() );
+
+    const Rational<rational_type, GCD_euclid> &q ( "516901/740785" );
+    const Rational<rational_type, GCD_stein> &q_stein ( "516901/740785" );
+
+    CPPUNIT_ASSERT_EQUAL ( 516901, q.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 740785, q.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 516901, q_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 740785, q_stein.denominator() );
+
+    const Rational<rational_type> &t ( "1" );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, t.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, t.denominator() );
+
+    const Rational<rational_type> &u ( "2" );
+
+    CPPUNIT_ASSERT_EQUAL ( 2, u.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, u.denominator() );
+
+    const Rational<rational_type> &v ( "-8" );
+
+    CPPUNIT_ASSERT_EQUAL ( -8, v.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, v.denominator() );
+
+    const Rational<rational_type> &w ( "(11/2) * -8" );
+
+    CPPUNIT_ASSERT_EQUAL ( -44, w.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, w.denominator() );
+    
+    const Rational<rational_type> &x ( "(11/2) * +8" );
+
+    CPPUNIT_ASSERT_EQUAL ( 44, x.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, x.denominator() );
+    
+    const Rational<rational_type> &y ( "8 * -(11/2)" );
+
+    CPPUNIT_ASSERT_EQUAL ( -44, y.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, y.denominator() );
+
+#ifdef __EXCEPTIONS
+    CPPUNIT_ASSERT_THROW ( Rational<int8_t> ( "1000" ), std::domain_error );
+#endif
+}
+
 void RationalTest::testAssignedFromDouble() {
 
     const Rational<rational_type> &p = 19.0/51.0;
