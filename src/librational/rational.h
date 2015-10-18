@@ -1107,7 +1107,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
         const std::set<char> operators ( sy_operators() );
 
         std::set<char> tok_delimiters ( operators );
-        std::stack<char, std::vector<char> > stack;
+        std::stack<char, std::vector<char> > syard;
         std::string token;
         evalStack rpn;
 
@@ -1156,25 +1156,26 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
             if ( *ptr == '(' ) {
 
                 prev = *ptr;
-                stack.push ( *ptr );
+                syard.push ( *ptr );
 
             } else if ( *ptr == ')' ) {
 
                 prev = *ptr;
 
-                while ( !stack.empty() && stack.top() != '(' ) {
-                    if ( !eval ( stack.top(), rpn ) ) {
+                while ( !syard.empty() && syard.top() != '(' ) {
+                    if ( !eval ( syard.top(), rpn ) ) {
 #ifdef __EXCEPTIONS
                         throw std::runtime_error ( std::string ( "invalid expression: " )
                                                    .append ( expr ) );
 #endif
                     }
-                    stack.pop();
+
+                    syard.pop();
                 }
 
-                if ( !stack.empty() && stack.top() == '(' ) {
+                if ( !syard.empty() && syard.top() == '(' ) {
 
-                    stack.pop();
+                    syard.pop();
 
                 } else {
 #ifdef __EXCEPTIONS
@@ -1186,8 +1187,8 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
                 char op = *ptr;
 
-                const bool isUnary = ( ptr == expr ) || ( prev == '(' || operators.find ( prev )
-                                     != operators.end() );
+                const bool isUnary = ( ptr == expr ) || ( prev == '(' ||
+                                     operators.find ( prev ) != operators.end() );
 
                 if ( *ptr == '-' && isUnary ) {
 
@@ -1199,41 +1200,42 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
                 } else {
 
-                    while ( !stack.empty() && operators.find ( stack.top() ) != operators.end() ) {
+                    while ( !syard.empty() && operators.find ( syard.top() ) != operators.end() ) {
 
-                        if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( stack.top() ) ) ||
+                        if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( syard.top() ) ) ||
                                 ( !isLeftAssoc ( op ) && getPrec ( op ) <
-                                  getPrec ( stack.top() ) ) ) {
+                                  getPrec ( syard.top() ) ) ) {
 
-                            if ( !eval ( stack.top(), rpn ) ) {
+                            if ( !eval ( syard.top(), rpn ) ) {
 #ifdef __EXCEPTIONS
                                 throw std::runtime_error ( std::string ( "invalid expression: " )
                                                            .append ( expr ) );
 #endif
                             }
-                            stack.pop();
+
+                            syard.pop();
                         }
                     }
                 }
 
                 prev = *ptr;
-                stack.push ( op );
+                syard.push ( op );
             }
 
             ++ptr;
         }
 
-        while ( !stack.empty() && operators.find ( stack.top() ) != operators.end() ) {
-            if ( !eval ( stack.top(), rpn ) ) {
+        while ( !syard.empty() && operators.find ( syard.top() ) != operators.end() ) {
+            if ( !eval ( syard.top(), rpn ) ) {
 #ifdef __EXCEPTIONS
                 throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
 #endif
             }
 
-            stack.pop();
+            syard.pop();
         }
 
-        if ( ! ( !stack.empty() || rpn.empty() || rpn.size() > 1 ) ) {
+        if ( ! ( !syard.empty() || rpn.empty() || rpn.size() > 1 ) ) {
             _approxFract<integer_type, GCD, CHKOP, long double, true>() ( *this, rpn.top() );
         } else {
 #ifdef __EXCEPTIONS
@@ -1614,53 +1616,42 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
 
-    long double operand[2];
+    if ( !s.empty() ) {
 
-    if ( s.empty() ) return false;
+        long double operand[2] = { s.top(), 0.0l };
 
-    switch ( op ) {
-    case 1:
-        operand[0] = s.top();
         s.pop();
-        s.push ( -operand[0] );
-        return true;
-    case 2:
-        operand[0] = s.top();
-        s.pop();
-        s.push ( operand[0] );
-        return true;
-    case '+':
-        operand[0] = s.top();
-        s.pop();
-        if ( s.empty() ) return false;
-        operand[1] = s.top();
-        s.pop();
-        s.push ( operand[1] + operand[0] );
-        return true;
-    case '-':
-        operand[0] = s.top();
-        s.pop();
-        if ( s.empty() ) return false;
-        operand[1] = s.top();
-        s.pop();
-        s.push ( operand[1] - operand[0] );
-        return true;
-    case '*':
-        operand[0] = s.top();
-        s.pop();
-        if ( s.empty() ) return false;
-        operand[1] = s.top();
-        s.pop();
-        s.push ( operand[1] * operand[0] );
-        return true;
-    case '/':
-        operand[0] = s.top();
-        s.pop();
-        if ( s.empty() ) return false;
-        operand[1] = s.top();
-        s.pop();
-        s.push ( operand[1] / operand[0] );
-        return true;
+
+        if ( op > 2 && s.empty() ) return false;
+
+        switch ( op ) {
+        case 1:
+            s.push ( -operand[0] );
+            return true;
+        case 2:
+            s.push ( operand[0] );
+            return true;
+        case '+':
+            operand[1] = s.top();
+            s.pop();
+            s.push ( operand[1] + operand[0] );
+            return true;
+        case '-':
+            operand[1] = s.top();
+            s.pop();
+            s.push ( operand[1] - operand[0] );
+            return true;
+        case '*':
+            operand[1] = s.top();
+            s.pop();
+            s.push ( operand[1] * operand[0] );
+            return true;
+        case '/':
+            operand[1] = s.top();
+            s.pop();
+            s.push ( operand[1] / operand[0] );
+            return true;
+        }
     }
 
     return false;
