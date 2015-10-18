@@ -1214,4 +1214,16 @@ void RationalTest::testRatRat() {
     CPPUNIT_ASSERT_EQUAL ( 7, g.denominator() );
 }
 
+void RationalTest::testGoldenRatio() {
+
+    Rational<uint64_t> gr;
+
+    for ( std::size_t i = 0u; i < 92u; ++i ) {
+        gr = Rational<uint64_t>::one_ / ( Rational<uint64_t>::one_ + gr );
+    }
+
+    CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, gr.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12200160415121876738u, gr.denominator() );
+}
+
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

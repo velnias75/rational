@@ -542,4 +542,32 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( 11, 3 ).abs().str() );
 }
 
+void CLNTest::testGoldenRatio() {
+
+    cln_rational gr;
+
+    for ( std::size_t i = 0u; i < 1024u; ++i ) {
+        gr = cln_rational::one_ / ( cln_rational::one_ + gr );
+    }
+
+    std::ostringstream os;
+
+    os << gr.numerator();
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "4506699633677819813104383235728886049367860596218604" \
+                                         "8308030231496000306457087213962487926091410303962448" \
+                                         "7326658034501121953020936742558101987106764609420026" \
+                                         "2285202346655868899711089246778413354004103631553925" \
+                                         "405243" ), os.str() );
+
+    os.str ( "" );
+    os << gr.denominator();
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "7291993184377412737043195648396979558721167948342308" \
+                                         "6377162058185874001489121865798744093687543548489948" \
+                                         "3181625031189341064810479244078947534047137736685242" \
+                                         "0526027975140687031196633477605718294523235826853392" \
+                                         "138525" ), os.str() );
+}
+
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
