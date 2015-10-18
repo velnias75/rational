@@ -454,6 +454,37 @@ public:
     template<typename NumberType>
     Rational ( const NumberType &number );
 
+    /**
+     * @brief creates a %Rational approximated by an expression
+     *
+     * If @c expr is not @c null and not empty then it is parsed and evaluated as
+     * @c long @c double expression and approximated to a fraction.
+     *
+     * The @em expression can be a simple infix arithmetic expression containing
+     *
+     * * addition (@c +); also @em unary
+     * * subtraction (@c -); also @em unary
+     * * multiplication (@c *)
+     * * division (@c /)
+     * * parenthesises
+     *
+     * Numbers can be integers or floats in non-scientific notation. Allowed are spaces and tabs
+     * around numbers, parenthesises and operators.
+     *
+     * The expression gets evaluated into an @c long @c double value and is than
+     * approximated to a fraction.
+     *
+     * In case of errors an @c std::runtime_exception is thrown if exceptions are enabled,
+     * else the result is undefined.
+     *
+     * @b Example: \n @code{.cpp}
+     * Rational<long> x ( "(11/2) * +(4.25+3.75)" );@endcode produces the fraction
+     * @f$x = \frac{44}{1}@f$
+     *
+     * @see Rational(const NumberType &number)
+     *
+     * @param[in] expr the expression to evaluate and approximate
+     */
     Rational ( const char *expr );
 
 public:
@@ -963,7 +994,9 @@ public:
     }
 
     /**
-     * @brief reads in a @c double from a @c std::istream and assign it to @c r
+     * @brief reads in an @c expression from a @c std::istream and assign it to @c r
+     *
+     * @see Rational(const char *expr)
      *
      * @param[in] i the stream to read from
      * @param[out] r the %Rational to assign to
@@ -1074,7 +1107,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
         const std::set<char> operators ( sy_operators() );
 
         std::set<char> tok_delimiters ( operators );
-        std::stack<char, std::vector<char> > stk;
+        std::stack<char, std::vector<char> > stack;
         std::string token;
         evalStack rpn;
 
@@ -1109,30 +1142,40 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 continue;
 
             } else if ( !token.empty() ) {
+
                 rpn.push ( TYPE_CONVERT<const char *>
                            ( token.c_str() ).template convert<long double>() );
                 token.clear();
             }
 
+            if ( *ptr == ' ' || *ptr == '\t' ) {
+                ++ptr;
+                continue;
+            }
+
             if ( *ptr == '(' ) {
+
                 prev = *ptr;
-                stk.push ( *ptr );
+                stack.push ( *ptr );
+
             } else if ( *ptr == ')' ) {
 
                 prev = *ptr;
 
-                while ( !stk.empty() && stk.top() != '(' ) {
-                    if ( !eval ( stk.top(), rpn ) ) {
+                while ( !stack.empty() && stack.top() != '(' ) {
+                    if ( !eval ( stack.top(), rpn ) ) {
 #ifdef __EXCEPTIONS
                         throw std::runtime_error ( std::string ( "invalid expression: " )
                                                    .append ( expr ) );
 #endif
                     }
-                    stk.pop();
+                    stack.pop();
                 }
 
-                if ( !stk.empty() && stk.top() == '(' ) {
-                    stk.pop();
+                if ( !stack.empty() && stack.top() == '(' ) {
+
+                    stack.pop();
+
                 } else {
 #ifdef __EXCEPTIONS
                     throw std::runtime_error ( "mismatched braces" );
@@ -1143,51 +1186,54 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
                 char op = *ptr;
 
-                if ( *ptr == '-' && ( ( ptr == expr ) || ( prev == '(' || operators.find ( prev )
-                                      != operators.end() ) ) ) {
+                const bool isUnary = ( ptr == expr ) || ( prev == '(' || operators.find ( prev )
+                                     != operators.end() );
+
+                if ( *ptr == '-' && isUnary ) {
+
                     op = 1;
 
-                } else if ( *ptr == '+' && ( ( ptr == expr ) || ( prev == '(' ||
-                                             operators.find ( prev ) != operators.end() ) ) ) {
+                } else if ( *ptr == '+' && isUnary ) {
+
                     op = 2;
 
                 } else {
 
-                    while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
+                    while ( !stack.empty() && operators.find ( stack.top() ) != operators.end() ) {
 
-                        if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( stk.top() ) ) ||
+                        if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( stack.top() ) ) ||
                                 ( !isLeftAssoc ( op ) && getPrec ( op ) <
-                                  getPrec ( stk.top() ) ) ) {
+                                  getPrec ( stack.top() ) ) ) {
 
-                            if ( !eval ( stk.top(), rpn ) ) {
+                            if ( !eval ( stack.top(), rpn ) ) {
 #ifdef __EXCEPTIONS
                                 throw std::runtime_error ( std::string ( "invalid expression: " )
                                                            .append ( expr ) );
 #endif
                             }
-                            stk.pop();
+                            stack.pop();
                         }
                     }
                 }
 
                 prev = *ptr;
-                stk.push ( op );
+                stack.push ( op );
             }
 
             ++ptr;
         }
 
-        while ( !stk.empty() && operators.find ( stk.top() ) != operators.end() ) {
-            if ( !eval ( stk.top(), rpn ) ) {
+        while ( !stack.empty() && operators.find ( stack.top() ) != operators.end() ) {
+            if ( !eval ( stack.top(), rpn ) ) {
 #ifdef __EXCEPTIONS
                 throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
 #endif
             }
 
-            stk.pop();
+            stack.pop();
         }
 
-        if ( ! ( !stk.empty() || rpn.empty() || rpn.size() > 1 ) ) {
+        if ( ! ( !stack.empty() || rpn.empty() || rpn.size() > 1 ) ) {
             _approxFract<integer_type, GCD, CHKOP, long double, true>() ( *this, rpn.top() );
         } else {
 #ifdef __EXCEPTIONS

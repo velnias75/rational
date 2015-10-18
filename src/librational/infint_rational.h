@@ -29,7 +29,7 @@
  *
  * @defgroup infint InfInt extensions
  *
- * The header `gmp_rational.h` contains specializations especially for
+ * The header `infint_rational.h` contains specializations especially for
  * [InfInt](http://sercantutar.github.io/infint/) as underlying
  * as underlying storage type.\n
  */
@@ -38,6 +38,12 @@
 #define COMMONS_MATH_INFINT_RATIONAL_H
 
 #ifdef __EXCEPTIONS
+/**
+ * @ingroup infint
+ * @def INFINT_RATIONAL_EXCEPTIONS
+ * 
+ * Enables InfInt exceptions
+ */
 #ifndef INFINT_RATIONAL_EXCEPTIONS
 #define INFINT_USE_EXCEPTIONS 1
 #endif
@@ -88,8 +94,8 @@ template<> inline InfInt TYPE_CONVERT<InfInt>::convert<InfInt>() const {
 template<> inline long double TYPE_CONVERT<InfInt>::convert<long double>() const {
 
     long double ld;
-    
-    ( std::istringstream( val.toString() ) ) >> ld;
+
+    ( std::istringstream ( val.toString() ) ) >> ld;
 
     return ld;
 }
@@ -98,7 +104,7 @@ template<> inline double TYPE_CONVERT<InfInt>::convert<double>() const {
 
     double d;
 
-    ( std::istringstream( val.toString() ) ) >> d;
+    ( std::istringstream ( val.toString() ) ) >> d;
 
     return d;
 }
@@ -107,7 +113,7 @@ template<> inline float TYPE_CONVERT<InfInt>::convert<float>() const {
 
     float f;
 
-    ( std::istringstream( val.toString() ) ) >> f;
+    ( std::istringstream ( val.toString() ) ) >> f;
 
     return f;
 }
@@ -155,4 +161,3 @@ typedef Rational<InfInt, GCD_euclid> infint_rational;
 #endif /* COMMONS_MATH_INFINT_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
-
