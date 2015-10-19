@@ -449,10 +449,9 @@ void InfIntTest::testStdMath() {
 
 void InfIntTest::testGoldenRatio() {
 
-    const infint_rational one ( infint_rational::one_, infint_rational::one_ );
-    infint_rational phi ( one );
+    infint_rational phi ( infint_rational::one_, infint_rational::one_ );
 
-    for ( std::size_t i = 0u; i < 1024u; ++i ) ( phi += one ).invert();
+    for ( std::size_t i = 0u; i < 1024u; ++i ) ( ++phi ).invert();
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "7291993184377412737043195648396979558721167948342308" \
                                          "6377162058185874001489121865798744093687543548489948" \

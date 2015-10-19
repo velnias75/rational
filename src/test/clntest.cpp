@@ -544,10 +544,9 @@ void CLNTest::testStdMath() {
 
 void CLNTest::testGoldenRatio() {
 
-    const cln_rational one ( cln_rational::one_, cln_rational::one_ );
-    cln_rational phi ( one );
+    cln_rational phi ( cln_rational::one_, cln_rational::one_ );
 
-    for ( std::size_t i = 0u; i < 1024u; ++i ) ( phi += one ).invert();
+    for ( std::size_t i = 0u; i < 1024u; ++i ) ( ++phi ).invert();
 
     std::ostringstream os;
 

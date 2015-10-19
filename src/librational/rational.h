@@ -32,11 +32,9 @@
  * @b Example: \n To approximate the @em golden @em ratio @f$ \varphi = \frac{\sqrt{5}-1}{2} @f$
  * by iteratively calculating the continued fraction
  * @f$ \varphi=1+\frac1{1+\frac1{1+\frac1{1+\frac1{1+\ddots}}}}@f$ you could write: @code{.cpp}
- * const Rational<uint64_t> one ( 1u, 1u );
+ * Rational<uint64_t> phi ( 1u, 1u );
  *
- * Rational<uint64_t> phi ( one );
- *
- * for ( std::size_t i = 0u; i < 91u; ++i ) ( phi += one ).invert();@endcode which
+ * for ( std::size_t i = 0u; i < 91u; ++i ) ( ++phi ).invert();@endcode which
  * will result in @f$ \varphi \approx \frac{7540113804746346429}{12200160415121876738} @f$
  */
 

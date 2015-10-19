@@ -503,10 +503,9 @@ void GMPTest::testStdMath() {
 
 void GMPTest::testGoldenRatio() {
 
-    const gmp_rational one ( gmp_rational::one_, gmp_rational::one_ );
-    gmp_rational phi ( one );
+    gmp_rational phi ( gmp_rational::one_, gmp_rational::one_ );
 
-    for ( std::size_t i = 0u; i < 1024u; ++i ) ( phi += one ).invert();
+    for ( std::size_t i = 0u; i < 1024u; ++i ) ( ++phi ).invert();
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "7291993184377412737043195648396979558721167948342308" \
                                          "6377162058185874001489121865798744093687543548489948" \

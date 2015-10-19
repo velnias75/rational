@@ -1216,10 +1216,9 @@ void RationalTest::testRatRat() {
 
 void RationalTest::testGoldenRatio() {
 
-    const Rational<uint64_t> one ( 1u, 1u );
-    Rational<uint64_t> phi ( one );
+    Rational<uint64_t> phi ( 1u, 1u );
 
-    for ( std::size_t i = 0u; i < 91u; ++i ) ( phi += one ).invert();
+    for ( std::size_t i = 0u; i < 91u; ++i ) ( ++phi ).invert();
 
     CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 12200160415121876738u, phi.denominator() );
