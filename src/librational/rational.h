@@ -1125,7 +1125,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
         tok_delimiters.insert ( ')' );
 
         const char *ptr = expr;
-        char prev = 0;
+        char top, prev = 0;
 
         while ( *ptr ) {
 
@@ -1170,8 +1170,9 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
                 prev = *ptr;
 
-                while ( !syard.empty() && syard.top() != '(' ) {
-                    if ( !eval ( syard.top(), rpn ) ) {
+                while ( !syard.empty() && ( top = syard.top() ) != '(' ) {
+
+                    if ( !eval ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
                         throw std::runtime_error ( std::string ( "invalid expression: " )
                                                    .append ( expr ) );
@@ -1181,7 +1182,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                     syard.pop();
                 }
 
-                if ( !syard.empty() && syard.top() == '(' ) {
+                if ( !syard.empty() && top == '(' ) {
 
                     syard.pop();
 
@@ -1208,13 +1209,14 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
                 } else {
 
-                    while ( !syard.empty() && operators.find ( syard.top() ) != operators.end() ) {
+                    while ( !syard.empty() &&
+                            operators.find ( ( top = syard.top() ) ) != operators.end() ) {
 
-                        if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( syard.top() ) ) ||
+                        if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( top ) ) ||
                                 ( !isLeftAssoc ( op ) && getPrec ( op ) <
-                                  getPrec ( syard.top() ) ) ) {
+                                  getPrec ( top ) ) ) {
 
-                            if ( !eval ( syard.top(), rpn ) ) {
+                            if ( !eval ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
                                 throw std::runtime_error ( std::string ( "invalid expression: " )
                                                            .append ( expr ) );
@@ -1233,8 +1235,9 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
             ++ptr;
         }
 
-        while ( !syard.empty() && operators.find ( syard.top() ) != operators.end() ) {
-            if ( !eval ( syard.top(), rpn ) ) {
+        while ( !syard.empty() && operators.find ( ( top = syard.top() ) ) != operators.end() ) {
+
+            if ( !eval ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
                 throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
 #endif
