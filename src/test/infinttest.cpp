@@ -452,7 +452,7 @@ void InfIntTest::testGoldenRatio() {
     infint_rational gr;
 
     for ( std::size_t i = 0u; i < 1024u; ++i ) {
-        gr = infint_rational::one_ / ( infint_rational::one_ + gr );
+        gr = infint_rational::one_ / ( gr += infint_rational::one_ );
     }
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "4506699633677819813104383235728886049367860596218604" \

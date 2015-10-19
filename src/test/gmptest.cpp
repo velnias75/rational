@@ -506,7 +506,7 @@ void GMPTest::testGoldenRatio() {
     gmp_rational gr;
 
     for ( std::size_t i = 0u; i < 1024u; ++i ) {
-        gr = gmp_rational::one_ / ( gmp_rational::one_ + gr );
+        gr = gmp_rational::one_ / ( gr += gmp_rational::one_ );
     }
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "4506699633677819813104383235728886049367860596218604" \

@@ -547,7 +547,7 @@ void CLNTest::testGoldenRatio() {
     cln_rational gr;
 
     for ( std::size_t i = 0u; i < 1024u; ++i ) {
-        gr = cln_rational::one_ / ( cln_rational::one_ + gr );
+        gr = cln_rational::one_ / ( gr += cln_rational::one_ );
     }
 
     std::ostringstream os;
