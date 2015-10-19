@@ -1216,14 +1216,13 @@ void RationalTest::testRatRat() {
 
 void RationalTest::testGoldenRatio() {
 
-    Rational<uint64_t> gr;
+    const Rational<uint64_t> one ( 1u, 1u );
+    Rational<uint64_t> phi ( one );
 
-    for ( std::size_t i = 0u; i < 92u; ++i ) {
-        gr = Rational<uint64_t>::one_ / ( gr += Rational<uint64_t>::one_ );
-    }
+    for ( std::size_t i = 0u; i < 91u; ++i ) ( phi += one ).invert();
 
-    CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, gr.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 12200160415121876738u, gr.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 12200160415121876738u, phi.denominator() );
 }
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

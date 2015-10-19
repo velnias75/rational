@@ -449,22 +449,21 @@ void InfIntTest::testStdMath() {
 
 void InfIntTest::testGoldenRatio() {
 
-    infint_rational gr;
+    const infint_rational one ( infint_rational::one_, infint_rational::one_ );
+    infint_rational phi ( one );
 
-    for ( std::size_t i = 0u; i < 1024u; ++i ) {
-        gr = infint_rational::one_ / ( gr += infint_rational::one_ );
-    }
+    for ( std::size_t i = 0u; i < 1024u; ++i ) ( phi += one ).invert();
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "4506699633677819813104383235728886049367860596218604" \
-                                         "8308030231496000306457087213962487926091410303962448" \
-                                         "7326658034501121953020936742558101987106764609420026" \
-                                         "2285202346655868899711089246778413354004103631553925" \
-                                         "405243" ), gr.numerator().toString() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "7291993184377412737043195648396979558721167948342308" \
                                          "6377162058185874001489121865798744093687543548489948" \
                                          "3181625031189341064810479244078947534047137736685242" \
                                          "0526027975140687031196633477605718294523235826853392" \
-                                         "138525" ), gr.denominator().toString() );
+                                         "138525" ), phi.numerator().toString() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1179869281805523255014757888412586560808902854456091" \
+                                         "3468519228968187430794620907976123201977895385245239" \
+                                         "7050828306569046301783141598663704952115390234610526" \
+                                         "8281123032179655593090772272438413164852733945840731" \
+                                         "7543768" ), phi.denominator().toString() );
 }
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

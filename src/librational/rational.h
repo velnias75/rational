@@ -27,7 +27,17 @@
  * Include `rational.h` to be able to do fraction calculations. By simply including `rational.h`
  * and specifying the storage type (any integer variant) you can create and use a fractional data
  * type. For example, `Commons::Math::Rational<long> foo(3, 4)` would create a fraction named `foo`
- * with a value of @f$ \frac{3}{4} @f$, and store the fraction using the `long` data type.\n
+ * with a value of @f$ \frac{3}{4} @f$, and store the fraction using the `long` data type.\n \n
+ *
+ * @b Example: \n To approximate the @em golden @em ratio @f$ \varphi = \frac{\sqrt{5}-1}{2} @f$
+ * by iteratively calculating the continued fraction
+ * @f$ \varphi=1+\frac1{1+\frac1{1+\frac1{1+\frac1{1+\ddots}}}}@f$ you could write: @code{.cpp}
+ * const Rational<uint64_t> one ( 1u, 1u );
+ *
+ * Rational<uint64_t> phi ( one );
+ *
+ * for ( std::size_t i = 0u; i < 91u; ++i ) ( phi += one ).invert();@endcode which
+ * will result in @f$ \varphi \approx \frac{7540113804746346429}{12200160415121876738} @f$
  */
 
 #ifndef COMMONS_MATH_RATIONAL_H
@@ -1042,8 +1052,8 @@ private:
     Rational &knuth_addSub ( const Rational &o );
 
 public:
-    static const integer_type zero_;
-    static const integer_type one_;
+    static const integer_type zero_; ///< represents @em zero in the given Rational::integer_type
+    static const integer_type one_; ///< represents @em one in the given Rational::integer_type
 
 private:
     integer_type m_numer;
