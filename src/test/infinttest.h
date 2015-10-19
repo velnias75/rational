@@ -43,6 +43,7 @@ class InfIntTest : public CppUnit::TestFixture {
     CPPUNIT_TEST ( testIOStreamOps );
     CPPUNIT_TEST ( testAlgorithm );
     CPPUNIT_TEST ( testStdMath );
+    CPPUNIT_TEST ( testGoldenRatio );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -67,6 +68,7 @@ public:
     void testIOStreamOps();
     void testAlgorithm();
     void testStdMath();
+    void testGoldenRatio();
 
 private:
     typedef Commons::Math::infint_rational unchecked_sqrt;
