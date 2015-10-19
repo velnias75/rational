@@ -1084,6 +1084,23 @@ void RationalTest::testIOStreamOps() {
 
     CPPUNIT_ASSERT_EQUAL ( 8717442233u, in_pi.numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), in_pi.denominator() );
+
+    os.str ( "" );
+    os << in_pi;
+
+    ( std::istringstream ( os.str() ) ) >> in_pi;
+
+    CPPUNIT_ASSERT_EQUAL ( 8717442233u, in_pi.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), in_pi.denominator() );
+
+#ifdef __EXCEPTIONS
+    const Rational<uint64_t> out_mixed ( 2, 3, 4 );
+
+    os.str ( "" );
+    os << out_mixed.str ( true );
+
+    CPPUNIT_ASSERT_THROW ( ( std::istringstream ( os.str() ) ) >> in_pi, std::runtime_error );
+#endif
 }
 
 void RationalTest::testPrecision() {

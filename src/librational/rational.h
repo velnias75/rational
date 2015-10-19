@@ -1036,11 +1036,11 @@ private:
     }
 
     inline static bool isLeftAssoc ( const char op ) {
-        return ! ( op == 1 || op == 2 );
+        return op > 2;
     }
 
     inline static unsigned char getPrec ( const char op ) {
-        return ( op == 1 || op == 2 ) ? 2 : ( ( op == '*' || op == '/' ) ? 1 : 0 );
+        return !isLeftAssoc ( op ) ? 2 : ( ( op == '*' || op == '/' ) ? 1 : 0 );
     }
 
     typedef std::stack<long double, std::vector<long double> > evalStack;
