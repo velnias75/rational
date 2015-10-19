@@ -451,18 +451,10 @@ void InfIntTest::testGoldenRatio() {
 
     infint_rational phi ( infint_rational::one_, infint_rational::one_ );
 
-    for ( std::size_t i = 0u; i < 1024u; ++i ) ( ++phi ).invert();
+    for ( std::size_t i = 0u; i < 100u; ++i ) ( ++phi ).invert();
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "7291993184377412737043195648396979558721167948342308" \
-                                         "6377162058185874001489121865798744093687543548489948" \
-                                         "3181625031189341064810479244078947534047137736685242" \
-                                         "0526027975140687031196633477605718294523235826853392" \
-                                         "138525" ), phi.numerator().toString() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "1179869281805523255014757888412586560808902854456091" \
-                                         "3468519228968187430794620907976123201977895385245239" \
-                                         "7050828306569046301783141598663704952115390234610526" \
-                                         "8281123032179655593090772272438413164852733945840731" \
-                                         "7543768" ), phi.denominator().toString() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "573147844013817084101" ), phi.numerator().toString() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "927372692193078999176" ), phi.denominator().toString() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
