@@ -453,8 +453,10 @@ void InfIntTest::testGoldenRatio() {
 
     for ( std::size_t i = 0u; i < 100u; ++i ) ( ++phi ).invert();
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "573147844013817084101" ), phi.numerator().toString() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "927372692193078999176" ), phi.denominator().toString() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "927372692193078999176" ),
+                           phi.inverse().numerator().toString() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "573147844013817084101" ),
+                           phi.inverse().denominator().toString() );
 }
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;

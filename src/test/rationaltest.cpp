@@ -1237,8 +1237,8 @@ void RationalTest::testGoldenRatio() {
 
     for ( std::size_t i = 0u; i < 91u; ++i ) ( ++phi ).invert();
 
-    CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 12200160415121876738u, phi.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 12200160415121876738u, phi.inverse().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.inverse().denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

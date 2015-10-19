@@ -29,13 +29,17 @@
  * type. For example, `Commons::Math::Rational<long> foo(3, 4)` would create a fraction named `foo`
  * with a value of @f$ \frac{3}{4} @f$, and store the fraction using the `long` data type.\n \n
  *
- * @b Example: \n To approximate the @em golden @em ratio @f$ \varphi = \frac{\sqrt{5}-1}{2} @f$
- * by iteratively calculating the continued fraction
- * @f$ \varphi=1+\frac1{1+\frac1{1+\frac1{1+\frac1{1+\ddots}}}}@f$ you could write: @code{.cpp}
+ * @b Example: \n To approximate the @b reciprocal of the @em golden @em ratio
+ * (@f$ \varphi = \phi^{-1} @f$) \n @f$ \varphi = \frac{\sqrt{5}-1}{2} @f$ \n by iteratively
+ * calculating the continued fraction \n
+ * @f$ \varphi=1+\frac1{1+\frac1{1+\frac1{1+\frac1{1+\ddots}}}}@f$ \n you could write: @code{.cpp}
  * Rational<uint64_t> phi ( 1u, 1u );
  *
  * for ( std::size_t i = 0u; i < 91u; ++i ) ( ++phi ).invert();@endcode which
- * will result in @f$ \varphi \approx \frac{7540113804746346429}{12200160415121876738} @f$
+ * will result in @f$ \varphi \approx
+ * \frac{7540113804746346429}{12200160415121876738} = 0.61803398874989484820458683436563811772 @f$
+ *
+ * @note Use @c Commons::Math::Rational::invert() or just add @c 1 to get @f$ \phi @f$
  */
 
 #ifndef COMMONS_MATH_RATIONAL_H
@@ -2507,4 +2511,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
