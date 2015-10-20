@@ -40,6 +40,8 @@
  * \frac{7540113804746346429}{12200160415121876738} = 0.61803398874989484820458683436563811772 @f$
  *
  * @note Use @c Commons::Math::Rational::invert() or just add @c 1 to get @f$ \phi @f$
+ * @note As @em side @em effect you'll get the @c i-th @em Fibonacci @em number
+ *       in the numerator of each iteration
  */
 
 #ifndef COMMONS_MATH_RATIONAL_H
