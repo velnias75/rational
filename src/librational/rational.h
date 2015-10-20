@@ -395,7 +395,7 @@ public:
      *
      * @param[in] other the %Rational to move
      */
-    Rational ( Rational &&other );
+    Rational ( Rational &&other ) noexcept;
 #endif
 
     /**
@@ -1082,7 +1082,7 @@ Rational<T, GCD, CHKOP>::Rational ( const Rational &other ) : m_numer ( other.m_
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP>::Rational ( Rational &&other )
+Rational<T, GCD, CHKOP>::Rational ( Rational &&other ) noexcept
     : m_numer ( std::move ( other.m_numer ) ), m_denom ( std::move ( other.m_denom ) ) {
 //     other.m_numer = integer_type();
 //     other.m_denom = integer_type ( 1 );
