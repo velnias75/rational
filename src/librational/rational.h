@@ -529,8 +529,6 @@ public:
 
         if ( this != &another ) {
 
-            //m_numer = another.m_numer;
-            //m_denom = another.m_denom;
             this->Rational::~Rational();
             new (this) Rational(another);
 
