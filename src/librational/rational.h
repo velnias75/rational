@@ -512,8 +512,8 @@ public:
     Rational &operator= ( const Rational& another ) {
 
         if ( this != &another ) {
-            m_numer = another.m_numer;
-            m_denom = another.m_denom;
+            this->Rational::~Rational();
+            new (this) Rational(another);
         }
 
         return *this;
@@ -529,8 +529,10 @@ public:
 
         if ( this != &another ) {
 
-            m_numer = another.m_numer;
-            m_denom = another.m_denom;
+            //m_numer = another.m_numer;
+            //m_denom = another.m_denom;
+            this->Rational::~Rational();
+            new (this) Rational(another);
 
 //             another.m_numer = zero_;
 //             another.m_numer = integer_type ( 1 );
