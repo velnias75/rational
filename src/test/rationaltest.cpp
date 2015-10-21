@@ -1080,7 +1080,8 @@ void RationalTest::testIOStreamOps() {
 
     Rational<uint64_t> in_pi;
 
-    ( std::istringstream ( "3.14159265358979323846" ) ) >> in_pi;
+    std::istringstream is ( "3.14159265358979323846" );
+    is >> in_pi;
 
     CPPUNIT_ASSERT_EQUAL ( 8717442233u, in_pi.numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), in_pi.denominator() );
@@ -1088,7 +1089,8 @@ void RationalTest::testIOStreamOps() {
     os.str ( "" );
     os << in_pi;
 
-    ( std::istringstream ( os.str() ) ) >> in_pi;
+    std::istringstream is2 ( os.str() );
+    is2 >> in_pi;
 
     CPPUNIT_ASSERT_EQUAL ( 8717442233u, in_pi.numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t> ( 2774848045u ), in_pi.denominator() );
@@ -1098,8 +1100,10 @@ void RationalTest::testIOStreamOps() {
 
     os.str ( "" );
     os << out_mixed.str ( true );
+    
+    std::istringstream is3 ( os.str() );
 
-    CPPUNIT_ASSERT_THROW ( ( std::istringstream ( os.str() ) ) >> in_pi, std::runtime_error );
+    CPPUNIT_ASSERT_THROW ( is3 >> in_pi, std::runtime_error );
 #endif
 }
 
