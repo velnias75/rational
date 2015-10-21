@@ -1237,7 +1237,7 @@ void RationalTest::testRatRat() {
 
 void RationalTest::testGoldenRatio() {
 
-    Rational<uint64_t> phi ( 1u, 1u );
+    Rational<uint64_t, GCD_null> phi ( 1u, 1u );
 
     for ( std::size_t i = 0u; i < 91u; ++i ) ( ++phi ).invert();
 

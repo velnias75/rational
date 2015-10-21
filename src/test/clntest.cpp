@@ -545,7 +545,7 @@ void CLNTest::testStdMath() {
 
 void CLNTest::testGoldenRatio() {
 
-    cln_rational phi ( cln_rational::one_, cln_rational::one_ );
+    Rational<cln_rational::integer_type, GCD_null> phi ( cln_rational::one_, cln_rational::one_ );
 
     for ( std::size_t i = 0u; i < 1024u; ++i ) ( ++phi ).invert();
 
@@ -568,4 +568,4 @@ void CLNTest::testGoldenRatio() {
                                          "138525" ), os.str() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

@@ -503,7 +503,7 @@ void GMPTest::testStdMath() {
 
 void GMPTest::testGoldenRatio() {
 
-    gmp_rational phi ( gmp_rational::one_, gmp_rational::one_ );
+    Rational<gmp_rational::integer_type, GCD_null> phi ( gmp_rational::one_, gmp_rational::one_ );
 
     for ( std::size_t i = 0u; i < 1024u; ++i ) ( ++phi ).invert();
 

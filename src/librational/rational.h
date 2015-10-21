@@ -2057,6 +2057,34 @@ struct _mod<T, GCD, CHKOP, false> {
     }
 };
 
+/**
+ * @ingroup main
+ * @ingroup gcd
+ * @brief NULL GCD algorithm implementation
+ *
+ * Despite it's name this GCD does uncondionally return @c T(1)
+ * 
+ * It can be useful if reduction of fractions is not wanted.
+ *
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
+ */
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
+         template<typename> class CONV = TYPE_CONVERT> struct GCD_null {
+
+    inline const T &operator() ( const T&, const T& ) const NOEXCEPT {
+        return one_;
+    }
+
+private:
+    const static T one_;
+};
+
+template<typename T, bool IsSigned, template<class, typename, bool> class CHKOP,
+         template<typename> class CONV>
+const T GCD_null<T, IsSigned, CHKOP, CONV>::one_ = T ( 1 );
+
 template<typename T, template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_euclid_fast<T, false, CHKOP, CONV> {
 

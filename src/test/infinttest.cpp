@@ -450,7 +450,8 @@ void InfIntTest::testStdMath() {
 
 void InfIntTest::testGoldenRatio() {
 
-    infint_rational phi ( infint_rational::one_, infint_rational::one_ );
+    Rational<infint_rational::integer_type, GCD_null> phi ( infint_rational::one_,
+            infint_rational::one_ );
 
     for ( std::size_t i = 0u; i < 100u; ++i ) ( ++phi ).invert();
 
