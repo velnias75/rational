@@ -120,7 +120,7 @@ struct RationalVariable {
 
     typedef Rational<T, GCD, CHKOP> result_type;
 
-    const result_type &operator() ( const Rational<T, GCD, CHKOP> &v ) const throw() {
+    const result_type &operator() ( const Rational<T, GCD, CHKOP> &v ) const NOEXCEPT {
         return v;
     }
 };
@@ -141,7 +141,7 @@ struct RationalConstant {
 
     RationalConstant ( const RationalConstant &o ) : c_ ( o.c_ ) {}
 
-    const result_type &operator() ( const Rational<T, GCD, CHKOP> & ) const throw() {
+    const result_type &operator() ( const Rational<T, GCD, CHKOP> & ) const NOEXCEPT {
         return c_;
     }
 
@@ -323,7 +323,7 @@ struct _unaryPlus {
 
     typedef T result_type;
 
-    inline result_type operator() ( const T &d ) const throw() {
+    inline result_type operator() ( const T &d ) const NOEXCEPT {
         return d;
     }
 };

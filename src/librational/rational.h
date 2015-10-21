@@ -59,6 +59,12 @@
 #include <stdexcept>
 #endif
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+#define NOEXCEPT noexcept
+#else
+#define NOEXCEPT throw()
+#endif
+
 namespace Commons {
 
 namespace tmp {
@@ -395,7 +401,7 @@ public:
      *
      * @param[in] other the %Rational to move
      */
-    Rational ( Rational &&other ) noexcept;
+    Rational ( Rational &&other ) NOEXCEPT;
 #endif
 
     /**
@@ -558,7 +564,7 @@ public:
     }
 
 #ifndef __clang__
-    inline operator void() const throw() {}
+    inline operator void() const NOEXCEPT {}
 #endif
 
     /**
@@ -579,7 +585,7 @@ public:
      *
      * @return the numerator
      */
-    inline integer_type numerator() const throw() {
+    inline integer_type numerator() const NOEXCEPT {
         return m_numer;
     }
 
@@ -588,7 +594,7 @@ public:
      *
      * @return the denominator
      */
-    inline integer_type denominator() const throw() {
+    inline integer_type denominator() const NOEXCEPT {
         return m_denom;
     }
 
@@ -1082,7 +1088,7 @@ Rational<T, GCD, CHKOP>::Rational ( const Rational &other ) : m_numer ( other.m_
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP>::Rational ( Rational &&other ) noexcept
+Rational<T, GCD, CHKOP>::Rational ( Rational &&other ) NOEXCEPT
     : m_numer ( std::move ( other.m_numer ) ), m_denom ( std::move ( other.m_denom ) ) {
 //     other.m_numer = integer_type();
 //     other.m_denom = integer_type ( 1 );
@@ -1996,7 +2002,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
          typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
 struct _approxFract<T, GCD, CHKOP, NumberType, false, EPSILON, CONV> {
-    inline void operator() ( const Rational<T, GCD, CHKOP> &, const NumberType & ) const throw() {}
+    inline void operator() ( const Rational<T, GCD, CHKOP> &, const NumberType & ) const NOEXCEPT {}
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
