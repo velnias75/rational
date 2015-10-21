@@ -33,15 +33,13 @@
  * (@f$ \varphi = \phi^{-1} @f$) \n @f$ \varphi = \frac{\sqrt{5}-1}{2} @f$ \n by iteratively
  * calculating the continued fraction \n
  * @f$ \varphi=1+\frac1{1+\frac1{1+\frac1{1+\frac1{1+\ddots}}}}@f$ \n you could write: @code{.cpp}
- * Rational<uint64_t> phi ( 1u, 1u );
+ * Rational<uint64_t> phi ( 1u, 1u ); // init with any Fibonacci(n+1), Fibonacci(n)
  *
  * for ( std::size_t i = 0u; i < 91u; ++i ) ( ++phi ).invert();@endcode which
  * will result in @f$ \varphi \approx
  * \frac{7540113804746346429}{12200160415121876738} = 0.61803398874989484820458683436563811772 @f$
  *
  * @note Use @c Commons::Math::Rational::invert() or just add @c 1 to get @f$ \phi @f$
- * @note As @em side @em effect you'll get the @c i-th @em Fibonacci @em number
- *       in the numerator of each iteration
  */
 
 #ifndef COMMONS_MATH_RATIONAL_H
@@ -519,7 +517,7 @@ public:
 
         if ( this != &another ) {
             this->Rational::~Rational();
-            new (this) Rational(another);
+            new ( this ) Rational ( another );
         }
 
         return *this;
@@ -536,7 +534,7 @@ public:
         if ( this != &another ) {
 
             this->Rational::~Rational();
-            new (this) Rational(another);
+            new ( this ) Rational ( another );
 
 //             another.m_numer = zero_;
 //             another.m_numer = integer_type ( 1 );
@@ -1089,7 +1087,7 @@ Rational<T, GCD, CHKOP>::Rational ( const Rational &other ) : m_numer ( other.m_
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>::Rational ( Rational &&other ) NOEXCEPT
-    : m_numer ( std::move ( other.m_numer ) ), m_denom ( std::move ( other.m_denom ) ) {
+: m_numer ( std::move ( other.m_numer ) ), m_denom ( std::move ( other.m_denom ) ) {
 //     other.m_numer = integer_type();
 //     other.m_denom = integer_type ( 1 );
 }
@@ -2519,4 +2517,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
