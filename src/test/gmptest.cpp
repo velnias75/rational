@@ -455,8 +455,9 @@ void GMPTest::testIOStreamOps() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "56/75" ), os.str() );
 
     gmp_rational in_pi;
+    std::istringstream is ( "(3 + 0.14159265358979323846)" );
 
-    ( std::istringstream ( "(3 + 0.14159265358979323846)" ) ) >> in_pi;
+    is >> in_pi;
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "8717442233" ), in_pi.numerator().get_str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "2774848045" ), in_pi.denominator().get_str() );

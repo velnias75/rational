@@ -86,15 +86,15 @@ template<> struct numeric_limits<cln::cl_I> {
     static bool const is_integer = true;
     static bool const is_exact = true;
 
-    static cln::cl_I max() {
+    static const cln::cl_I max() {
         return cln::cl_I();
     }
 
-    static cln::cl_I min() {
+    static const cln::cl_I min() {
         return cln::cl_I();
     }
 
-    static cln::cl_I epsilon() {
+    static const cln::cl_I epsilon() {
         return cln::cl_I();
     }
 };
@@ -138,7 +138,7 @@ template<> struct TYPE_CONVERT<cln::cl_F> {
     inline explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( cln::double_approx ( v ) ) {}
 
     template<class U>
-    inline U convert() const {
+    RATIONAL_CONSTEXPR inline U convert() const {
         return cln::floor1 ( val );
     }
 
@@ -234,6 +234,7 @@ struct GCD_cln<cln::cl_I, true, CHKOP, CONV> {
 template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _lcm<cln::cl_I, GCD, CHKOP, true> {
+
     inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
         return cln::lcm ( a, b );
     }

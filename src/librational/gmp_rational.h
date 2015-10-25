@@ -70,15 +70,15 @@ struct numeric_limits<mpz_class> {
 
     static const bool is_specialized = true;
 
-    static mpz_class min() {
+    static const mpz_class min() {
         return mpz_class();
     }
 
-    static mpz_class max() {
+    static const mpz_class max() {
         return mpz_class();
     }
 
-    static mpz_class lowest() {
+    static const mpz_class lowest() {
         return mpz_class();
     }
 
@@ -90,11 +90,11 @@ struct numeric_limits<mpz_class> {
     static const bool is_exact = true;
     static const int radix = 2;
 
-    static mpz_class epsilon() {
+    static const mpz_class epsilon() {
         return mpz_class();
     }
 
-    static mpz_class round_error() {
+    static const mpz_class round_error() {
         return mpz_class();
     }
 
@@ -108,19 +108,19 @@ struct numeric_limits<mpz_class> {
     static const float_denorm_style has_denorm = denorm_absent;
     static const bool has_denorm_loss = false;
 
-    static mpz_class infinity() {
+    static const mpz_class infinity() {
         return mpz_class();
     }
 
-    static mpz_class quiet_NaN() {
+    static const mpz_class quiet_NaN() {
         return mpz_class();
     }
 
-    static mpz_class signaling_NaN() {
+    static const mpz_class signaling_NaN() {
         return mpz_class();
     }
 
-    static mpz_class denorm_min() {
+    static const mpz_class denorm_min() {
         return mpz_class();
     }
 
