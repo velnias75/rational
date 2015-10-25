@@ -5,7 +5,7 @@ TESTS = $(check_PROGRAMS)
 noinst_HEADERS = rationaltest.h gmptest.h clntest.h infinttest.h exprtest.h exprtest_cln.h \
 	exprtest_infint.h
 
-test_rational_CXXFLAGS = -std=c++0x -fexceptions -I$(top_srcdir)/src/librational $(CPPUNIT_CFLAGS)
+test_rational_CXXFLAGS = -fexceptions -I$(top_srcdir)/src/librational $(CPPUNIT_CFLAGS)
 test_rational_SOURCES = rationaltest.cpp exprtest.cpp test_rational.cpp
 
 if WITH_CLN

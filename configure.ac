@@ -14,6 +14,7 @@ LT_INIT
 AC_PROG_CXX
 AM_PATH_CPPUNIT([1.12])
 PKG_PROG_PKG_CONFIG([0.22])
+AX_CXX_COMPILE_STDCXX_11([noext],[optional])
 
 # Checks for libraries.
 AM_CONDITIONAL([WITH_CLN], [false])
