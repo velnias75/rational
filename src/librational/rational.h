@@ -53,6 +53,10 @@
 #include <cmath>
 #include <set>
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+#include <type_traits>
+#endif
+
 #ifdef __EXCEPTIONS
 #include <stdexcept>
 #endif
@@ -331,6 +335,12 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<class, typename = T, bool = std::numeric_limits<T>::is_signed>
          class CHKOP = NO_OPERATOR_CHECK>
 class Rational {
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+	static_assert(std::is_integral<T>::value || std::numeric_limits<T>::is_integer,
+		"only integer types are allowed as storage type");
+#endif
+
     friend struct _swapSign<T, GCD, CHKOP, std::numeric_limits<T>::is_signed>;
     friend struct _mod<T, GCD, CHKOP, std::numeric_limits<T>::is_signed>;
     template<typename, template<typename, bool, template<class, typename, bool> class,
@@ -2551,4 +2561,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
