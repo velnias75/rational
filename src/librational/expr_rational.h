@@ -181,7 +181,7 @@ struct RationalBinaryExpression {
 
     ~RationalBinaryExpression();
 
-    result_type operator() ( const Rational<T, GCD, CHKOP> &d );
+    RATIONAL_CONSTEXPR result_type operator() ( const Rational<T, GCD, CHKOP> &d ) const;
 
 private:
     typename RationalExprTypeTraits<typename RationalExpressionTraits<L>::literal_type>::type l_;
@@ -210,8 +210,9 @@ RationalBinaryExpression<T, L, H, OP, GCD, CHKOP>::~RationalBinaryExpression() {
 template<class T, class L, class H, class OP, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
-typename RationalBinaryExpression<T, L, H, OP, GCD, CHKOP>::result_type
-RationalBinaryExpression<T, L, H, OP, GCD, CHKOP>::operator() ( const Rational<T, GCD, CHKOP> &d ) {
+RATIONAL_CONSTEXPR typename RationalBinaryExpression<T, L, H, OP, GCD, CHKOP>::result_type
+RationalBinaryExpression<T, L, H, OP, GCD, CHKOP>::operator()
+( const Rational<T, GCD, CHKOP> &d ) const {
     return OP() ( l_ ( d ), h_ ( d ) );
 }
 
@@ -237,7 +238,7 @@ struct RationalUnaryExpression {
 
     ~RationalUnaryExpression() {}
 
-    result_type operator() ( const Rational<T, GCD, CHKOP> &d ) {
+    RATIONAL_CONSTEXPR result_type operator() ( const Rational<T, GCD, CHKOP> &d ) const {
         return OP() ( l_ ( d ) );
     }
 
@@ -257,7 +258,7 @@ struct RationalExpression {
     RATIONAL_CONSTEXPR explicit RationalExpression ( E &&e ) : expr_ ( std::move ( e ) ) {}
 #endif
 
-    result_type operator() ( const Rational<T, GCD, CHKOP> &d ) {
+    RATIONAL_CONSTEXPR result_type operator() ( const Rational<T, GCD, CHKOP> &d ) const {
         return expr_ ( d );
     }
 
