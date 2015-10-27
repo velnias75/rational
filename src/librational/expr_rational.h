@@ -111,7 +111,7 @@ template<class ExprT> struct RationalExpressionTraits {
 
 template<class T>
 struct RationalExprTypeTraits {
-    typedef T type;
+    typedef const T type;
 };
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
@@ -184,8 +184,10 @@ struct RationalBinaryExpression {
     RATIONAL_CONSTEXPR result_type operator() ( const Rational<T, GCD, CHKOP> &d ) const;
 
 private:
-    typename RationalExprTypeTraits<typename RationalExpressionTraits<L>::literal_type>::type l_;
-    typename RationalExprTypeTraits<typename RationalExpressionTraits<H>::literal_type>::type h_;
+    const typename RationalExprTypeTraits<typename
+    RationalExpressionTraits<L>::literal_type>::type l_;
+    const typename RationalExprTypeTraits<typename
+    RationalExpressionTraits<H>::literal_type>::type h_;
 };
 
 template<class T, class L, class H, class OP, template<typename, bool,
@@ -243,7 +245,8 @@ struct RationalUnaryExpression {
     }
 
 private:
-    typename RationalExprTypeTraits<typename RationalExpressionTraits<L>::literal_type>::type l_;
+    const typename RationalExprTypeTraits<typename
+    RationalExpressionTraits<L>::literal_type>::type l_;
 };
 
 template<class T, class E, template<typename, bool, template<class, typename, bool> class,
@@ -263,13 +266,20 @@ struct RationalExpression {
     }
 
 private:
-    typename RationalExprTypeTraits<E>::type expr_;
+    const typename RationalExprTypeTraits<E>::type expr_;
 };
 
 template<class T, class E, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 RATIONAL_CONSTEXPR RationalExpression<T, E, GCD, CHKOP>::RationalExpression ( const E &e )
     : expr_ ( e ) {}
+
+template<class T, class E, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct RationalExprTypeTraits<RationalExpression<T, E, GCD, CHKOP> > {
+    typedef const RationalExpression<T, E, GCD, CHKOP> &type;
+};
 
 template<class T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
@@ -354,8 +364,18 @@ template<class ExprT> RATIONAL_CONSTEXPR inline
 typename RationalExpressionTraits<ExprT>::expr_type::result_type eval_rat_expr ( const ExprT &expr,
         const typename RationalExpressionTraits<ExprT>::expr_type::result_type &val =
             typename RationalExpressionTraits<ExprT>::expr_type::result_type() ) {
-    return static_cast<typename RationalExpressionTraits<ExprT>::literal_type> ( expr )
-           .operator() ( val );
+    return expr.operator() ( val );
+}
+
+/**
+ * @overload
+ */
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+RATIONAL_CONSTEXPR inline Rational<T, GCD, CHKOP> eval_rat_expr ( const Rational<T, GCD, CHKOP> &r,
+        const Rational<T, GCD, CHKOP> &val =Rational<T, GCD, CHKOP>() ) {
+    return static_cast<typename RationalExpressionTraits<Rational<T, GCD, CHKOP> >::literal_type>
+           ( r ).operator() ( val );
 }
 
 template<class T>
