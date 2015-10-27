@@ -210,7 +210,7 @@ void ExprTestCLN::testIntegrate() {
 #endif
     ( mk_rat_proto_var ( cln_rational() ) );
 
-    const cln_rational &r ( integrate ( x / ( x + 1 ), 1, 5, 10 ) );
+    const cln_rational &r ( integrate ( x / ( 1 + x ), 1, 5, 10 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "422563503196" ), r.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "145568097675" ), r.denominator() );

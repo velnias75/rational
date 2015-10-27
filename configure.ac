@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [1.7], [heiko@rangun.de])
+AC_INIT([rational], [1.8], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -78,7 +78,6 @@ AC_LANG_PUSH([C++])
 AC_CHECK_FUNCS([modf])
 AC_CHECK_FUNCS([floor])
 AC_CHECK_FUNCS([sqrt])
-AC_CHECK_FUNCS([ffs])
 AC_LANG_POP([C++])
 
 AC_ARG_VAR([GMP_CFLAGS], [C compiler flags for GMP, useful if installed in a non-standard location])

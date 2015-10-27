@@ -137,13 +137,52 @@ void ExprTest::testExpression() {
 #endif
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-    const long_rational &r6 ( eval_rat_expr ( expr + 1ul ) );
+    const long_rational &r6 ( eval_rat_expr ( 1.0f + expr + 1ul ) );
 #else
-    const long_rational &r6 ( eval_rat_expr ( ( a + b ) + 1ul ) );
+    const long_rational &r6 ( eval_rat_expr ( 1.0f + ( a + b ) + 1ul ) );
 #endif
 
-    CPPUNIT_ASSERT_EQUAL ( 673l, r6.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1257l, r6.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 584l, r6.denominator() );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r61 ( eval_rat_expr ( 1.0f - expr + 1ul ) );
+#else
+    const long_rational &r61 ( eval_rat_expr ( 1.0f - ( a + b ) + 1ul ) );
+#endif
+
+    CPPUNIT_ASSERT_EQUAL ( 1079l, r61.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 584l, r61.denominator() );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r62 ( eval_rat_expr ( 1.0 / expr + 1ul ) );
+#else
+    const long_rational &r62 ( eval_rat_expr ( 1.0 / ( a + b ) + 1ul ) );
+#endif
+
+    CPPUNIT_ASSERT_EQUAL ( 673l, r62.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 89l, r62.denominator() );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r63 ( eval_rat_expr ( 8 * expr + 1ul ) );
+#else
+    const long_rational &r63 ( eval_rat_expr ( 8 * ( a + b ) + 1ul ) );
+#endif
+
+    CPPUNIT_ASSERT_EQUAL ( 162l, r63.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 73l, r63.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 673l, r62.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 89l, r62.denominator() );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const long_rational &r64 ( eval_rat_expr ( 8u % ( expr + 1ul ) ) );
+#else
+    const long_rational &r64 ( eval_rat_expr ( 8u % ( ( a + b ) + 1ul ) ) );
+#endif
+
+    CPPUNIT_ASSERT_EQUAL ( 317l, r64.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 292l, r64.denominator() );
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
     const long_rational &r7 ( eval_rat_expr ( expr - 0.5 ) );
@@ -374,7 +413,7 @@ void ExprTest::testIntegrate() {
 #endif
     ( mk_rat_proto_var ( gmp_rational() ) );
 
-    const gmp_rational &r ( integrate ( x / ( x + 1 ), 1, 5, 10 ) );
+    const gmp_rational &r ( integrate ( x / ( 1 + x ), 1, 5, 10 ) );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "422563503196" ), r.numerator().get_str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "145568097675" ), r.denominator().get_str() );
