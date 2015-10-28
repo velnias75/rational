@@ -1991,8 +1991,7 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
         typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
                  const NumberType>::ResultT eps ( EPSILON<NumberType>::value() );
 
-        T p[2] = { zero_, one_ };
-        T q[2] = { one_, zero_ };
+        T m[2][2] = { { zero_, one_ }, { one_, zero_ } };
 
         NumberType x ( nt );
 
@@ -2002,21 +2001,23 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
             using namespace std;
 
-            typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const T &, const T>::ResultT
-            n ( CONV<NumberType> ( floor ( x ) ).template convert<T>() );
+            typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const T &,
+                     const T>::ResultT n ( CONV<NumberType> ( floor ( x ) ).template convert<T>() );
 
             x = CONV<T> ( one_ ).template convert<NumberType>() /
                 ( x - CONV<T> ( n ).template convert<NumberType>() );
 
             r.m_numer = typename rat::op_plus ()
-                        ( p[0], typename rat::op_multiplies () ( n, p[1] ) );
-            p[0] = p[1];
-            p[1] = r.m_numer;
+                        ( m[0][0], typename rat::op_multiplies () ( n, m[0][1] ) );
+
+            m[0][0] = m[0][1];
+            m[0][1] = r.m_numer;
 
             r.m_denom = typename rat::op_plus ()
-                        ( q[0], typename rat::op_multiplies () ( n, q[1] ) );
-            q[0] = q[1];
-            q[1] = r.m_denom;
+                        ( m[1][0], typename rat::op_multiplies () ( n, m[1][1] ) );
+
+            m[1][0] = m[1][1];
+            m[1][1] = r.m_denom;
         }
 #ifdef __EXCEPTIONS
     } else {
@@ -2579,4 +2580,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
