@@ -1959,9 +1959,19 @@ private:
     }
 
 private:
+    const static typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
+          const NumberType>::ResultT eps_;
+
     const static T zero_;
     const static T one_;
 };
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
+const typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
+      const NumberType>::ResultT _approxFract<T, GCD, CHKOP, NumberType, true,
+      EPSILON, CONV>::eps_ ( EPSILON<NumberType>::value() );
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
@@ -1988,16 +1998,13 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
                nt < CONV<T> ( std::numeric_limits<T>::min() ).template convert<NumberType>() ) ) ) {
 #endif
 
-        typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
-                 const NumberType>::ResultT eps ( EPSILON<NumberType>::value() );
-
         T m[2][2] = { { zero_, one_ }, { one_, zero_ } };
 
         NumberType x ( nt );
 
         while ( ! ( abs ( ( CONV<T> ( r.m_numer ).template convert<NumberType>() /
                             CONV<T> ( r.m_denom ).template convert<NumberType>() ) - nt )
-                    < eps ) ) {
+                    < eps_ ) ) {
 
             using namespace std;
 
@@ -2580,4 +2587,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
