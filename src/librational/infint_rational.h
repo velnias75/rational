@@ -154,7 +154,7 @@ template<> inline InfInt TYPE_CONVERT<long double>::convert<InfInt>() const {
  */
 typedef Rational<InfInt, GCD_euclid> infint_rational;
 
-template<> struct Commons::Math::CFRationalTraits<InfInt> {
+template<> struct CFRationalTraits<InfInt> {
     typedef infint_rational rational_type;
 };
 
