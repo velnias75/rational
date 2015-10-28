@@ -41,7 +41,7 @@
 /**
  * @ingroup infint
  * @def INFINT_RATIONAL_EXCEPTIONS
- * 
+ *
  * Enables InfInt exceptions
  */
 #ifndef INFINT_RATIONAL_EXCEPTIONS
@@ -153,6 +153,10 @@ template<> inline InfInt TYPE_CONVERT<long double>::convert<InfInt>() const {
  * @brief Rational class based on InfInt
  */
 typedef Rational<InfInt, GCD_euclid> infint_rational;
+
+template<> struct Commons::Math::CFRationalTraits<InfInt> {
+    typedef infint_rational rational_type;
+};
 
 }
 

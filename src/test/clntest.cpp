@@ -528,6 +528,19 @@ void CLNTest::testAlgorithm() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1l ), std::accumulate ( m_oneseventh.begin(),
                            m_oneseventh.end(), rat_vector::value_type(),
                            std::plus<rat_vector::value_type>() ).denominator() );
+
+    const cln::cl_I cf_pi[] = {  3,  7, 15,  1, 292,  1, 1,   1,  2,  1,  3, 1, 14, 2, 1,  1, 2, 2,
+                                 2,  2,  1, 84,   2,  1, 1,  15,  3, 13,  1, 4,  2, 6, 6, 99, 1, 2,
+                                 2,  6,  3,  5,   1,  1, 6,   8,  1,  7,  1, 2,  3, 7, 1,  2, 1, 1,
+                                 12, 1,  1,  1,   3,  1, 1,   8,  1,  1,  2, 1,  6, 1, 1,  5, 2, 2,
+                                 3,  1,  2,  4,   4, 16, 1, 161, 45,  1, 22, 1,  2, 2, 1,  4, 1, 2,
+                                 24, 1,  2,  1,   3,  1, 3
+                              };
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "227159758552934520439668309319746303422708645581861" ),
+                           cf ( cf_pi, cf_pi + 97 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "72307196890521956737416455481060519150048966236850" ),
+                           cf ( cf_pi, cf_pi + 97 ).denominator() );
 }
 
 void CLNTest::testStdMath() {

@@ -517,7 +517,6 @@ public:
      */
     Rational ( const char *expr );
 
-public:
     ~Rational();
 
     /**
@@ -2524,6 +2523,43 @@ struct ENABLE_OVERFLOW_CHECK<std::multiplies<T>, T, false> {
     }
 };
 #endif
+
+template<typename T>
+struct CFRationalTraits {
+    typedef Rational<T> rational_type;
+};
+
+template<typename IIter>
+typename CFRationalTraits<typename std::iterator_traits<IIter>::value_type>::rational_type
+cf ( IIter first, IIter last ) {
+
+    typedef typename std::iterator_traits<IIter>::value_type value_type;
+    typedef typename CFRationalTraits<typename
+    std::iterator_traits<IIter>::value_type>::rational_type rat;
+
+    value_type m[2][2] = { { value_type(), value_type ( 1 ) },
+        { value_type ( 1 ), value_type() }
+    };
+
+    value_type n = m[0][0], d = m[0][1];
+
+    while ( first != last ) {
+
+        n = typename rat::op_plus() (
+                typename rat::op_multiplies() ( *first, m[0][1] ), m[0][0] );
+
+        m[0][0] = m[0][1];
+        m[0][1] = n;
+
+        d = typename rat::op_plus() (
+                typename rat::op_multiplies() ( *first++, m[1][1] ), m[1][0] );
+
+        m[1][0] = m[1][1];
+        m[1][1] = d;
+    }
+
+    return rat ( n, d );
+}
 
 }
 

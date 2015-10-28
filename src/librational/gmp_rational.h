@@ -291,6 +291,10 @@ struct _lcm<mpz_class, GCD, CHKOP, true> {
  */
 typedef Rational<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> gmp_rational;
 
+template<> struct CFRationalTraits<mpz_class> {
+    typedef gmp_rational rational_type;
+};
+
 }
 
 }

@@ -38,6 +38,7 @@ Features
 - Expression templates for domain specific programming (include `expr_rational.h`)
 - Construction of fractions from expression strings 
   (i.e. `Rational<long> expr("(11/2) * +(4.25+3.75)")`)
+- Construction of fractions from continued fractions (from container of integer types)
 
 Notes for custom number types
 -----------------------------

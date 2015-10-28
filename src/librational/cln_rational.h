@@ -305,6 +305,10 @@ const cln::cl_I _swapSign<cln::cl_I, GCD, CHKOP, true>::zero_ ( 0 );
 
 typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_CHECK> cln_rational;
 
+template<> struct CFRationalTraits<cln::cl_I> {
+    typedef cln_rational rational_type;
+};
+
 }
 
 }

@@ -1197,6 +1197,11 @@ void RationalTest::testAlgorithm() {
 
     CPPUNIT_ASSERT_EQUAL ( b, std::max ( a, b ) );
     CPPUNIT_ASSERT_EQUAL ( b, std::max ( b, a ) );
+
+    const rational_type cf_pi[5] = { 3, 7, 15, 1, 292 };
+
+    CPPUNIT_ASSERT_EQUAL ( 103993, cf ( cf_pi, cf_pi + 5 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 33102, cf ( cf_pi, cf_pi + 5 ).denominator() );
 }
 
 void RationalTest::testStdMath() {
