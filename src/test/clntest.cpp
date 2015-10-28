@@ -541,6 +541,12 @@ void CLNTest::testAlgorithm() {
                            cf ( cf_pi, cf_pi + 97 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "72307196890521956737416455481060519150048966236850" ),
                            cf ( cf_pi, cf_pi + 97 ).denominator() );
+
+    std::vector<cln_rational::integer_type> o_pi;
+    seq ( cf ( cf_pi, cf_pi + 97 ), std::back_inserter ( o_pi ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 97u, o_pi.size() );
+    CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
 }
 
 void CLNTest::testStdMath() {

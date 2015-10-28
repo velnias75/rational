@@ -2561,6 +2561,25 @@ cf ( IIter first, IIter last ) {
     return rat ( n, d );
 }
 
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         typename OIter> OIter seq ( const Rational<T, GCD, CHKOP> &r, OIter out ) {
+
+    Rational<T, GCD, CHKOP> h ( r );
+    static Rational<T, GCD, CHKOP> one_ ( Rational<T, GCD, CHKOP>::one_,
+                                          Rational<T, GCD, CHKOP>::one_ );
+    typename Rational<T, GCD, CHKOP>::mod_type mt;
+
+    do {
+
+        mt = h.mod();
+        * ( out++ ) = mt.first;
+
+    } while ( mt.second.numerator() != T() && ( h = one_ / mt.second, true ) );
+
+    return out;
+}
+
 }
 
 }

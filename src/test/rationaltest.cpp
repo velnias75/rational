@@ -1202,6 +1202,20 @@ void RationalTest::testAlgorithm() {
 
     CPPUNIT_ASSERT_EQUAL ( 103993, cf ( cf_pi, cf_pi + 5 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 33102, cf ( cf_pi, cf_pi + 5 ).denominator() );
+
+    std::vector<rational_type> o_pi;
+    seq ( cf ( cf_pi, cf_pi + 5 ), std::back_inserter ( o_pi ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 5u, o_pi.size() );
+    CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
+
+    rational_type ccf[] = { 0, 3 };
+    std::vector<rational_type> ocf;
+
+    seq ( Rational<rational_type> ( 1, 3 ), std::back_inserter ( ocf ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 2u, ocf.size() );
+    CPPUNIT_ASSERT ( std::equal ( ocf.begin(), ocf.end(), ccf ) );
 }
 
 void RationalTest::testStdMath() {

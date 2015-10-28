@@ -39,6 +39,7 @@ Features
 - Construction of fractions from expression strings 
   (i.e. `Rational<long> expr("(11/2) * +(4.25+3.75)")`)
 - Construction of fractions from continued fractions (from container of integer types)
+- Extraction of continued fractions sequences from a fraction
 
 Notes for custom number types
 -----------------------------
