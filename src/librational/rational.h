@@ -1957,8 +1957,7 @@ private:
     }
 
 private:
-    const static typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
-          const NumberType>::ResultT eps_;
+    const static NumberType eps_;
 
     const static T zero_;
     const static T one_;
@@ -1967,8 +1966,7 @@ private:
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
          typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
-const typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
-      const NumberType>::ResultT _approxFract<T, GCD, CHKOP, NumberType, true,
+const NumberType _approxFract<T, GCD, CHKOP, NumberType, true,
       EPSILON, CONV>::eps_ ( EPSILON<NumberType>::value() );
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
