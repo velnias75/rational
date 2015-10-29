@@ -444,13 +444,13 @@ void GMPTest::testString() {
 
 void GMPTest::testIOStreamOps() {
 
-    std::istringstream real_in ( "0.3333333333333333333" );
+    std::istringstream real_in ( "0.33333333333333333" );
     gmp_rational real_rat;
 
     real_in >> real_rat;
 
-    CPPUNIT_ASSERT_EQUAL ( 1l, real_rat.numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 3l, real_rat.denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "33418014626285420" ), real_rat.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "100254043878856261" ), real_rat.denominator().get_str() );
 
     std::ostringstream os;
     os << gmp_rational ( M_PI );
@@ -547,4 +547,4 @@ void GMPTest::testGoldenRatio() {
                                          "138525" ), phi.inverse().denominator().get_str() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

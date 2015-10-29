@@ -481,6 +481,14 @@ void CLNTest::testString() {
 
 void CLNTest::testIOStreamOps() {
 
+	std::istringstream real_in ( "0.33333333333333333" );
+    cln_rational real_rat;
+
+    real_in >> real_rat;
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I( "33418014626285419" ), real_rat.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I( "100254043878856258" ), real_rat.denominator() );
+
     std::ostringstream os;
     os << cln_rational ( M_PI );
 
@@ -587,4 +595,4 @@ void CLNTest::testGoldenRatio() {
                                          "138525" ), os.str() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

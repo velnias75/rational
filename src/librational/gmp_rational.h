@@ -141,8 +141,9 @@ namespace Math {
 
 template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() const {
     std::ostringstream os;
-    os.precision ( std::numeric_limits<long double>::digits );
-    os << val;
+    os.precision ( std::numeric_limits<double>::digits );
+    os << static_cast<double>(val);
+    // Note: gmp can handle only doubles, so we need to lessen it to double
     return mpz_class ( os.str() );
 }
 
@@ -301,4 +302,4 @@ template<> struct CFRationalTraits<mpz_class> {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

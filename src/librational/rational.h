@@ -504,6 +504,10 @@ public:
      * The expression gets evaluated into an @c long @c double value and is than
      * approximated to a fraction.
      *
+     * @warning Since the expression is evaluated into a @c long @c double, higher precision
+     * storage types will carry on any precision errors. This issue will be adressed soon.
+     * All other operations are @em NOT affected!
+     *
      * In case of errors an @c std::runtime_exception is thrown if exceptions are enabled,
      * else the result is undefined.
      *
@@ -2681,4 +2685,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
