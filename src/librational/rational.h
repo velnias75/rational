@@ -498,8 +498,8 @@ public:
      * * division (@c /)
      * * parenthesises
      *
-     * Numbers can be integers or floats in non-scientific notation. Allowed are spaces and tabs
-     * around numbers, parenthesises and operators.
+     * Numbers can be integers or floats in non-scientific notation. Allowed are spaces, tabs
+     * and newlines around numbers, parenthesises and operators.
      *
      * The expression gets evaluated into an @c long @c double value and is than
      * approximated to a fraction.
@@ -1153,6 +1153,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
         std::string token;
         evalStack rpn;
 
+        tok_delimiters.insert ( '\n' );
         tok_delimiters.insert ( '\t' );
         tok_delimiters.insert ( ' ' );
         tok_delimiters.insert ( '(' );
@@ -2674,4 +2675,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
