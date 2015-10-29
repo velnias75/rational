@@ -1191,7 +1191,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 token.clear();
             }
 
-            if ( *ptr == ' ' || *ptr == '\t' ) {
+            if ( *ptr == ' ' || *ptr == '\t' || *ptr == '\n' ) {
                 ++ptr;
                 continue;
             }
@@ -1245,21 +1245,19 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 } else {
 
                     while ( !syard.empty() &&
-                            operators.find ( ( top = syard.top() ) ) != operators.end() ) {
+                            operators.find ( ( top = syard.top() ) ) != operators.end() &&
+                            ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( top ) ) ||
+                              ( !isLeftAssoc ( op ) && getPrec ( op ) <
+                                getPrec ( top ) ) ) ) {
 
-                        if ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( top ) ) ||
-                                ( !isLeftAssoc ( op ) && getPrec ( op ) <
-                                  getPrec ( top ) ) ) {
-
-                            if ( !eval ( top, rpn ) ) {
+                        if ( !eval ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
-                                throw std::runtime_error ( std::string ( "invalid expression: " )
-                                                           .append ( expr ) );
+                            throw std::runtime_error ( std::string ( "invalid expression: " )
+                                                       .append ( expr ) );
 #endif
-                            }
-
-                            syard.pop();
                         }
+
+                        syard.pop();
                     }
                 }
 
@@ -2675,4 +2673,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

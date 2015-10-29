@@ -1068,6 +1068,14 @@ void RationalTest::testString() {
 
 void RationalTest::testIOStreamOps() {
 
+    std::istringstream expr_in ( "1/8 * 8.897 - 3.6 *\n1" );
+    Rational<rational_type> expr_rat;
+
+    expr_in >> expr_rat;
+
+    CPPUNIT_ASSERT_EQUAL ( -19903, expr_rat.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 8000, expr_rat.denominator() );
+
     std::ostringstream os;
     os << Rational<rational_type> ( M_PI );
 
