@@ -2000,6 +2000,11 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
         NumberType x ( nt );
 
+        typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const NumberType &,
+                 const NumberType>::ResultT one ( CONV<T> ( one_ ).template convert<NumberType>() );
+
+        const bool isExact = std::numeric_limits<NumberType>::is_exact;
+
         while ( ! ( abs ( ( CONV<T> ( r.m_numer ).template convert<NumberType>() /
                             CONV<T> ( r.m_denom ).template convert<NumberType>() ) - nt )
                     < eps_ ) ) {
@@ -2008,9 +2013,6 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
             typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const T &,
                      const T>::ResultT n ( CONV<NumberType> ( floor ( x ) ).template convert<T>() );
-
-            x = CONV<T> ( one_ ).template convert<NumberType>() /
-                ( x - CONV<T> ( n ).template convert<NumberType>() );
 
             r.m_numer = typename rat::op_plus ()
                         ( m[0][0], typename rat::op_multiplies () ( n, m[0][1] ) );
@@ -2023,6 +2025,14 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
             m[1][0] = m[1][1];
             m[1][1] = r.m_denom;
+
+            typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
+                     const NumberType>::ResultT
+                     d ( x - CONV<T> ( n ).template convert<NumberType>() );
+
+            if ( isExact ? d == NumberType() : d < eps_ ) break;
+
+            x = one / d;
         }
 #ifdef __EXCEPTIONS
     } else {

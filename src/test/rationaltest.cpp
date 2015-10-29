@@ -1068,6 +1068,14 @@ void RationalTest::testString() {
 
 void RationalTest::testIOStreamOps() {
 
+    std::istringstream real_in ( "0.333333333" );
+    Rational<rational_type, GCD_euclid_fast, ENABLE_OVERFLOW_CHECK> real_rat;
+
+    real_in >> real_rat;
+
+    CPPUNIT_ASSERT_EQUAL ( 333333333, real_rat.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1000000000, real_rat.denominator() );
+
     std::istringstream expr_in ( "1/8 * 8.897 - 3.6 *\n1" );
     Rational<rational_type> expr_rat;
 

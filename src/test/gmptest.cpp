@@ -444,6 +444,14 @@ void GMPTest::testString() {
 
 void GMPTest::testIOStreamOps() {
 
+    std::istringstream real_in ( "0.3333333333333333333" );
+    gmp_rational real_rat;
+
+    real_in >> real_rat;
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, real_rat.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 3l, real_rat.denominator().get_si() );
+
     std::ostringstream os;
     os << gmp_rational ( M_PI );
 
