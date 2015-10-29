@@ -31,12 +31,12 @@
  *
  * @b Example: \n To approximate the @b reciprocal of the @em golden @em ratio
  * (@f$ \varphi = \phi^{-1} @f$) \n @f$ \varphi = \frac{\sqrt{5}-1}{2} @f$ \n by iteratively
- * calculating the continued fraction \n
- * @f$ \varphi=1+\frac1{1+\frac1{1+\frac1{1+\frac1{1+\ddots}}}}@f$ \n you could write: @code{.cpp}
+ * calculating \n @f$x_{n}=\frac{F_{n+1}}{F_{n}}@f$, where @f$F_{n}@f$ is the @em n-th
+ * Fibonacci number\n you could write: @code{.cpp}
  * Rational<uint64_t> phi ( 1u, 1u ); // init with any Fibonacci(n+1), Fibonacci(n)
  *
- * for ( std::size_t i = 0u; i < 91u; ++i ) ( ++phi ).invert();@endcode which
- * will result in @f$ \varphi \approx
+ * for ( std::size_t i = 0u; i < 91u; ++i ) ( ++phi ).invert(); // i >= 91u exceeds uint64@endcode
+ * which will result in @f$ \varphi \approx
  * \frac{7540113804746346429}{12200160415121876738} = 0.61803398874989484820458683436563811772 @f$
  *
  * @note Use @c Commons::Math::Rational::invert() or just add @c 1 to get @f$ \phi @f$
@@ -2524,11 +2524,28 @@ struct ENABLE_OVERFLOW_CHECK<std::multiplies<T>, T, false> {
 };
 #endif
 
+/**
+ * @ingroup main
+ * @brief Traits class to choose an appropriate Commons::Math::Rational
+ */
 template<typename T>
 struct CFRationalTraits {
     typedef Rational<T> rational_type;
 };
 
+/**
+ * @ingroup main
+ * @brief Constructs a Rational of a given continued fraction sequence
+ *
+ * @see Commons::Math::CFRationalTraits
+ *
+ * @tparam IIter an input iterator
+ *
+ * @param[in] first iterator pointing to the begin of the sequence
+ * @param[in] last iterator pointing to the end of the sequence
+ *
+ * @return the Commons::Math::Rational representing the sequence
+ */
 template<typename IIter>
 typename CFRationalTraits<typename std::iterator_traits<IIter>::value_type>::rational_type
 cf ( IIter first, IIter last ) {
@@ -2561,14 +2578,29 @@ cf ( IIter first, IIter last ) {
     return rat ( n, d );
 }
 
+/**
+ * @ingroup main
+ * @brief Extracts a continued fraction sequence of a Rational
+ *
+ * @see Commons::Math::Rational::mod()
+ *
+ * @tparam OIter an output iterator
+ *
+ * @param[in] r the Commons::Math::Rational to extract the continued fraction sequence from
+ * @param[out] out iterator to ouput the sequence to
+ *
+ * @return iterator pointing to the end of @c out
+ */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename OIter> OIter seq ( const Rational<T, GCD, CHKOP> &r, OIter out ) {
+         typename OIter> inline OIter seq ( const Rational<T, GCD, CHKOP> &r, OIter out ) {
 
-    Rational<T, GCD, CHKOP> h ( r );
-    static Rational<T, GCD, CHKOP> one_ ( Rational<T, GCD, CHKOP>::one_,
-                                          Rational<T, GCD, CHKOP>::one_ );
-    typename Rational<T, GCD, CHKOP>::mod_type mt;
+    typedef Rational<T, GCD, CHKOP> rat;
+
+    rat h ( r );
+    const static rat one_ ( rat::one_, rat::one_ );
+
+    typename rat::mod_type mt;
 
     do {
 
