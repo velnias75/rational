@@ -58,7 +58,7 @@
  * (https://gmplib.org/manual/C_002b_002b-Interface-Integers.html#C_002b_002b-Interface-Integers)
  * for details
  */
-#define GMP_EPSILON "1e-21", 30, 10
+#define GMP_EPSILON "1e-20"
 #endif
 
 #if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
@@ -139,12 +139,20 @@ namespace Commons {
 
 namespace Math {
 
+template<> struct ExpressionEvalTraits<mpz_class> {
+    typedef mpf_class NumberType;
+};
+
 template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() const {
     std::ostringstream os;
     os.precision ( std::numeric_limits<double>::digits );
     os << static_cast<double> ( val );
     // Note: gmp can handle only doubles, so we need to lessen it to double
     return mpz_class ( os.str() );
+}
+
+template<> inline mpf_class TYPE_CONVERT<const char *>::convert<mpf_class>() const {
+    return mpf_class ( val );
 }
 
 template<> struct TYPE_CONVERT<mpz_class> {

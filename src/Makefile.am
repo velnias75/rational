@@ -1,1 +1,1 @@
-SUBDIRS = librational test
+SUBDIRS = rational test

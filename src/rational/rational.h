@@ -322,6 +322,19 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
 
 /**
  * @ingroup main
+ * @brief Traits struct to choose NumberType for expression evaluation
+ *
+ * If this trait isn't specialized, it defaults to @c long @c double
+ *
+ * @tparam T integer_type to get corresponding @c NumberType for
+ */
+template<typename T>
+struct ExpressionEvalTraits {
+    typedef long double NumberType; ///< the corresponding @c NumberType
+};
+
+/**
+ * @ingroup main
  * @brief %Rational (fraction) template class
  *
  * @note All %Rational objects are reduced (see @ref gcd)
@@ -501,12 +514,9 @@ public:
      * Numbers can be integers or floats in non-scientific notation. Allowed are spaces, tabs
      * and newlines around numbers, parenthesises and operators.
      *
-     * The expression gets evaluated into an @c long @c double value and is than
-     * approximated to a fraction.
-     *
-     * @warning Since the expression is evaluated into a @c long @c double, higher precision
-     * storage types will carry on any precision errors. This issue will be adressed soon.
-     * All other operations are @em NOT affected!
+     * The expression gets evaluated into a @c ExpressionEvalTraits<integer_type> value and than
+     * is approximated to a fraction.\n
+     * @c ExpressionEvalTraits<integer_type> corresponds to @c long @c double if not specialized
      *
      * In case of errors an @c std::runtime_exception is thrown if exceptions are enabled,
      * else the result is undefined.
@@ -516,6 +526,7 @@ public:
      * @f$x = \frac{44}{1}@f$
      *
      * @see Rational(const NumberType &number)
+     * @see ExpressionEvalTraits
      *
      * @param[in] expr the expression to evaluate and approximate
      */
@@ -1084,7 +1095,9 @@ private:
         return !isLeftAssoc ( op ) ? 2 : ( ( op == '*' || op == '/' ) ? 1 : 0 );
     }
 
-    typedef std::stack<long double, std::vector<long double> > evalStack;
+    typedef std::stack<typename ExpressionEvalTraits<integer_type>::NumberType,
+            std::vector<typename ExpressionEvalTraits<integer_type>::NumberType> > evalStack;
+
     static bool eval ( const char op, evalStack &s );
 
     template<class Op>
@@ -1182,7 +1195,8 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
                 if ( ! * ( ptr + 1 ) ) {
                     rpn.push ( TYPE_CONVERT<const char *>
-                               ( token.c_str() ).template convert<long double>() );
+                               ( token.c_str() ).template
+                               convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
                 }
 
                 prev = *ptr++;
@@ -1191,7 +1205,8 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
             } else if ( !token.empty() ) {
 
                 rpn.push ( TYPE_CONVERT<const char *>
-                           ( token.c_str() ).template convert<long double>() );
+                           ( token.c_str() ).template
+                           convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
                 token.clear();
             }
 
@@ -1284,7 +1299,9 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
         }
 
         if ( ! ( !syard.empty() || rpn.empty() || rpn.size() > 1 ) ) {
-            _approxFract<integer_type, GCD, CHKOP, long double, true>() ( *this, rpn.top() );
+            _approxFract<integer_type, GCD, CHKOP,
+                         typename ExpressionEvalTraits<integer_type>::NumberType, true>()
+                         ( *this, rpn.top() );
         } else {
 #ifdef __EXCEPTIONS
             throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
@@ -1666,9 +1683,11 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
 
+    typedef typename ExpressionEvalTraits<integer_type>::NumberType NumberType;
+
     if ( !s.empty() ) {
 
-        long double operand[2] = { s.top(), 0.0l };
+        NumberType operand[2] = { s.top(), NumberType() };
 
         s.pop();
 
@@ -1676,7 +1695,7 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
 
         switch ( op ) {
         case 1:
-            s.push ( -operand[0] );
+            s.push ( std::negate<NumberType>() ( operand[0] ) );
             return true;
         case 2:
             s.push ( operand[0] );
@@ -1684,22 +1703,22 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
         case '+':
             operand[1] = s.top();
             s.pop();
-            s.push ( operand[1] + operand[0] );
+            s.push ( std::plus<NumberType>() ( operand[1], operand[0] ) );
             return true;
         case '-':
             operand[1] = s.top();
             s.pop();
-            s.push ( operand[1] - operand[0] );
+            s.push ( std::minus<NumberType>() ( operand[1], operand[0] ) );
             return true;
         case '*':
             operand[1] = s.top();
             s.pop();
-            s.push ( operand[1] * operand[0] );
+            s.push ( std::multiplies<NumberType>() ( operand[1], operand[0] ) );
             return true;
         case '/':
             operand[1] = s.top();
             s.pop();
-            s.push ( operand[1] / operand[0] );
+            s.push ( std::divides<NumberType>() ( operand[1], operand[0] ) );
             return true;
         }
     }
@@ -2005,8 +2024,6 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
         typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const NumberType &,
                  const NumberType>::ResultT one ( CONV<T> ( one_ ).template convert<NumberType>() );
 
-        const bool isExact = std::numeric_limits<NumberType>::is_exact;
-
         while ( ! ( abs ( ( CONV<T> ( r.m_numer ).template convert<NumberType>() /
                             CONV<T> ( r.m_denom ).template convert<NumberType>() ) - nt )
                     < eps_ ) ) {
@@ -2032,7 +2049,7 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
                      const NumberType>::ResultT
                      d ( x - CONV<T> ( n ).template convert<NumberType>() );
 
-            if ( isExact ? d == NumberType() : d < eps_ ) break;
+            if ( d < eps_ ) break;
 
             x = one / d;
         }

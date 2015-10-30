@@ -127,6 +127,11 @@ void CLNTest::testConstructFromDouble() {
 
 void CLNTest::testConstructFrom_cl_F_class() {
 
+    const cln_rational &o ( cln::cl_F ( "0.33333333333333333L0_16" ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1l ), o.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3l ), o.denominator() );
+
     const cln_rational &p ( cln::cl_F ( 19.0 ) / cln::cl_F ( 51.0 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 19l ), p.numerator() );
@@ -453,7 +458,7 @@ void CLNTest::testString() {
     os_m << l.str ( true );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "1/8" ), os_f.str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "1/8" ), os_m.str ( ) );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1/8" ), os_m.str() );
 
     const cln_rational m ( 8, 1 );
 
@@ -464,7 +469,7 @@ void CLNTest::testString() {
     os_m << m.str ( true );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "8" ), os_f.str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "8" ), os_m.str ( ) );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "8" ), os_m.str() );
 
     const cln_rational n ( 8, 2, 1 );
 
@@ -475,7 +480,7 @@ void CLNTest::testString() {
     os_m << n.str ( true );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "10" ), os_f.str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "10" ), os_m.str ( ) );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "10" ), os_m.str() );
 
 }
 
@@ -486,8 +491,10 @@ void CLNTest::testIOStreamOps() {
 
     real_in >> real_rat;
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "33418014626285419" ), real_rat.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "100254043878856258" ), real_rat.denominator() );
+//     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "33418014626285419" ), real_rat.numerator() );
+//     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "100254043878856258" ), real_rat.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "1" ), real_rat.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "3" ), real_rat.denominator() );
 
     std::ostringstream os;
     os << cln_rational ( M_PI );
@@ -504,8 +511,8 @@ void CLNTest::testIOStreamOps() {
 
     is >> in_pi;
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "6167950454" ), in_pi.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "1963319607" ), in_pi.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "245850922" ), in_pi.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "78256779" ), in_pi.denominator() );
 
 }
 

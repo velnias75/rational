@@ -48,14 +48,10 @@ void GMPTest::testConstruct() {
 #endif
 
     CPPUNIT_ASSERT_EQUAL (
-        std::string ( "4016738247910921445183770562792527230871790482730798620920" \
-                      "3242394032674573345714107911694514536898289177933847227109" \
-                      "12324725149799230371316644957" ), m_sqrt2.numerator().get_str() );
+        std::string ( "6333631924" ), m_sqrt2.numerator().get_str() );
 
     CPPUNIT_ASSERT_EQUAL (
-        std::string ( "2840262853349184214224624055939823380440794351393149143229" \
-                      "9345538280058115643575803799519938893676390738702021028792" \
-                      "52515818756635810738450587537" ), m_sqrt2.denominator().get_str() );
+        std::string ( "4478554083" ), m_sqrt2.denominator().get_str() );
 
     const mpf_class &a ( gmp_rational ( 1, 2 ) );
     const mpf_class &b ( gmp_rational ( 1, -2 ) );
@@ -449,8 +445,8 @@ void GMPTest::testIOStreamOps() {
 
     real_in >> real_rat;
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "33418014626285420" ), real_rat.numerator().get_str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "100254043878856261" ), real_rat.denominator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "33357584220089605" ), real_rat.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "100072752660268816" ), real_rat.denominator().get_str() );
 
     std::ostringstream os;
     os << gmp_rational ( M_PI );
@@ -467,8 +463,8 @@ void GMPTest::testIOStreamOps() {
 
     is >> in_pi;
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "8717442233" ), in_pi.numerator().get_str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "2774848045" ), in_pi.denominator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "21053343141" ), in_pi.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "6701487259" ), in_pi.denominator().get_str() );
 }
 
 void GMPTest::testAlgorithm() {
