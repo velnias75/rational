@@ -3,10 +3,10 @@ check_PROGRAMS = test_rational
 TESTS = $(check_PROGRAMS)
 
 noinst_HEADERS = rationaltest.h gmptest.h clntest.h infinttest.h exprtest.h exprtest_cln.h \
-	exprtest_infint.h
+	exprtest_infint.h gausstest.h
 
 test_rational_CXXFLAGS = -fexceptions -I$(top_srcdir)/src/rational $(CPPUNIT_CFLAGS)
-test_rational_SOURCES = rationaltest.cpp exprtest.cpp test_rational.cpp
+test_rational_SOURCES = gausstest.cpp rationaltest.cpp exprtest.cpp test_rational.cpp
 
 if WITH_CLN
 test_rational_CXXFLAGS += $(CLN_CFLAGS)
