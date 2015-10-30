@@ -412,22 +412,6 @@ public:
     RATIONAL_CONSTEXPR Rational() : m_numer (), m_denom ( one_ ) {}
 
     /**
-     * @brief copy constructor
-     *
-     * @param[in] other the %Rational to copy
-     */
-    RATIONAL_CONSTEXPR Rational ( const Rational &other );
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-    /**
-     * @brief move constructor
-     *
-     * @param[in] other the %Rational to move
-     */
-    RATIONAL_CONSTEXPR Rational ( Rational &&other ) RATIONAL_NOEXCEPT;
-#endif
-
-    /**
      * @brief creates a %Rational
      *
      * Creates a copy of @c numer and divides it by @c denom
@@ -533,42 +517,6 @@ public:
     Rational ( const char *expr );
 
     ~Rational();
-
-    /**
-     * @brief assign another %Rational
-     *
-     * @param[in] another the %Rational to assign
-     */
-    Rational &operator= ( const Rational& another ) {
-
-        if ( this != &another ) {
-            this->Rational::~Rational();
-            new ( this ) Rational ( another );
-        }
-
-        return *this;
-    }
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-    /**
-     * @brief move assign another %Rational
-     *
-     * @param[in] another the %Rational to assign
-     */
-    Rational &operator= ( Rational&& another ) {
-
-        if ( this != &another ) {
-
-            this->Rational::~Rational();
-            new ( this ) Rational ( another );
-
-//             another.m_numer = zero_;
-//             another.m_numer = integer_type ( 1 );
-        }
-
-        return *this;
-    }
-#endif
 
     /**
      * @brief assigns from a @c NumberType
@@ -1121,18 +1069,6 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 const typename Rational<T, GCD, CHKOP>::integer_type Rational<T, GCD, CHKOP>::one_
     = integer_type ( 1 );
-
-template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP>::Rational ( const Rational &other )
-    : m_numer ( other.m_numer ), m_denom ( other.m_denom ) {}
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP>::Rational ( Rational &&other ) RATIONAL_NOEXCEPT :
-m_numer ( std::move ( other.m_numer ) ), m_denom ( std::move ( other.m_denom ) ) {}
-#endif
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
