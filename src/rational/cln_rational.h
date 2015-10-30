@@ -277,14 +277,26 @@ struct _abs<cln::cl_I, GCD, CHKOP, false> {
     }
 };
 
-template<>
-inline cln::cl_F _approxFract<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK, cln::cl_F, true,
-EPSILON, TYPE_CONVERT>::abs ( const cln::cl_F &nt ) const {
-    return cln::abs ( nt );
-}
+template<template<typename> class EPSILON> struct _approxUtils<cln::cl_F, EPSILON> {
+
+    inline static bool approximated ( const cln::cl_F &af, const cln::cl_F &nt ) {
+        return abs ( af - nt ) < eps_;
+    }
+
+    const static cln::cl_F eps_;
+
+private:
+
+    inline static cln::cl_F abs ( const cln::cl_F &nt ) {
+        return cln::abs ( nt );
+    }
+};
+
+template<template<typename> class EPSILON>
+const cln::cl_F _approxUtils<cln::cl_F, EPSILON>::eps_ ( EPSILON<cln::cl_F>::value() );
 
 template<template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _swapSign<cln::cl_I, GCD, CHKOP, true> {
 
     inline Rational<cln::cl_I, GCD, CHKOP> &

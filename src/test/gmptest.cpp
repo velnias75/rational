@@ -48,10 +48,10 @@ void GMPTest::testConstruct() {
 #endif
 
     CPPUNIT_ASSERT_EQUAL (
-        std::string ( "6333631924" ), m_sqrt2.numerator().get_str() );
+        std::string ( "4478554083" ), m_sqrt2.numerator().get_str() );
 
     CPPUNIT_ASSERT_EQUAL (
-        std::string ( "4478554083" ), m_sqrt2.denominator().get_str() );
+        std::string ( "3166815962" ), m_sqrt2.denominator().get_str() );
 
     const mpf_class &a ( gmp_rational ( 1, 2 ) );
     const mpf_class &b ( gmp_rational ( 1, -2 ) );
@@ -144,8 +144,8 @@ void GMPTest::testConstructFrom_mpf_class() {
 
     const Rational<rational_type, GCD_euclid> &r ( mpf_class ( -0.7391304347826086, 65 ) );
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "-665749510133023" ), r.numerator().get_str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "900719925474090" ), r.denominator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "-1331499020266063" ), r.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1801439850948203" ), r.denominator().get_str() );
 
     const Rational<rational_type, GCD_euclid> &s ( mpf_class ( 0.0 ) );
 
@@ -463,8 +463,8 @@ void GMPTest::testIOStreamOps() {
 
     is >> in_pi;
 
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "21053343141" ), in_pi.numerator().get_str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "6701487259" ), in_pi.denominator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "6167950454" ), in_pi.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1963319607" ), in_pi.denominator().get_str() );
 }
 
 void GMPTest::testAlgorithm() {

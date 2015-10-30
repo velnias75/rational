@@ -1046,7 +1046,7 @@ private:
     typedef std::stack<typename ExpressionEvalTraits<integer_type>::NumberType,
             std::vector<typename ExpressionEvalTraits<integer_type>::NumberType> > evalStack;
 
-    static bool eval ( const char op, evalStack &s );
+    static bool eval ( const char op, evalStack &s, const char *expr );
 
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
@@ -1162,7 +1162,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
                 while ( !syard.empty() && ( top = syard.top() ) != '(' ) {
 
-                    if ( !eval ( top, rpn ) ) {
+                    if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
                         throw std::runtime_error ( std::string ( "invalid expression: " )
                                                    .append ( expr ) );
@@ -1202,10 +1202,9 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                     while ( !syard.empty() &&
                             operators.find ( ( top = syard.top() ) ) != operators.end() &&
                             ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( top ) ) ||
-                              ( !isLeftAssoc ( op ) && getPrec ( op ) <
-                                getPrec ( top ) ) ) ) {
+                              ( !isLeftAssoc ( op ) && getPrec ( op ) < getPrec ( top ) ) ) ) {
 
-                        if ( !eval ( top, rpn ) ) {
+                        if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
                             throw std::runtime_error ( std::string ( "invalid expression: " )
                                                        .append ( expr ) );
@@ -1225,7 +1224,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
         while ( !syard.empty() && operators.find ( ( top = syard.top() ) ) != operators.end() ) {
 
-            if ( !eval ( top, rpn ) ) {
+            if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
                 throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
 #endif
@@ -1615,9 +1614,11 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
     return os.str();
 }
 
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#pragma GCC diagnostic push
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
+bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *expr ) {
 
     typedef typename ExpressionEvalTraits<integer_type>::NumberType NumberType;
 
@@ -1652,6 +1653,10 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
             s.push ( std::multiplies<NumberType>() ( operand[1], operand[0] ) );
             return true;
         case '/':
+            if ( operand[0] == NumberType() ) {
+                throw std::domain_error ( std::string ( "division by zero in expression: " ).
+                                          append ( expr ) );
+            }
             operand[1] = s.top();
             s.pop();
             s.push ( std::divides<NumberType>() ( operand[1], operand[0] ) );
@@ -1661,6 +1666,7 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s ) {
 
     return false;
 }
+#pragma GCC diagnostic pop
 
 /**
  * @relates Rational
@@ -1900,6 +1906,25 @@ bool operator>= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
     return ! ( o < Rational<T, GCD, CHKOP> ( n ) );
 }
 
+template<typename NumberType, template<typename> class EPSILON>
+struct _approxUtils {
+
+    inline static bool approximated ( const NumberType &af, const NumberType &nt ) {
+        return abs ( af - nt ) < eps_;
+    }
+
+    const static NumberType eps_;
+
+private:
+
+    inline static NumberType abs ( const NumberType &nt ) {
+        return nt < NumberType() ? NumberType ( -nt ) : nt;
+    }
+};
+
+template<typename NumberType, template<typename> class EPSILON>
+const NumberType _approxUtils<NumberType, EPSILON>::eps_ ( EPSILON<NumberType>::value() );
+
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
          typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
@@ -1911,22 +1936,9 @@ public:
     void operator() ( rat &r, const NumberType &nt ) const;
 
 private:
-    inline NumberType abs ( const NumberType &nt ) const {
-        return nt < NumberType() ? NumberType ( -nt ) : nt;
-    }
-
-private:
-    const static NumberType eps_;
-
     const static T zero_;
     const static T one_;
 };
-
-template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
-const NumberType _approxFract<T, GCD, CHKOP, NumberType, true,
-      EPSILON, CONV>::eps_ ( EPSILON<NumberType>::value() );
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
@@ -1960,9 +1972,7 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
         typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const NumberType &,
                  const NumberType>::ResultT one ( CONV<T> ( one_ ).template convert<NumberType>() );
 
-        while ( ! ( abs ( ( CONV<T> ( r.m_numer ).template convert<NumberType>() /
-                            CONV<T> ( r.m_denom ).template convert<NumberType>() ) - nt )
-                    < eps_ ) ) {
+        while ( !_approxUtils<NumberType, EPSILON>::approximated ( r, nt ) ) {
 
             using namespace std;
 
@@ -1985,7 +1995,7 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
                      const NumberType>::ResultT
                      d ( x - CONV<T> ( n ).template convert<NumberType>() );
 
-            if ( d < eps_ ) break;
+            if ( _approxUtils<NumberType, EPSILON>::approximated ( d, NumberType() ) ) break;
 
             x = one / d;
         }

@@ -58,7 +58,7 @@
  * (https://gmplib.org/manual/C_002b_002b-Interface-Integers.html#C_002b_002b-Interface-Integers)
  * for details
  */
-#define GMP_EPSILON "1e-20"
+#define GMP_EPSILON "1e-100"
 #endif
 
 #if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
@@ -256,14 +256,26 @@ template<> inline const mpf_class EPSILON<mpf_class>::value() {
     return eps;
 }
 
-template<>
-inline mpf_class _approxFract<mpz_class, GCD_gmp, NO_OPERATOR_CHECK, mpf_class, true,
-EPSILON, TYPE_CONVERT>::abs ( const mpf_class &nt ) const {
-    return ::abs ( nt );
-}
+template<template<typename> class EPSILON> struct _approxUtils<mpf_class, EPSILON> {
+
+    inline static bool approximated ( const mpf_class &af, const mpf_class &nt ) {
+        return mpf_eq ( af.get_mpf_t(), nt.get_mpf_t(), std::min ( af.get_prec(), nt.get_prec() ) );
+    }
+
+    const static mpf_class eps_;
+
+private:
+
+    inline static mpf_class abs ( const mpf_class &nt ) {
+        return ::abs ( nt );
+    }
+};
+
+template<template<typename> class EPSILON>
+const mpf_class _approxUtils<mpf_class, EPSILON>::eps_ ( EPSILON<mpf_class>::value() );
 
 template<template<typename, bool, template<class, typename, bool> class,
-template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _swapSign<mpz_class, GCD, CHKOP, true> {
 
     inline Rational<mpz_class, GCD, CHKOP> &
