@@ -52,7 +52,7 @@ if test x$enable_gmp = xyes; then
       [ AC_LANG_PUSH([C])
         AC_CHECK_LIB([mpfr], [mpfr_set_str], [
         AM_CONDITIONAL([HAVE_MPREAL_H], [true])
-        CPPFLAGS=-DHAVE_MPREAL_H=1
+	GMP_CFLAGS="${GMP_CFLAGS} -DHAVE_MPREAL_H=1"
         GMP_LIBS="${GMP_LIBS} -lmpfr"
         AC_MSG_NOTICE([found mpreal.h, will use mpfr and mpfrc++ for floating points])
       ])
