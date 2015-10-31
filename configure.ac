@@ -46,16 +46,19 @@ if test x$enable_gmp = xyes; then
   AC_ARG_WITH([mpreal], [AS_HELP_STRING([--with-mpreal], 
     [if gmp is enabled, use mpreal.h and mpfr for floating points])], [
   if test x$with_mpreal = xyes; then
+    ac_save_cppflags="${CPPFLAGS}"
+    CPPFLAGS="${CPPFLAGS} -std=c++0x"
     AC_CHECK_HEADER([mpreal.h], 
       [ AC_LANG_PUSH([C])
         AC_CHECK_LIB([mpfr], [mpfr_set_str], [
         AM_CONDITIONAL([HAVE_MPREAL_H], [true])
-        CPPFLAGS=-DHAVE_MPREAL_H=1
+	GMP_CFLAGS="${GMP_CFLAGS} -DHAVE_MPREAL_H=1"
         GMP_LIBS="${GMP_LIBS} -lmpfr"
         AC_MSG_NOTICE([found mpreal.h, will use mpfr and mpfrc++ for floating points])
       ])
       AC_LANG_POP([C])
     ])
+    CPPFLAGS=$ac_save_cppflags
   fi])
   if test -z "${GMP_LIBS}" -o "${GMP_LIBS}" = " -lmpfr"; then
     GMP_LIBS="${GMP_LIBS}"

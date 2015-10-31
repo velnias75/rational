@@ -36,8 +36,8 @@
  * perhaps not even an [ordered ring](https://en.wikipedia.org/wiki/Ordered_ring), but support
  * for such types is experimental and has not been thoroughly tested. In fact, you should be able
  * to use any [integral domain](https://en.wikipedia.org/wiki/Integral_domain), but you may need
- * to apply a more sophisticated GCD algorithm (see also @ref gcd); you can fall back to 
- * Commons::Math::GCD_null if overflow is not a concern in practice. Finally, using non-integral 
+ * to apply a more sophisticated GCD algorithm (see also @ref gcd); you can fall back to
+ * Commons::Math::GCD_null if overflow is not a concern in practice. Finally, using non-integral
  * domains is very likely to fail.\n \n
  *
  * @b Example: \n To approximate the @b reciprocal of the @em golden @em ratio
@@ -509,8 +509,8 @@ public:
      * Numbers can be integers or floats in non-scientific notation. Allowed are spaces, tabs
      * and newlines around numbers, parenthesises and operators.
      *
-     * The expression gets evaluated into a @c ExpressionEvalTraits<integer_type> value and than
-     * is approximated to a fraction.\n
+     * The expression gets evaluated into a sequence of Commons::Math::Rational terms. Floats
+     * are approximated using @c ExpressionEvalTraits<integer_type> as float number type.\n
      * @c ExpressionEvalTraits<integer_type> corresponds to @c long @c double if not specialized
      *
      * In case of errors an @c std::runtime_exception is thrown if exceptions are enabled,
@@ -1054,8 +1054,7 @@ private:
         return !isLeftAssoc ( op ) ? 2 : ( ( op == '*' || op == '/' ) ? 1 : 0 );
     }
 
-    typedef std::stack<typename ExpressionEvalTraits<integer_type>::NumberType,
-            std::vector<typename ExpressionEvalTraits<integer_type>::NumberType> > evalStack;
+    typedef std::stack<Rational, std::vector<Rational> > evalStack;
 
     static bool eval ( const char op, evalStack &s, const char *expr );
 
@@ -1245,9 +1244,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
         }
 
         if ( ! ( !syard.empty() || rpn.empty() || rpn.size() > 1 ) ) {
-            _approxFract<integer_type, GCD, CHKOP,
-                         typename ExpressionEvalTraits<integer_type>::NumberType, true>()
-                         ( *this, rpn.top() );
+            *this = rpn.top();
         } else {
 #ifdef __EXCEPTIONS
             throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
@@ -1631,11 +1628,11 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *expr ) {
 
-    typedef typename ExpressionEvalTraits<integer_type>::NumberType NumberType;
+//     typedef typename ExpressionEvalTraits<integer_type>::NumberType NumberType;
 
     if ( !s.empty() ) {
 
-        NumberType operand[2] = { s.top(), NumberType() };
+        Rational operand[2] = { s.top(), Rational() };
 
         s.pop();
 
@@ -1643,7 +1640,7 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *ex
 
         switch ( op ) {
         case 1:
-            s.push ( std::negate<NumberType>() ( operand[0] ) );
+            s.push ( -operand[0] );
             return true;
         case 2:
             s.push ( operand[0] );
@@ -1651,26 +1648,26 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *ex
         case '+':
             operand[1] = s.top();
             s.pop();
-            s.push ( std::plus<NumberType>() ( operand[1], operand[0] ) );
+            s.push ( operand[1] += operand[0] );
             return true;
         case '-':
             operand[1] = s.top();
             s.pop();
-            s.push ( std::minus<NumberType>() ( operand[1], operand[0] ) );
+            s.push ( operand[1] -= operand[0] );
             return true;
         case '*':
             operand[1] = s.top();
             s.pop();
-            s.push ( std::multiplies<NumberType>() ( operand[1], operand[0] ) );
+            s.push ( operand[1] *= operand[0] );
             return true;
         case '/':
-            if ( operand[0] == NumberType() ) {
+            if ( operand[0] == Rational() ) {
                 throw std::domain_error ( std::string ( "division by zero in expression: " ).
                                           append ( expr ) );
             }
             operand[1] = s.top();
             s.pop();
-            s.push ( std::divides<NumberType>() ( operand[1], operand[0] ) );
+            s.push ( operand[1] /= operand[0] );
             return true;
         }
     }

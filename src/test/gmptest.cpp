@@ -469,11 +469,11 @@ void GMPTest::testIOStreamOps() {
     is >> in_pi;
 
 #ifdef HAVE_MPREAL_H
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "245850922" ), in_pi.numerator().get_str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "78256779" ), in_pi.denominator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "657408909" ), in_pi.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "209259755" ), in_pi.denominator().get_str() );
 #else
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "6167950454" ), in_pi.numerator().get_str() );
-    CPPUNIT_ASSERT_EQUAL ( std::string ( "1963319607" ), in_pi.denominator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "21053343141" ), in_pi.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "6701487259" ), in_pi.denominator().get_str() );
 #endif
 
 }

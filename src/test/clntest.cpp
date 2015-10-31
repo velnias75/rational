@@ -491,8 +491,6 @@ void CLNTest::testIOStreamOps() {
 
     real_in >> real_rat;
 
-//     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "33418014626285419" ), real_rat.numerator() );
-//     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "100254043878856258" ), real_rat.denominator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "1" ), real_rat.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( "3" ), real_rat.denominator() );
 

@@ -209,7 +209,7 @@ template<> inline long unsigned int TYPE_CONVERT<mpz_class>::convert<long unsign
 
 #ifdef HAVE_MPREAL_H
 template<> inline mpfr::mpreal TYPE_CONVERT<mpz_class>::convert<mpfr::mpreal>() const {
-    return val.get_d();
+    return val.get_mpz_t();
 }
 
 template<> struct TYPE_CONVERT<mpfr::mpreal> {
@@ -217,7 +217,12 @@ template<> struct TYPE_CONVERT<mpfr::mpreal> {
     inline explicit TYPE_CONVERT ( const mpfr::mpreal &v ) : val ( v ) {}
 
     template<typename U> U convert() const {
-        return U ( val.toString().c_str() );
+
+        U out;
+
+        mpfr_get_z ( out.get_mpz_t(), val.mpfr_ptr(), val.get_default_rnd() );
+
+        return out;
     }
 
 private:
