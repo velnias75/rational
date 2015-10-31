@@ -209,7 +209,7 @@ template<> inline long unsigned int TYPE_CONVERT<mpz_class>::convert<long unsign
 
 #ifdef HAVE_MPREAL_H
 template<> inline mpfr::mpreal TYPE_CONVERT<mpz_class>::convert<mpfr::mpreal>() const {
-    return val.get_d();
+    return val.get_mpz_t();
 }
 
 template<> struct TYPE_CONVERT<mpfr::mpreal> {
@@ -218,11 +218,11 @@ template<> struct TYPE_CONVERT<mpfr::mpreal> {
 
     template<typename U> U convert() const {
 
-		U out;
+        U out;
 
-		mpfr_get_z(out.get_mpz_t(), val.mpfr_ptr(), val.get_default_rnd());
+        mpfr_get_z ( out.get_mpz_t(), val.mpfr_ptr(), val.get_default_rnd() );
 
-		return out;
+        return out;
     }
 
 private:
@@ -388,4 +388,4 @@ template<> struct CFRationalTraits<mpz_class> {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
