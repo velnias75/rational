@@ -445,8 +445,13 @@ void GMPTest::testIOStreamOps() {
 
     real_in >> real_rat;
 
+#ifdef HAVE_MPREAL_H
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1" ), real_rat.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "3" ), real_rat.denominator().get_str() );
+#else
     CPPUNIT_ASSERT_EQUAL ( std::string ( "33357584220089605" ), real_rat.numerator().get_str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "100072752660268816" ), real_rat.denominator().get_str() );
+#endif
 
     std::ostringstream os;
     os << gmp_rational ( M_PI );
@@ -463,8 +468,14 @@ void GMPTest::testIOStreamOps() {
 
     is >> in_pi;
 
+#ifdef HAVE_MPREAL_H
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "245850922" ), in_pi.numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "78256779" ), in_pi.denominator().get_str() );
+#else
     CPPUNIT_ASSERT_EQUAL ( std::string ( "6167950454" ), in_pi.numerator().get_str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "1963319607" ), in_pi.denominator().get_str() );
+#endif
+
 }
 
 void GMPTest::testAlgorithm() {
