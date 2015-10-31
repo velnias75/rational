@@ -43,7 +43,13 @@ if test x$enable_gmp = xyes; then
     CPPFLAGS=$ac_save_cppflags
   fi
   if test -z "${GMP_LIBS}" ; then
-    GMP_LIBS="-lgmpxx -lgmp"
+	GMP_LIBS=
+    AC_LANG_PUSH([C])
+    AC_CHECK_LIB([gmpxx], main, [GMP_LIBS="${GMP_LIBS} -lgmpxx"], 
+      [AC_MSG_ERROR([GNU MP++ not found, see https://gmplib.org/])])
+    AC_CHECK_LIB([gmp], [__gmpz_gcd], [GMP_LIBS="${GMP_LIBS} -lgmp"], 
+      [AC_MSG_ERROR([GNU MP not found, see https://gmplib.org/])])
+    AC_LANG_POP([C])
   fi
 fi
 ])
