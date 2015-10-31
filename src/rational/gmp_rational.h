@@ -217,7 +217,12 @@ template<> struct TYPE_CONVERT<mpfr::mpreal> {
     inline explicit TYPE_CONVERT ( const mpfr::mpreal &v ) : val ( v ) {}
 
     template<typename U> U convert() const {
-        return U ( val.toString().c_str() );
+
+		U out;
+
+		mpfr_get_z(out.get_mpz_t(), val.mpfr_ptr(), val.get_default_rnd());
+
+		return out;
     }
 
 private:
@@ -383,4 +388,4 @@ template<> struct CFRationalTraits<mpz_class> {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
