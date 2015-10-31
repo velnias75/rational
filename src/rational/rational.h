@@ -29,6 +29,17 @@
  * type. For example, `Commons::Math::Rational<long> foo(3, 4)` would create a fraction named `foo`
  * with a value of @f$ \frac{3}{4} @f$, and store the fraction using the `long` data type.\n \n
  *
+ * The @em storage @em type should represent all integers within some (possibly infinite) interval
+ * @f$[0, 1]@f$. For example, the native @c signed or @c unsigned @c int and @c long types, or
+ * arbitrary-precision integers, may be used. Beyond ordinary integers, you should also be
+ * able to use any other [Euclidean domain](https://en.wikipedia.org/wiki/Euclidean_domain),
+ * perhaps not even an [ordered ring](https://en.wikipedia.org/wiki/Ordered_ring), but support
+ * for such types is experimental and has not been thoroughly tested. In fact, you should be able
+ * to use any [integral domain](https://en.wikipedia.org/wiki/Integral_domain), but you may need
+ * to apply a more sophisticated GCD algorithm (see also @ref gcd); you can fall back to 
+ * Commons::Math::GCD_null if overflow is not a concern in practice. Finally, using non-integral 
+ * domains is very likely to fail.\n \n
+ *
  * @b Example: \n To approximate the @b reciprocal of the @em golden @em ratio
  * (@f$ \varphi = \phi^{-1} @f$) \n @f$ \varphi = \frac{\sqrt{5}-1}{2} @f$ \n by iteratively
  * calculating \n @f$x_{n}=\frac{F_{n+1}}{F_{n}}@f$, where @f$F_{n}@f$ is the @em n-th
