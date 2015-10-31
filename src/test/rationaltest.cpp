@@ -1246,6 +1246,54 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<rational_type> ( -11, 3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<rational_type> ( 11, 3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), Rational<uint32_t> ( 11, 3 ).abs().str() );
+
+    const Rational<rational_type, GCD_euclid, NO_OPERATOR_CHECK> &a ( rf<rational_type,
+            GCD_euclid, NO_OPERATOR_CHECK> ( 142857 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, a.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 7, a.denominator() );
+
+    const Rational<rational_type, GCD_euclid, NO_OPERATOR_CHECK> &b ( rf<rational_type,
+            GCD_euclid, NO_OPERATOR_CHECK> ( 34 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 34, b.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 99, b.denominator() );
+
+    const Rational<rational_type, GCD_euclid, NO_OPERATOR_CHECK> &c ( rf<rational_type,
+            GCD_euclid, NO_OPERATOR_CHECK> ( 123456789 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 13717421, c.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 111111111, c.denominator() );
+
+    const Rational<rational_type, GCD_euclid, NO_OPERATOR_CHECK> &d ( rf<rational_type,
+            GCD_euclid, NO_OPERATOR_CHECK> ( 12, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 4, d.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 333, d.denominator() );
+
+    const Rational<rational_type, GCD_euclid, NO_OPERATOR_CHECK> &e ( rf<rational_type,
+            GCD_euclid, NO_OPERATOR_CHECK> ( 6, 0, 1111 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 667, e.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 6000, e.denominator() );
+
+    const Rational<unsigned long, GCD_euclid, NO_OPERATOR_CHECK> &f ( rf<unsigned long,
+            GCD_euclid, NO_OPERATOR_CHECK> ( 1, 2, 3, 4 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 149ul, f.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4950000ul, f.denominator() );
+
+    const Rational<unsigned long, GCD_euclid, NO_OPERATOR_CHECK> &g ( rf<unsigned long,
+            GCD_euclid, NO_OPERATOR_CHECK> ( 6, 0, 0, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1ul, g.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 15ul, g.denominator() );
+
+    const Rational<unsigned long, GCD_euclid, NO_OPERATOR_CHECK> &h ( rf<unsigned long,
+            GCD_euclid, NO_OPERATOR_CHECK> ( 6, 0, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1ul, h.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 6ul, h.denominator() );
 }
 
 void RationalTest::testRatRat() {
