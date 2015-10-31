@@ -50,6 +50,7 @@ Features
   (i.e. `Rational<long> expr("(11/2) * +(4.25+3.75)")`)
 - Construction of fractions from continued fractions (from container of integer types)
 - Extraction of continued fractions sequences from a fraction
+- Construction of fractions from repeating decimals (i.e. `0.16666...` => `1/6`)
 
 Notes for custom number types
 -----------------------------

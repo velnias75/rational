@@ -534,6 +534,46 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( 11, -3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( -11, 3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( 11, 3 ).abs().str() );
+    
+    const gmp_rational &a ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 142857 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, a.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, a.denominator().get_si() );
+
+    const gmp_rational &b ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 34 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 34l, b.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 99l, b.denominator().get_si() );
+
+    const gmp_rational &c ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 123456789 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 13717421l, c.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 111111111l, c.denominator().get_si() );
+
+    const gmp_rational &d ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 12, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 4l, d.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 333l, d.denominator().get_si() );
+
+    const gmp_rational &e ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 6, 0, 1111 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 667l, e.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 6000l, e.denominator().get_si() );
+
+    const gmp_rational &f ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 1, 2, 3, 4 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 149l, f.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 4950000l, f.denominator().get_si() );
+
+    const gmp_rational &g ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 6, 0, 0, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, g.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 15l, g.denominator().get_si() );
+
+    const gmp_rational &h ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 6, 0, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, h.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 6l, h.denominator().get_si() );
 }
 
 void GMPTest::testGoldenRatio() {
