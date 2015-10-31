@@ -27,7 +27,7 @@ PKGCFG_GMP_LIBS = ${GMP_LIBS}
 endif
 
 if WITH_INFINT
-PKGCFG_GMP_CFLAGS = ${INFINT_CFLAGS}
+PKGCFG_INFINT_CFLAGS = ${INFINT_CFLAGS}
 endif
 
 rational.pc: $(top_srcdir)/rational.pc.in
