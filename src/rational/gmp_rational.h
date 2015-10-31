@@ -39,7 +39,15 @@
 #ifndef COMMONS_MATH_GMP_RATIONAL_H
 #define COMMONS_MATH_GMP_RATIONAL_H
 
+#if defined(IN_IDE_PARSER)
+#define HAVE_MPREAL_H 1
+#endif
+
 #include <gmpxx.h>
+
+#ifdef HAVE_MPREAL_H
+#include <mpreal.h>
+#endif
 
 #include "rational.h"
 
@@ -140,7 +148,11 @@ namespace Commons {
 namespace Math {
 
 template<> struct ExpressionEvalTraits<mpz_class> {
+#ifdef HAVE_MPREAL_H
+    typedef mpfr::mpreal NumberType;
+#else
     typedef mpf_class NumberType;
+#endif
 };
 
 template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() const {
@@ -154,6 +166,12 @@ template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() cons
 template<> inline mpf_class TYPE_CONVERT<const char *>::convert<mpf_class>() const {
     return mpf_class ( val );
 }
+
+#ifdef HAVE_MPREAL_H
+template<> inline mpfr::mpreal TYPE_CONVERT<const char *>::convert<mpfr::mpreal>() const {
+    return mpfr::mpreal ( val );
+}
+#endif
 
 template<> struct TYPE_CONVERT<mpz_class> {
 
@@ -188,6 +206,24 @@ template<> inline long signed int TYPE_CONVERT<mpz_class>::convert<long signed i
 template<> inline long unsigned int TYPE_CONVERT<mpz_class>::convert<long unsigned int>() const {
     return val.get_ui();
 }
+
+#ifdef HAVE_MPREAL_H
+template<> inline mpfr::mpreal TYPE_CONVERT<mpz_class>::convert<mpfr::mpreal>() const {
+    return val.get_d();
+}
+
+template<> struct TYPE_CONVERT<mpfr::mpreal> {
+
+    inline explicit TYPE_CONVERT ( const mpfr::mpreal &v ) : val ( v ) {}
+
+    template<typename U> U convert() const {
+        return U ( val.toString().c_str() );
+    }
+
+private:
+    const mpfr::mpreal &val;
+};
+#endif
 
 /**
  * @ingroup gmp
@@ -255,6 +291,31 @@ template<> inline const mpf_class EPSILON<mpf_class>::value() {
     static mpf_class eps ( GMP_EPSILON );
     return eps;
 }
+
+#ifdef HAVE_MPREAL_H
+template<> inline const mpfr::mpreal EPSILON<mpfr::mpreal>::value() {
+    static mpfr::mpreal eps ( GMP_EPSILON );
+    return eps;
+}
+
+template<template<typename> class EPSILON> struct _approxUtils<mpfr::mpreal, EPSILON> {
+
+    inline static bool approximated ( const mpfr::mpreal &af, const mpfr::mpreal &nt ) {
+        return !mpfr_cmp ( af.mpfr_ptr(), nt.mpfr_ptr() );
+    }
+
+    const static mpfr::mpreal eps_;
+
+private:
+
+    inline static mpfr::mpreal abs ( const mpfr::mpreal &nt ) {
+        return mpfr::abs ( nt );
+    }
+};
+
+template<template<typename> class EPSILON>
+const mpfr::mpreal _approxUtils<mpfr::mpreal, EPSILON>::eps_ ( EPSILON<mpfr::mpreal>::value() );
+#endif
 
 template<template<typename> class EPSILON> struct _approxUtils<mpf_class, EPSILON> {
 

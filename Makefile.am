@@ -11,14 +11,18 @@ doc_DATA = README.md
 pkgconfigdir = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA = rational.pc
 
-AM_DISTCHECK_CONFIGURE_FLAGS = --enable-cln --enable-gmp --enable-infint
+AM_DISTCHECK_CONFIGURE_FLAGS = --enable-cln --enable-gmp --enable-infint --with-mpreal
 
 if WITH_CLN
 PKGCFG_WITH_CLN = cln >= 1.3.2
 endif
 
+if HAVE_MPREAL_H
+PKGCFG_MPREAL_CFLAGS = -DHAVE_MPREAL_H=1	
+endif
+
 if WITH_GMPXX
-PKGCFG_GMP_CFLAGS = ${GMP_CFLAGS}
+PKGCFG_GMP_CFLAGS = ${GMP_CFLAGS} $(PKGCFG_MPREAL_CFLAGS)
 PKGCFG_GMP_LIBS = ${GMP_LIBS}
 endif
 

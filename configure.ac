@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [2.0], [heiko@rangun.de])
+AC_INIT([rational], [2.1], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -30,6 +30,7 @@ fi
 AC_LANG_PUSH([C++])
 AC_HEADER_STDBOOL
 AM_CONDITIONAL([WITH_GMPXX], [false])
+AM_CONDITIONAL([HAVE_MPREAL_H], [false])
 AC_ARG_ENABLE([gmp], [AS_HELP_STRING([--enable-gmp], [enable GMP extension])], [
 if test x$enable_gmp = xyes; then
   if test -n "${GMP_CFLAGS}" ; then
@@ -42,8 +43,22 @@ if test x$enable_gmp = xyes; then
   if test -n "${GMP_CFLAGS}" ; then
     CPPFLAGS=$ac_save_cppflags
   fi
-  if test -z "${GMP_LIBS}" ; then
-	GMP_LIBS=
+  AC_ARG_WITH([mpreal], [AS_HELP_STRING([--with-mpreal], 
+    [if gmp is enabled, use mpreal.h and mpfr for floating points])], [
+  if test x$with_mpreal = xyes; then
+    AC_CHECK_HEADER([mpreal.h], 
+      [ AC_LANG_PUSH([C])
+        AC_CHECK_LIB([mpfr], [mpfr_set_str], [
+        AM_CONDITIONAL([HAVE_MPREAL_H], [true])
+        CPPFLAGS=-DHAVE_MPREAL_H=1
+        GMP_LIBS="${GMP_LIBS} -lmpfr"
+        AC_MSG_NOTICE([found mpreal.h, will use mpfr and mpfrc++ for floating points])
+      ])
+      AC_LANG_POP([C])
+    ])
+  fi])
+  if test -z "${GMP_LIBS}" -o "${GMP_LIBS}" = " -lmpfr"; then
+    GMP_LIBS="${GMP_LIBS}"
     AC_LANG_PUSH([C])
     AC_CHECK_LIB([gmpxx], main, [GMP_LIBS="${GMP_LIBS} -lgmpxx"], 
       [AC_MSG_ERROR([GNU MP++ not found, see https://gmplib.org/])])
@@ -54,7 +69,8 @@ if test x$enable_gmp = xyes; then
 fi
 ])
 AM_CONDITIONAL([WITH_INFINT], [false])
-AC_ARG_ENABLE([infint], [AS_HELP_STRING([--enable-infint], [enable InfInt extension])], [
+AC_ARG_ENABLE([infint], [AS_HELP_STRING([--enable-infint], 
+  [enable InfInt extension (deprecated)])], [
 if test x$enable_infint = xyes; then
   if test -n "${INFINT_CFLAGS}" ; then
     ac_save_cppflags="${CPPFLAGS}"
