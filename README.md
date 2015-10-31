@@ -10,6 +10,16 @@ Simple to use, fast, and modifiable for your needs, because its all in the one h
 `rational.h` at your access. It includes all basic mathematical operations as well as comparison 
 operators, and is very flexible. If you would like to see a feature implemented, just ask here.
 
+The *storage type* should represent all integers within some (possibly infinite) interval 
+including `0` and `1`. For example, the native `signed` or `unsigned int` and `long` types, or 
+arbitrary-precision integers, may be used. Beyond ordinary integers, you should also be 
+able to use any other [Euclidean domain](https://en.wikipedia.org/wiki/Euclidean_domain), 
+perhaps not even an [ordered ring](https://en.wikipedia.org/wiki/Ordered_ring), but support 
+for such types is experimental and has not been thoroughly tested. In fact, you should be able 
+to use any [integral domain](https://en.wikipedia.org/wiki/Integral_domain), but you may need 
+to apply a more sophisticated GCD algorithm; you can fall back to `GCD_null` if overflow is 
+not a concern in practice. Finally, using non-integral domains is very likely to fail.
+
 Features
 --------
 
