@@ -339,6 +339,18 @@ inline cl_I floor ( const cl_F &f ) {
     return floor1 ( f );
 }
 
+inline cl_I ceil ( const cl_F &f ) {
+    return ceiling1 ( f );
+}
+
+inline cl_F log10 ( const cl_I &i ) {
+    return std::log10 ( cln::double_approx ( i ) );
+}
+
+inline cl_I pow10 ( const cl_I &i ) {
+    return static_cast<unsigned long> ( std::pow ( 10, cln::double_approx ( i ) ) );
+}
+
 }
 
 #endif /* COMMONS_MATH_CLN_RATIONAL_H */

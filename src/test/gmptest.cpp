@@ -534,7 +534,7 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( 11, -3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( -11, 3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( 11, 3 ).abs().str() );
-    
+
     const gmp_rational &a ( rf<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> ( 142857 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, a.numerator().get_si() );
