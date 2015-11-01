@@ -2596,17 +2596,16 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
-template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-inline Rational<T, GCD, CHKOP> rf ( const T &x, std::size_t leading_zeros = 0u, const T &pre = T(),
-                                    std::size_t pre_leading_zeros = 0u ) {
+template<typename R>
+inline R rf ( const typename R::integer_type &x, std::size_t leading_zeros = 0u,
+              const typename R::integer_type &pre = typename R::integer_type(),
+              std::size_t pre_leading_zeros = 0u ) {
+
     using namespace std;
 
-    return ( Rational<T, GCD, CHKOP> ( pre, x, pow10 ( ceil ( log10 ( x ) ) + leading_zeros ) -
-                                       T ( 1 ) ) /=
-                 Rational<T, GCD, CHKOP> ( std::max<T> ( T ( 1 ), pow10 ( ( pre <= T ( 1 ) ?
-                                           pre : ceil ( log10 ( pre ) ) ) + pre_leading_zeros ) ),
-                                           T ( 1 ) ) );
+    return ( R ( pre, x, pow10 ( ceil ( log10 ( x ) ) + leading_zeros ) - R::one_ ) /=
+                 R ( std::max<typename R::integer_type> ( R::one_, pow10 ( ( pre <= R::one_ ?
+                         pre : ceil ( log10 ( pre ) ) ) + pre_leading_zeros ) ), R::one_ ) );
 }
 #pragma GCC diagnostic pop
 
