@@ -146,7 +146,7 @@ struct numeric_limits<mpz_class> {
 namespace Commons {
 
 namespace Math {
-    
+
 template<> struct ExpressionEvalTraits<mpz_class> {
 #ifdef HAVE_MPREAL_H
     typedef mpfr::mpreal NumberType;
@@ -387,36 +387,36 @@ template<> struct CFRationalTraits<mpz_class> {
 }
 
 #ifdef HAVE_MPREAL_H
-inline mpf_class ceil ( const mpf_class &z ) {
-     mpf_class f;
-     mpf_ceil ( f.get_mpf_t(), z.get_mpf_t() );
-     return f;
+inline mpz_class ceil ( const mpf_class &f ) {
+    mpf_class z;
+    mpf_ceil ( z.get_mpf_t(), f.get_mpf_t() );
+    return z;
 }
 
 inline mpf_class log10 ( const mpz_class &z ) {
-     mpf_class f;
-     mpfr_get_f ( f.get_mpf_t(), mpfr::log10 ( mpfr::mpreal ( z.get_mpz_t() ) ).mpfr_ptr(),
-                  mpfr::mpreal::get_default_rnd() );
-     return f;
+    mpf_class f;
+    mpfr_get_f ( f.get_mpf_t(), mpfr::log10 ( mpfr::mpreal ( z.get_mpz_t() ) ).mpfr_ptr(),
+                 mpfr::mpreal::get_default_rnd() );
+    return f;
 }
 
 inline mpz_class pow10 ( const mpf_class &f ) {
-     mpz_class z;
-     mpfr_get_z ( z.get_mpz_t(), mpfr::pow ( 10.0, mpfr::mpreal ( f.get_mpf_t() ) ).mpfr_ptr(),
-                  mpfr::mpreal::get_default_rnd() );
-     return z;
+    mpz_class z;
+    mpfr_get_z ( z.get_mpz_t(), mpfr::pow ( 10.0, mpfr::mpreal ( f.get_mpf_t() ) ).mpfr_ptr(),
+                 mpfr::mpreal::get_default_rnd() );
+    return z;
 }
 #else
-inline mpf_class ceil ( const mpf_class &z ) {
-     return std::ceil ( z.get_d() );
+inline mpz_class ceil ( const mpf_class &f ) {
+    return std::ceil ( f.get_d() );
 }
 
 inline mpf_class log10 ( const mpz_class &z ) {
-     return ( std::log10 ( z.get_d() ) );
+    return ( std::log10 ( z.get_d() ) );
 }
 
-inline mpz_class pow10 ( const mpf_class &z ) {
-     return std::pow ( 10, z.get_d() );
+inline mpz_class pow10 ( const mpf_class &f ) {
+    return std::pow ( 10, f.get_d() );
 }
 #endif
 

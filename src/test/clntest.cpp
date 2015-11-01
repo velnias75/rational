@@ -573,6 +573,46 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( 11, -3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( -11, 3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( 11, 3 ).abs().str() );
+
+    const cln_rational &a ( rf<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK> ( 142857 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), a.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 7 ), a.denominator() );
+
+    const cln_rational &b ( rf<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK> ( 34 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 34 ), b.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 99 ), b.denominator() );
+
+    const cln_rational &c ( rf<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK> ( 123456789 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 13717421 ), c.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 111111111 ), c.denominator() );
+
+    const cln_rational &d ( rf<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK> ( 12, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4 ), d.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 333 ), d.denominator() );
+
+    const cln_rational &e ( rf<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK> ( 6, 0, 1111 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 667 ), e.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6000 ), e.denominator() );
+
+    const cln_rational &f ( rf<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK> ( 1, 2, 3, 4 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 149 ), f.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4950000 ), f.denominator() );
+
+    const cln_rational &g ( rf<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK> ( 6, 0, 0, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), g.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 15 ), g.denominator() );
+
+    const cln_rational &h ( rf<cln::cl_I, GCD_cln, NO_OPERATOR_CHECK> ( 6, 0, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), h.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6 ), h.denominator() );
 }
 
 void CLNTest::testGoldenRatio() {
