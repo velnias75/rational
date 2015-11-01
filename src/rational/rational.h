@@ -2596,6 +2596,29 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
+/**
+ * @ingroup main
+ * @brief Constructs a fraction from a repeating decimal
+ *
+ * @b Examples: \n
+ * * to construct a fraction representing
+ *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
+ * Commons::Math::Rational<long> frac =
+ *      Commons::Math::rf<Commons::Math::Rational<long> >(123456789);@endcode
+ * * to construct a fraction representing
+ *   @f$\frac{667}{6000} = 0.1111\overline{66}@f$ you'll need to write: @code{.cpp}
+ * Commons::Math::Rational<long> frac =
+ *      Commons::Math::rf<Commons::Math::Rational<long> >(6, 0, 1111);@endcode
+ *
+ * @tparam R a Commons::Math::Rational type
+ *
+ * @param[in] x the digit sequence to repeat
+ * @param[in] leading_zeros amount of leading zero's to @c x
+ * @param[in] pre a digit sequence before @c x
+ * @param[in] pre_leading_zeros amount of leading zero's to @c pre
+ *
+ * @return A Rational representing the repeating decimal
+ */
 template<typename R>
 inline R rf ( const typename R::integer_type &x, std::size_t leading_zeros = 0u,
               const typename R::integer_type &pre = typename R::integer_type(),
