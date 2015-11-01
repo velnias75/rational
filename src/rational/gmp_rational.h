@@ -388,9 +388,9 @@ template<> struct CFRationalTraits<mpz_class> {
 
 #ifdef HAVE_MPREAL_H
 inline mpz_class ceil ( const mpf_class &f ) {
-    mpf_class z;
-    mpf_ceil ( z.get_mpf_t(), f.get_mpf_t() );
-    return z;
+    mpf_class aux;
+    mpf_ceil ( aux.get_mpf_t(), f.get_mpf_t() );
+    return mpz_class ( aux );
 }
 
 inline mpf_class log10 ( const mpz_class &z ) {
@@ -422,4 +422,4 @@ inline mpz_class pow10 ( const mpf_class &f ) {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
