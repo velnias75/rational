@@ -2600,12 +2600,12 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
  * @brief Constructs a fraction from a repeating decimal
  *
  * The fraction is calculated by the formula: \n
- * @f$ \displaystyle{\frac{\mathrm{pre} + \begin{cases}
- * 1 & \text{if } \mathrm{x} = 0 \\
- * \frac{\displaystyle{\mathrm{x}}}{\displaystyle{10^{\displaystyle{\lceil\log_{10}
- * (|\mathrm{x}| + 1)\rceil +  \mathrm{leading\_zeros}}} - 1}} & \text{if } \mathrm{x} \neq 0
- * \end{cases}}{10^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}| + 1)\rceil +
- * \mathrm{pre\_leading\_zeros}}}}}} @f$
+ * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{x}}}{\begin{cases}
+ * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
+ * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{x}| + 1)\rceil +
+ * \mathrm{leading\_zeros}} - 1}} & \displaystyle{\text{if } \mathrm{x} \neq 0}
+ * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
+ * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
  *
  * @b Examples: \n
  * * to construct a fraction representing
