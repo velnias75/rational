@@ -1274,8 +1274,8 @@ void RationalTest::testStdMath() {
 
     const Rational<unsigned long> &f ( rf<Rational<unsigned long> > ( 1, 2, 3, 4 ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 149ul, f.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 4950000ul, f.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 1499ul, f.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 49950000ul, f.denominator() );
 
     const Rational<unsigned long> &g ( rf<Rational<unsigned long> > ( 6, 0, 0, 1 ) );
 
@@ -1286,6 +1286,16 @@ void RationalTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( 1ul, h.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 6ul, h.denominator() );
+
+    const Rational<unsigned long> &i ( rf<Rational<unsigned long> > ( 1, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1ul, i.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 99ul, i.denominator() );
+
+    const Rational<unsigned long> &j ( rf<Rational<unsigned long> > ( 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1ul, j.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 9ul, j.denominator() );
 }
 
 void RationalTest::testRatRat() {

@@ -601,8 +601,8 @@ void CLNTest::testStdMath() {
 
     const cln_rational &f ( rf<cln_rational> ( 1, 2, 3, 4 ) );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 149 ), f.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4950000 ), f.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1499 ), f.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 49950000 ), f.denominator() );
 
     const cln_rational &g ( rf<cln_rational> ( 6, 0, 0, 1 ) );
 
@@ -613,6 +613,16 @@ void CLNTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), h.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6 ), h.denominator() );
+
+    const cln_rational &i ( rf<cln_rational> ( 1, 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), i.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 99 ), i.denominator() );
+
+    const cln_rational &j ( rf<cln_rational> ( 1 ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), j.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 9 ), j.denominator() );
 }
 
 void CLNTest::testGoldenRatio() {

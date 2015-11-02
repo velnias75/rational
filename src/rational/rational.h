@@ -1628,8 +1628,6 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *expr ) {
 
-//     typedef typename ExpressionEvalTraits<integer_type>::NumberType NumberType;
-
     if ( !s.empty() ) {
 
         Rational operand[2] = { s.top(), Rational() };
@@ -2594,11 +2592,20 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
     return out;
 }
 
+// #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
 /**
  * @ingroup main
  * @brief Constructs a fraction from a repeating decimal
+ *
+ * The fraction is calculated by the formula: \n
+ * @f$ \displaystyle{\frac{\mathrm{pre} + \begin{cases}
+ * 1 & \text{if } \mathrm{x} = 0 \\
+ * \frac{\displaystyle{\mathrm{x}}}{\displaystyle{10^{\displaystyle{\lceil\log_{10}
+ * (|\mathrm{x}| + 1)\rceil +  \mathrm{leading\_zeros}}} - 1}} & \text{if } \mathrm{x} \neq 0
+ * \end{cases}}{10^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}| + 1)\rceil +
+ * \mathrm{pre\_leading\_zeros}}}}}} @f$
  *
  * @b Examples: \n
  * * to construct a fraction representing
@@ -2626,9 +2633,10 @@ inline R rf ( const typename R::integer_type &x, std::size_t leading_zeros = 0u,
 
     using namespace std;
 
-    return ( R ( pre, x, pow10 ( ceil ( log10 ( x ) ) + leading_zeros ) - R::one_ ) /=
-                 R ( std::max<typename R::integer_type> ( R::one_, pow10 ( ( pre <= R::one_ ?
-                         pre : ceil ( log10 ( pre ) ) ) + pre_leading_zeros ) ), R::one_ ) );
+    return ( R ( pre, x, x == R::zero_ ? R::one_ : pow10 ( ceil ( log10 ( abs ( x ) + R::one_ ) ) +
+                 leading_zeros ) - R::one_ ) *= R ( R::one_, pow10 ( ceil ( log10 ( abs ( pre ) +
+                         R::one_ ) ) + pre_leading_zeros ) ) );
+
 }
 #pragma GCC diagnostic pop
 
