@@ -2598,8 +2598,8 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 /**
  * @ingroup main
  * @brief Constructs a fraction from a repeating decimal
- *
- * The fraction is calculated by the formula: \n
+ * 
+ * The fraction is calculated by the formula: \n \n
  * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{x}}}{\begin{cases}
  * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
  * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{x}| + 1)\rceil +
@@ -2607,6 +2607,11 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
  * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
  * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
  *
+ * @remarks 
+ * * to get an intuitive result @c x and @c pre should be positive numbers
+ * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the 
+ * decimal value of the fraction
+ * 
  * @b Examples: \n
  * * to construct a fraction representing
  *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
