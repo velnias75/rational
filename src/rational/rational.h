@@ -2624,10 +2624,10 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
  *
  * @tparam R a Commons::Math::Rational type
  *
- * @param[in] x the digit sequence to repeat
- * @param[in] leading_zeros amount of leading zero's to @c x
+ * @param[in] x the digit sequence to repeat (the reptend)
+ * @param[in] leading_zeros amount of leading zeros to @c x
  * @param[in] pre a digit sequence before @c x
- * @param[in] pre_leading_zeros amount of leading zero's to @c pre
+ * @param[in] pre_leading_zeros amount of leading zeros to @c pre
  *
  * @return A Rational representing the repeating decimal
  */
