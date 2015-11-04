@@ -637,34 +637,34 @@ public:
 
         if ( !isFinite ) {
 
-            for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
+            for ( std::size_t p = 0u; j != dg.rend() && *j != zero_; ++j, ++p ) {
                 rf_info.reptend += op_multiplies() ( *j, pow ( base, p ) );
                 rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(), 1u, *j );
             }
 
-            for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.leading_zeros;
+            for ( ; j != dg.rend() && *j == zero_; ++j ) ++rf_info.leading_zeros;
 
             rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(),
                                             rf_info.leading_zeros, zero_ );
 
-            for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
+            for ( std::size_t p = 0u; j != dg.rend() && *j != zero_; ++j, ++p ) {
                 rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
                 rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
             }
 
-            for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.pre_leading_zeros;
+            for ( ; j != dg.rend() && *j == zero_; ++j ) ++rf_info.pre_leading_zeros;
 
             rf_info.pre_digits.insert ( rf_info.pre_digits.begin(),
                                         rf_info.pre_leading_zeros, zero_ );
 
         } else {
 
-            for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
+            for ( std::size_t p = 0u; j != dg.rend() && *j != zero_; ++j, ++p ) {
                 rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
                 rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
             }
 
-            for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.pre_leading_zeros;
+            for ( ; j != dg.rend() && *j == zero_; ++j ) ++rf_info.pre_leading_zeros;
 
             rf_info.pre_digits.insert ( rf_info.pre_digits.begin(),
                                         rf_info.pre_leading_zeros, zero_ );
@@ -2809,4 +2809,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
