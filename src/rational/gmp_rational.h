@@ -406,6 +406,14 @@ inline mpz_class pow10 ( const mpf_class &f ) {
                  mpfr::mpreal::get_default_rnd() );
     return z;
 }
+
+inline mpz_class floor ( const mpz_class &z ) {
+    mpz_class r;
+    mpfr::mpreal rf, f ( z.get_mpz_t() );
+    mpfr_floor ( rf.mpfr_ptr(), f.mpfr_ptr() );
+    mpfr_get_z ( r.get_mpz_t(), rf.mpfr_ptr(), mpfr::mpreal::get_default_rnd() );
+    return r;
+}
 #else
 inline mpz_class ceil ( const mpf_class &f ) {
     return std::ceil ( f.get_d() );
@@ -418,8 +426,20 @@ inline mpf_class log10 ( const mpz_class &z ) {
 inline mpz_class pow10 ( const mpf_class &f ) {
     return std::pow ( 10, f.get_d() );
 }
+
+inline mpz_class floor ( const mpz_class &z ) {
+    mpf_class r, f ( z );
+    mpf_floor ( r.get_mpf_t(), f.get_mpf_t() );
+    return r;
+}
 #endif
+
+inline mpz_class pow ( const mpz_class &x, unsigned long int y ) {
+    mpz_class r;
+    mpz_pow_ui ( r.get_mpz_t(), x.get_mpz_t(), y );
+    return r;
+}
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
