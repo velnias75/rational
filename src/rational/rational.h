@@ -604,6 +604,8 @@ public:
 
         using namespace std;
 
+        typename std::vector<integer_type>::reverse_iterator rit;
+
         std::vector<integer_type> rd, dg;
         integer_type d ( m_numer );
 
@@ -621,7 +623,7 @@ public:
                 break;
             }
 
-        } while ( !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
+        } while ( (rit = std::find ( rd.rbegin() + 1, rd.rend(), rd.back() ) ) == rd.rend() );
 
         integer_type rt ( dg.front() );
 
@@ -637,37 +639,53 @@ public:
 
         if ( !isFinite ) {
 
-            for ( std::size_t p = 0u; j != dg.rend() && *j != zero_; ++j, ++p ) {
-                rf_info.reptend += op_multiplies() ( *j, pow ( base, p ) );
+            const typename std::vector<integer_type>::difference_type rs(std::distance(rd.rbegin(),
+                  rit));
+
+            for ( typename std::vector<integer_type>::difference_type p(0u);
+					j != dg.rend() && p < rs; ++j, ++p ) {
+                rf_info.reptend += op_multiplies() ( *j, pow ( base, static_cast<unsigned long>(p) ) );
                 rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(), 1u, *j );
             }
 
-            for ( ; j != dg.rend() && *j == zero_; ++j ) ++rf_info.leading_zeros;
+            for(typename std::vector<integer_type>::const_iterator z(rf_info.reptent_digits.begin());
+				z != rf_info.reptent_digits.end(); ++z) {
+				if(*z == zero_) {
+					++rf_info.leading_zeros;
+				} else {
+					break;
+				}
+			}
 
-            rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(),
-                                            rf_info.leading_zeros, zero_ );
-
-            for ( std::size_t p = 0u; j != dg.rend() && *j != zero_; ++j, ++p ) {
+            for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
                 rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
                 rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
             }
 
-            for ( ; j != dg.rend() && *j == zero_; ++j ) ++rf_info.pre_leading_zeros;
-
-            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(),
-                                        rf_info.pre_leading_zeros, zero_ );
+            for(typename  std::vector<integer_type>::const_iterator z(rf_info.pre_digits.begin());
+				z != rf_info.pre_digits.end(); ++z) {
+				if(*z == zero_) {
+					++rf_info.pre_leading_zeros;
+				} else {
+					break;
+				}
+			}
 
         } else {
 
-            for ( std::size_t p = 0u; j != dg.rend() && *j != zero_; ++j, ++p ) {
+            for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
                 rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
                 rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
             }
 
-            for ( ; j != dg.rend() && *j == zero_; ++j ) ++rf_info.pre_leading_zeros;
-
-            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(),
-                                        rf_info.pre_leading_zeros, zero_ );
+            for(typename std::vector<integer_type>::const_iterator z(rf_info.pre_digits.begin());
+				z != rf_info.pre_digits.end(); ++z) {
+				if(*z == zero_) {
+					++rf_info.pre_leading_zeros;
+				} else {
+					break;
+				}
+			}
         }
 
         return rt;
