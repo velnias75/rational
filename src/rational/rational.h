@@ -57,6 +57,7 @@
 #define COMMONS_MATH_RATIONAL_H
 
 #include <functional>
+#include <algorithm>
 #include <sstream>
 #include <limits>
 #include <vector>
@@ -580,6 +581,75 @@ public:
     RATIONAL_CONSTEXPR inline integer_type denominator() const RATIONAL_NOEXCEPT {
         return m_denom;
     }
+
+    typedef struct {
+        integer_type reptend;
+        std::size_t leading_zeros;
+        integer_type pre;
+        std::size_t pre_leading_zeros;
+    } rf_info;
+
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic push
+    integer_type decompose ( rf_info &rf_info,
+                             const integer_type &base = integer_type ( 10 ) ) const {
+
+        using namespace std;
+
+        std::vector<integer_type> rd, dg;
+        integer_type d ( m_numer );
+
+        bool isFinite = false;
+
+        do {
+
+            rd.push_back ( op_modulus() ( d, m_denom ) );
+            dg.push_back ( floor ( op_divides() ( d, m_denom ) ) );
+
+            if ( rd.back() != zero_ ) {
+                d = op_multiplies() ( base, rd.back() );
+            } else {
+                isFinite = true;
+                break;
+            }
+
+        } while ( !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
+
+        integer_type rt ( dg.front() );
+
+        dg.erase ( dg.begin() );
+
+        rf_info.reptend = rf_info.pre = zero_;
+        rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
+
+        typename std::vector<integer_type>::reverse_iterator j ( dg.rbegin() );
+
+        if ( !isFinite ) {
+
+            for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
+                rf_info.reptend += op_multiplies() ( *j, pow ( base, p ) );
+            }
+
+            for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.leading_zeros;
+
+            for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
+                rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
+            }
+
+            for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.pre_leading_zeros;
+
+        } else {
+
+            for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
+                rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
+            }
+
+            for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.pre_leading_zeros;
+        }
+
+        return rt;
+    }
+#pragma GCC diagnostic pop
 
     /**
      * @brief extract the integral and fractional part
@@ -2592,26 +2662,25 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
     return out;
 }
 
-// #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
 /**
  * @ingroup main
  * @brief Constructs a fraction from a repeating decimal
- * 
+ *
  * The fraction is calculated by the formula: \n \n
- * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{x}}}{\begin{cases}
+ * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{reptend}}}{\begin{cases}
  * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
- * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{x}| + 1)\rceil +
+ * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{reptend}| + 1)\rceil +
  * \mathrm{leading\_zeros}}} - 1} & \displaystyle{\text{if } \mathrm{x} \neq 0}
  * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
  * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
  *
- * @remarks 
- * * to get an intuitive result @c x and @c pre should be positive numbers
- * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the 
+ * @remarks
+ * * to get an intuitive result @c reptend and @c pre should be positive numbers
+ * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the
  * decimal value of the fraction
- * 
+ *
  * @b Examples: \n
  * * to construct a fraction representing
  *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
@@ -2624,26 +2693,36 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
  *
  * @tparam R a Commons::Math::Rational type
  *
- * @param[in] x the digit sequence to repeat (the reptend)
- * @param[in] leading_zeros amount of leading zeros to @c x
- * @param[in] pre a digit sequence before @c x
+ * @param[in] reptend the digit sequence to repeat
+ * @param[in] leading_zeros amount of leading zeros to @c reptend
+ * @param[in] pre a digit sequence before @c reptend
  * @param[in] pre_leading_zeros amount of leading zeros to @c pre
  *
  * @return A Rational representing the repeating decimal
  */
 template<typename R>
-inline R rf ( const typename R::integer_type &x, std::size_t leading_zeros = 0u,
+inline R rf ( const typename R::integer_type &reptend, std::size_t leading_zeros = 0u,
               const typename R::integer_type &pre = typename R::integer_type(),
               std::size_t pre_leading_zeros = 0u ) {
 
     using namespace std;
 
-    return ( R ( pre, x, x == R::zero_ ? R::one_ : pow10 ( ceil ( log10 ( abs ( x ) + R::one_ ) ) +
-                 leading_zeros ) - R::one_ ) *= R ( R::one_, pow10 ( ceil ( log10 ( abs ( pre ) +
-                         R::one_ ) ) + pre_leading_zeros ) ) );
+    return ( R ( pre, reptend, reptend == R::zero_ ? R::one_ :
+                 pow10 ( ceil ( log10 ( abs ( reptend ) + R::one_ ) ) + leading_zeros ) -
+                 R::one_ ) *= R ( R::one_, pow10 ( ceil ( log10 ( abs ( pre ) + R::one_ ) ) +
+                                  pre_leading_zeros ) ) );
 
 }
 #pragma GCC diagnostic pop
+
+/**
+ * @ingroup main
+ * @overload
+ */
+template<typename R>
+inline R rf ( const typename R::rf_info &rf_info ) {
+    return rf<R> ( rf_info.reptend, rf_info.leading_zeros, rf_info.pre, rf_info.pre_leading_zeros );
+}
 
 }
 
