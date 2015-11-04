@@ -582,133 +582,37 @@ public:
         return m_denom;
     }
 
+    /**
+     * @brief Structure holding a description of a repeating fraction
+     *
+     * @see Commons::Math::Rational::decompose()
+     * @see Commons::Math::Rational::rf()
+     */
     typedef struct _rf_info {
 
         inline _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ),
             pre_digits(), reptent_digits() {}
 
-        integer_type reptend;
-        std::size_t leading_zeros;
-        integer_type pre;
-        std::size_t pre_leading_zeros;
+        integer_type reptend; ///< the repeating part as integer_type
+        std::size_t leading_zeros; ///< the amount of zeros at the beginning of @c reptend
+        integer_type pre; ///< the digits before @c reptend as integer_type
+        std::size_t pre_leading_zeros; ///< the amount of zeros at the beginning of @c pre
 
-        std::vector<integer_type> pre_digits;
-        std::vector<integer_type> reptent_digits;
+        std::vector<integer_type> pre_digits; ///< the part before the reptent as digit sequence
+        std::vector<integer_type> reptent_digits; ///< the repeating part as digit sequence
 
     } rf_info;
 
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic push
+    /**
+     * @brief Splits a fraction in its whole and repetitive part
+     *
+     * @param[out] rf_info rf_info structure to store the result
+     * @param[in] base the base, defaults to integer_type (10) as a decimal base
+     *
+     * @return the whole part of the fraction
+     */
     integer_type decompose ( rf_info &rf_info,
-                             const integer_type &base = integer_type ( 10 ) ) const {
-
-        using namespace std;
-
-        typename std::vector<integer_type>::reverse_iterator rit;
-
-        std::vector<integer_type> rd, dg;
-        integer_type d ( m_numer );
-
-        bool isFinite = false;
-
-        do {
-
-			integer_type aux;
-
-            rd.push_back ( op_modulus() ( d, m_denom ) );
-            dg.push_back ( ( aux = floor ( op_divides() ( d, m_denom ) ) ) < zero_ ?
-				integer_type(-aux) : aux ) ;
-
-            if ( rd.back() != zero_ ) {
-                d = op_multiplies() ( base, rd.back() );
-            } else {
-                isFinite = true;
-                break;
-            }
-
-        } while ( (rit = std::find ( rd.rbegin() + 1, rd.rend(), rd.back() ) ) == rd.rend() );
-
-        integer_type rt ( m_numer < zero_ ? integer_type(-dg.front()) : dg.front() );
-
-        dg.erase ( dg.begin() );
-
-        rf_info.reptend = rf_info.pre = zero_;
-        rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
-
-        rf_info.reptent_digits.clear();
-        rf_info.pre_digits.clear();
-
-        typename std::vector<integer_type>::reverse_iterator j ( dg.rbegin() );
-
-        if ( !isFinite ) {
-
-            const typename std::vector<integer_type>::difference_type rs(std::distance(rd.rbegin(),
-                  rit));
-
-            for ( typename std::vector<integer_type>::difference_type p(0u);
-					j != dg.rend() && p < rs; ++j, ++p ) {
-                rf_info.reptend += op_multiplies() ( *j, pow ( base, static_cast<unsigned long>(p) ) );
-                rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(), 1u, *j );
-            }
-
-            for(typename std::vector<integer_type>::const_iterator z(rf_info.reptent_digits.begin());
-				z != rf_info.reptent_digits.end(); ++z) {
-				if(*z == zero_) {
-					++rf_info.leading_zeros;
-				} else {
-					break;
-				}
-			}
-
-            for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
-                rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
-                rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
-            }
-
-            for(typename  std::vector<integer_type>::const_iterator z(rf_info.pre_digits.begin());
-				z != rf_info.pre_digits.end(); ++z) {
-				if(*z == zero_) {
-					++rf_info.pre_leading_zeros;
-				} else {
-					break;
-				}
-			}
-
-			if(m_numer < zero_) {
-
-				if(!rf_info.pre_digits.empty()) {
-					rf_info.pre_digits.front() =
-						integer_type(-rf_info.pre_digits.front());
-				} else if(!rf_info.reptent_digits.empty()) {
-					rf_info.reptent_digits.front() =
-						integer_type(-rf_info.reptent_digits.front());
-				}
-			}
-
-        } else {
-
-            for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
-                rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
-                rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
-            }
-
-            for(typename std::vector<integer_type>::const_iterator z(rf_info.pre_digits.begin());
-				z != rf_info.pre_digits.end(); ++z) {
-				if(*z == zero_) {
-					++rf_info.pre_leading_zeros;
-				} else {
-					break;
-				}
-			}
-
-			if(rt == zero_ && m_numer < zero_) rf_info.pre_digits.front() =
-				integer_type(-rf_info.pre_digits.front());
-        }
-
-        return rt;
-    }
-#pragma GCC diagnostic pop
-
+                             const integer_type &base = integer_type ( 10 ) ) const;
     /**
      * @brief extract the integral and fractional part
      *
@@ -1618,6 +1522,127 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
     return _mod<integer_type, GCD, CHKOP,
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
+
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic push
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+typename Rational<T, GCD, CHKOP>::integer_type
+Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base ) const {
+
+    using namespace std;
+
+    typename std::vector<integer_type>::reverse_iterator rit;
+
+    std::vector<integer_type> rd, dg;
+    integer_type d ( m_numer );
+
+    bool isFinite = false;
+
+    do {
+
+        integer_type aux;
+
+        rd.push_back ( op_modulus() ( d, m_denom ) );
+        dg.push_back ( ( aux = floor ( op_divides() ( d, m_denom ) ) ) < zero_ ?
+                       integer_type ( -aux ) : aux ) ;
+
+        if ( rd.back() != zero_ ) {
+            d = op_multiplies() ( base, rd.back() );
+        } else {
+            isFinite = true;
+            break;
+        }
+
+    } while ( ( rit = std::find ( rd.rbegin() + 1, rd.rend(), rd.back() ) ) == rd.rend() );
+
+    integer_type rt ( m_numer < zero_ ? integer_type ( -dg.front() ) : dg.front() );
+
+    dg.erase ( dg.begin() );
+
+    rf_info.reptend = rf_info.pre = zero_;
+    rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
+
+    rf_info.reptent_digits.clear();
+    rf_info.pre_digits.clear();
+
+    typename std::vector<integer_type>::reverse_iterator j ( dg.rbegin() );
+
+    if ( !isFinite ) {
+
+        const typename std::vector<integer_type>::difference_type
+        rs ( std::distance ( rd.rbegin(), rit ) );
+
+        for ( typename std::vector<integer_type>::difference_type p ( 0u );
+                j != dg.rend() && p < rs; ++j, ++p ) {
+            rf_info.reptend += op_multiplies() ( *j, pow ( base,
+                                                 static_cast<unsigned long> ( p ) ) );
+
+            rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(), 1u, *j );
+        }
+
+        for ( typename std::vector<integer_type>::const_iterator
+                z ( rf_info.reptent_digits.begin() ); z != rf_info.reptent_digits.end(); ++z ) {
+
+            if ( *z == zero_ ) {
+                ++rf_info.leading_zeros;
+            } else {
+                break;
+            }
+        }
+
+        for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
+            rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
+            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
+        }
+
+        for ( typename  std::vector<integer_type>::const_iterator
+                z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
+
+            if ( *z == zero_ ) {
+                ++rf_info.pre_leading_zeros;
+            } else {
+                break;
+            }
+        }
+
+        if ( m_numer < zero_ ) {
+
+            if ( !rf_info.pre_digits.empty() ) {
+                rf_info.pre_digits.front() =
+                    integer_type ( -rf_info.pre_digits.front() );
+            } else if ( !rf_info.reptent_digits.empty() ) {
+                rf_info.reptent_digits.front() =
+                    integer_type ( -rf_info.reptent_digits.front() );
+            }
+        }
+
+    } else {
+
+        for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
+            rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
+            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
+        }
+
+        for ( typename std::vector<integer_type>::const_iterator
+                z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
+
+            if ( *z == zero_ ) {
+                ++rf_info.pre_leading_zeros;
+            } else {
+                break;
+            }
+        }
+
+        if ( rt == zero_ && m_numer < zero_ ) rf_info.pre_digits.front() =
+                integer_type ( -rf_info.pre_digits.front() );
+    }
+
+    return rt;
+}
+#pragma GCC diagnostic pop
 
 /**
  * @relates Rational
@@ -2726,6 +2751,8 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
  * @ingroup main
  * @brief Constructs a fraction from a repeating decimal
  *
+ * @see Commons::Math::Rational::decompose()
+ *
  * The fraction is calculated by the formula: \n \n
  * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{reptend}}}{\begin{cases}
  * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
@@ -2844,4 +2871,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
