@@ -335,6 +335,10 @@ template<> struct CFRationalTraits<cln::cl_I> {
 
 namespace cln {
 
+inline cl_I floor ( const cl_I &i ) {
+    return floor1 ( cln::double_approx ( i ) );
+}
+
 inline cl_I floor ( const cl_F &f ) {
     return floor1 ( f );
 }
@@ -349,6 +353,10 @@ inline cl_F log10 ( const cl_I &i ) {
 
 inline cl_I pow10 ( const cl_I &i ) {
     return static_cast<unsigned long> ( std::pow ( 10, cln::double_approx ( i ) ) );
+}
+
+inline cl_I pow ( const cl_I &x, unsigned long int y ) {
+    return static_cast<unsigned long> ( std::pow ( cln::double_approx ( x ), y ) );
 }
 
 }

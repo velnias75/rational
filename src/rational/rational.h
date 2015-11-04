@@ -582,11 +582,19 @@ public:
         return m_denom;
     }
 
-    typedef struct {
+    typedef struct _rf_info {
+
+        inline _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ),
+            pre_digits(), reptent_digits() {}
+
         integer_type reptend;
         std::size_t leading_zeros;
         integer_type pre;
         std::size_t pre_leading_zeros;
+
+        std::vector<integer_type> pre_digits;
+        std::vector<integer_type> reptent_digits;
+
     } rf_info;
 
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -622,29 +630,44 @@ public:
         rf_info.reptend = rf_info.pre = zero_;
         rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
+        rf_info.reptent_digits.clear();
+        rf_info.pre_digits.clear();
+
         typename std::vector<integer_type>::reverse_iterator j ( dg.rbegin() );
 
         if ( !isFinite ) {
 
             for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
                 rf_info.reptend += op_multiplies() ( *j, pow ( base, p ) );
+                rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(), 1u, *j );
             }
 
             for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.leading_zeros;
 
+            rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(),
+                                            rf_info.leading_zeros, zero_ );
+
             for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
                 rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
+                rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
             }
 
             for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.pre_leading_zeros;
+
+            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(),
+                                        rf_info.pre_leading_zeros, zero_ );
 
         } else {
 
             for ( std::size_t p = 0u; *j != zero_ && j != dg.rend(); ++j, ++p ) {
                 rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
+                rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
             }
 
             for ( ; *j == zero_ && j != dg.rend(); ++j ) ++rf_info.pre_leading_zeros;
+
+            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(),
+                                        rf_info.pre_leading_zeros, zero_ );
         }
 
         return rt;

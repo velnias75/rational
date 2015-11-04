@@ -1301,15 +1301,26 @@ void RationalTest::testStdMath() {
 
     const Rational<unsigned long> k ( 7ul, 13ul );
 
+    const unsigned long k_digits[] = { 5, 3, 8, 4, 6, 1 };
+
     CPPUNIT_ASSERT_EQUAL ( 0ul, k.decompose ( dc ) );
     CPPUNIT_ASSERT_EQUAL ( 7ul, rf<Rational<unsigned long> > ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 13ul, rf<Rational<unsigned long> > ( dc ).denominator() );
 
-    const Rational<unsigned long> l ( 88, 100ul );
+    CPPUNIT_ASSERT ( std::equal ( dc.reptent_digits.begin(), dc.reptent_digits.begin(),
+                                  k_digits ) );
+
+    const Rational<unsigned long> l ( 88ul, 100ul );
 
     CPPUNIT_ASSERT_EQUAL ( 0ul, l.decompose ( dc ) );
     CPPUNIT_ASSERT_EQUAL ( 22ul, rf<Rational<unsigned long> > ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 25ul, rf<Rational<unsigned long> > ( dc ).denominator() );
+
+    const Rational<unsigned long> m ( 8ul, 3ul );
+
+    CPPUNIT_ASSERT_EQUAL ( 2ul, m.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( 2ul, rf<Rational<unsigned long> > ( dc ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 3ul, rf<Rational<unsigned long> > ( dc ).denominator() );
 }
 
 void RationalTest::testRatRat() {

@@ -584,6 +584,36 @@ void GMPTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( 1l, j.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 9l, j.denominator().get_si() );
+
+    gmp_rational::rf_info dc;
+
+    const gmp_rational k ( 7, 13 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, k.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, rf<gmp_rational > ( dc ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 13l, rf<gmp_rational > ( dc ).denominator().get_si() );
+
+    const gmp_rational l ( 88, 100 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, l.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 22l, rf<gmp_rational > ( dc ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 25l, rf<gmp_rational > ( dc ).denominator().get_si() );
+
+    const gmp_rational m ( 8, 3 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2l, m.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 2l, rf<gmp_rational > ( dc ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 3l, rf<gmp_rational > ( dc ).denominator().get_si() );
+
+    const gmp_rational n ( 8, 1, 53 );
+
+    const gmp_rational::integer_type n_digits[] = { 0, 1, 8, 8, 6, 7, 9, 2, 4, 5, 2, 8, 3 };
+
+    CPPUNIT_ASSERT_EQUAL ( 8l, n.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, rf<gmp_rational > ( dc ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 53l, rf<gmp_rational > ( dc ).denominator().get_si() );
+
+    CPPUNIT_ASSERT ( std::equal ( dc.reptent_digits.begin(), dc.reptent_digits.end(), n_digits ) );
 }
 
 void GMPTest::testGoldenRatio() {
