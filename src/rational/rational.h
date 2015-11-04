@@ -613,8 +613,11 @@ public:
 
         do {
 
+			integer_type aux;
+
             rd.push_back ( op_modulus() ( d, m_denom ) );
-            dg.push_back ( floor ( op_divides() ( d, m_denom ) ) );
+            dg.push_back ( ( aux = floor ( op_divides() ( d, m_denom ) ) ) < zero_ ?
+				integer_type(-aux) : aux ) ;
 
             if ( rd.back() != zero_ ) {
                 d = op_multiplies() ( base, rd.back() );
@@ -625,7 +628,7 @@ public:
 
         } while ( (rit = std::find ( rd.rbegin() + 1, rd.rend(), rd.back() ) ) == rd.rend() );
 
-        integer_type rt ( dg.front() );
+        integer_type rt ( m_numer < zero_ ? integer_type(-dg.front()) : dg.front() );
 
         dg.erase ( dg.begin() );
 
@@ -671,6 +674,17 @@ public:
 				}
 			}
 
+			if(m_numer < zero_) {
+
+				if(!rf_info.pre_digits.empty()) {
+					rf_info.pre_digits.front() =
+						integer_type(-rf_info.pre_digits.front());
+				} else if(!rf_info.reptent_digits.empty()) {
+					rf_info.reptent_digits.front() =
+						integer_type(-rf_info.reptent_digits.front());
+				}
+			}
+
         } else {
 
             for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
@@ -686,6 +700,9 @@ public:
 					break;
 				}
 			}
+
+			if(rt == zero_ && m_numer < zero_) rf_info.pre_digits.front() =
+				integer_type(-rf_info.pre_digits.front());
         }
 
         return rt;
