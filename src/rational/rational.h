@@ -608,6 +608,37 @@ public:
 
     } rf_info;
 
+    /**
+     * @ingroup main
+     * @brief Constructs a fraction from a repeating decimal
+     *
+     * @see Commons::Math::Rational::decompose()
+     *
+     * The fraction is calculated by the formula: \n \n
+     * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{reptend}}}{\begin{cases}
+     * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
+     * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{reptend}| + 1)\rceil +
+     * \mathrm{leading\_zeros}}} - 1} & \displaystyle{\text{if } \mathrm{x} \neq 0}
+     * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
+     * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
+     *
+     * @remarks
+     * * to get an intuitive result @c reptend and @c pre should be positive numbers
+     * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the
+     * decimal value of the fraction
+     *
+     * @b Examples: \n
+     * * to construct a fraction representing
+     *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
+     * Commons::Math::Rational<long> frac =
+     *      Commons::Math::Rational<long>(Commons::Math::rf_info(123456789));@endcode
+     * * to construct a fraction representing
+     *   @f$\frac{667}{6000} = 0.1111\overline{66}@f$ you'll need to write: @code{.cpp}
+     * Commons::Math::Rational<long> frac =
+     *      Commons::Math::Rational<long>(Commons::Math::rf_info(6, 0, 1111));@endcode
+     *
+     * @param[in] info a repeating decimal description
+     */
     Rational ( const rf_info &info );
 
     /**
@@ -1144,37 +1175,6 @@ template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberTy
 
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic push
-/**
- * @ingroup main
- * @brief Constructs a fraction from a repeating decimal
- *
- * @see Commons::Math::Rational::decompose()
- *
- * The fraction is calculated by the formula: \n \n
- * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{reptend}}}{\begin{cases}
- * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
- * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{reptend}| + 1)\rceil +
- * \mathrm{leading\_zeros}}} - 1} & \displaystyle{\text{if } \mathrm{x} \neq 0}
- * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
- * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
- *
- * @remarks
- * * to get an intuitive result @c reptend and @c pre should be positive numbers
- * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the
- * decimal value of the fraction
- *
- * @b Examples: \n
- * * to construct a fraction representing
- *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
- * Commons::Math::Rational<long> frac =
- *      Commons::Math::rf<Commons::Math::Rational<long> >(123456789);@endcode
- * * to construct a fraction representing
- *   @f$\frac{667}{6000} = 0.1111\overline{66}@f$ you'll need to write: @code{.cpp}
- * Commons::Math::Rational<long> frac =
- *      Commons::Math::rf<Commons::Math::Rational<long> >(6, 0, 1111);@endcode
- *
- * @param[in] info a repeating decimal description
- */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>::Rational ( const rf_info &info ) : m_numer (), m_denom () {
