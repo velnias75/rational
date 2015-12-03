@@ -535,52 +535,52 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( -11, 3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), gmp_rational ( 11, 3 ).abs().str() );
 
-    const gmp_rational &a ( rf<gmp_rational> ( 142857 ) );
+    const gmp_rational &a ( gmp_rational::rf_info ( 142857 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, a.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 7l, a.denominator().get_si() );
 
-    const gmp_rational &b ( rf<gmp_rational> ( 34 ) );
+    const gmp_rational &b ( gmp_rational::rf_info ( 34 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 34l, b.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 99l, b.denominator().get_si() );
 
-    const gmp_rational &c ( rf<gmp_rational> ( 123456789 ) );
+    const gmp_rational &c ( gmp_rational::rf_info ( 123456789 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 13717421l, c.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 111111111l, c.denominator().get_si() );
 
-    const gmp_rational &d ( rf<gmp_rational> ( 12, 1 ) );
+    const gmp_rational &d ( gmp_rational::rf_info ( 12, 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 4l, d.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 333l, d.denominator().get_si() );
 
-    const gmp_rational &e ( rf<gmp_rational> ( 6, 0, 1111 ) );
+    const gmp_rational &e ( gmp_rational::rf_info ( 6, 0, 1111 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 667l, e.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 6000l, e.denominator().get_si() );
 
-    const gmp_rational &f ( rf<gmp_rational> ( 1, 2, 3, 4 ) );
+    const gmp_rational &f ( gmp_rational::rf_info ( 1, 2, 3, 4 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 1499l, f.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 49950000l, f.denominator().get_si() );
 
-    const gmp_rational &g ( rf<gmp_rational> ( 6, 0, 0, 1 ) );
+    const gmp_rational &g ( gmp_rational::rf_info ( 6, 0, 0, 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, g.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 15l, g.denominator().get_si() );
 
-    const gmp_rational &h ( rf<gmp_rational> ( 6, 0, 1 ) );
+    const gmp_rational &h ( gmp_rational::rf_info ( 6, 0, 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, h.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 6l, h.denominator().get_si() );
 
-    const gmp_rational &i ( rf<gmp_rational> ( 1, 1 ) );
+    const gmp_rational &i ( gmp_rational::rf_info ( 1, 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, i.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 99l, i.denominator().get_si() );
 
-    const gmp_rational &j ( rf<gmp_rational> ( 1 ) );
+    const gmp_rational &j ( gmp_rational::rf_info ( 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( 1l, j.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 9l, j.denominator().get_si() );
@@ -590,28 +590,28 @@ void GMPTest::testStdMath() {
     const gmp_rational k ( 7, 13 );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, k.decompose ( dc ).get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 7l, rf<gmp_rational > ( dc ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 13l, rf<gmp_rational > ( dc ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 7l, gmp_rational ( dc ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 13l, gmp_rational ( dc ).denominator().get_si() );
 
     const gmp_rational l ( 88, 100 );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, l.decompose ( dc ).get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 22l, rf<gmp_rational > ( dc ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 25l, rf<gmp_rational > ( dc ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 22l, gmp_rational ( dc ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 25l, gmp_rational ( dc ).denominator().get_si() );
 
     const gmp_rational m ( 8, 3 );
 
     CPPUNIT_ASSERT_EQUAL ( 2l, m.decompose ( dc ).get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 2l, rf<gmp_rational > ( dc ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 3l, rf<gmp_rational > ( dc ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 2l, gmp_rational ( dc ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 3l, gmp_rational ( dc ).denominator().get_si() );
 
     const gmp_rational n ( 8, 1, 53 );
 
     const gmp_rational::integer_type n_digits[] = { 0, 1, 8, 8, 6, 7, 9, 2, 4, 5, 2, 8, 3 };
 
     CPPUNIT_ASSERT_EQUAL ( 8l, n.decompose ( dc ).get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 1l, rf<gmp_rational > ( dc ).numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 53l, rf<gmp_rational > ( dc ).denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, gmp_rational ( dc ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 53l, gmp_rational ( dc ).denominator().get_si() );
 
     CPPUNIT_ASSERT ( std::equal ( dc.reptent_digits.begin(), dc.reptent_digits.end(), n_digits ) );
 }

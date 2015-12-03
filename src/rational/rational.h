@@ -590,6 +590,11 @@ public:
      */
     typedef struct _rf_info {
 
+        inline _rf_info ( const integer_type &r, std::size_t lz = 0u,
+                          const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
+            reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ),
+            pre_digits(), reptent_digits() {}
+
         inline _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ),
             pre_digits(), reptent_digits() {}
 
@@ -602,6 +607,8 @@ public:
         std::vector<integer_type> reptent_digits; ///< the repeating part as digit sequence
 
     } rf_info;
+
+    Rational ( const rf_info &info );
 
     /**
      * @brief Splits a fraction in its whole and repetitive part
@@ -1134,6 +1141,57 @@ template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberTy
                  ! ( std::numeric_limits<NumberType>::is_integer ||
                      std::numeric_limits<NumberType>::is_exact ) >() ( *this, nt );
 }
+
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic push
+/**
+ * @ingroup main
+ * @brief Constructs a fraction from a repeating decimal
+ *
+ * @see Commons::Math::Rational::decompose()
+ *
+ * The fraction is calculated by the formula: \n \n
+ * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{reptend}}}{\begin{cases}
+ * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
+ * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{reptend}| + 1)\rceil +
+ * \mathrm{leading\_zeros}}} - 1} & \displaystyle{\text{if } \mathrm{x} \neq 0}
+ * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
+ * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
+ *
+ * @remarks
+ * * to get an intuitive result @c reptend and @c pre should be positive numbers
+ * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the
+ * decimal value of the fraction
+ *
+ * @b Examples: \n
+ * * to construct a fraction representing
+ *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
+ * Commons::Math::Rational<long> frac =
+ *      Commons::Math::rf<Commons::Math::Rational<long> >(123456789);@endcode
+ * * to construct a fraction representing
+ *   @f$\frac{667}{6000} = 0.1111\overline{66}@f$ you'll need to write: @code{.cpp}
+ * Commons::Math::Rational<long> frac =
+ *      Commons::Math::rf<Commons::Math::Rational<long> >(6, 0, 1111);@endcode
+ *
+ * @param[in] info a repeating decimal description
+ */
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP>::Rational ( const rf_info &info ) : m_numer (), m_denom () {
+
+    using namespace std;
+
+    *this = ( Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
+                         static_cast<integer_type>
+                         ( pow10 ( ceil ( log10 ( ( info.reptend < integer_type() ?
+                                          integer_type ( -info.reptend ) : info.reptend ) +
+                                          one_ ) ) + info.leading_zeros ) - one_ ) ) *=
+                  Rational ( one_, static_cast<integer_type>
+                             ( pow10 ( ceil ( log10 ( ( info.pre < integer_type() ?
+                                       integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
+                                       info.pre_leading_zeros ) ) ) );
+}
+#pragma GCC diagnostic pop
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
@@ -2743,70 +2801,6 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
     } while ( mt.second.numerator() != T() && ( h = one_ / mt.second, true ) );
 
     return out;
-}
-
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic push
-/**
- * @ingroup main
- * @brief Constructs a fraction from a repeating decimal
- *
- * @see Commons::Math::Rational::decompose()
- *
- * The fraction is calculated by the formula: \n \n
- * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{reptend}}}{\begin{cases}
- * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
- * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{reptend}| + 1)\rceil +
- * \mathrm{leading\_zeros}}} - 1} & \displaystyle{\text{if } \mathrm{x} \neq 0}
- * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
- * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
- *
- * @remarks
- * * to get an intuitive result @c reptend and @c pre should be positive numbers
- * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the
- * decimal value of the fraction
- *
- * @b Examples: \n
- * * to construct a fraction representing
- *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
- * Commons::Math::Rational<long> frac =
- *      Commons::Math::rf<Commons::Math::Rational<long> >(123456789);@endcode
- * * to construct a fraction representing
- *   @f$\frac{667}{6000} = 0.1111\overline{66}@f$ you'll need to write: @code{.cpp}
- * Commons::Math::Rational<long> frac =
- *      Commons::Math::rf<Commons::Math::Rational<long> >(6, 0, 1111);@endcode
- *
- * @tparam R a Commons::Math::Rational type
- *
- * @param[in] reptend the digit sequence to repeat
- * @param[in] leading_zeros amount of leading zeros to @c reptend
- * @param[in] pre a digit sequence before @c reptend
- * @param[in] pre_leading_zeros amount of leading zeros to @c pre
- *
- * @return A Rational representing the repeating decimal
- */
-template<typename R>
-inline R rf ( const typename R::integer_type &reptend, std::size_t leading_zeros = 0u,
-              const typename R::integer_type &pre = typename R::integer_type(),
-              std::size_t pre_leading_zeros = 0u ) {
-
-    using namespace std;
-
-    return ( R ( pre, reptend, reptend == R::zero_ ? R::one_ :
-                 pow10 ( ceil ( log10 ( abs ( reptend ) + R::one_ ) ) + leading_zeros ) -
-                 R::one_ ) *= R ( R::one_, pow10 ( ceil ( log10 ( abs ( pre ) + R::one_ ) ) +
-                                  pre_leading_zeros ) ) );
-
-}
-#pragma GCC diagnostic pop
-
-/**
- * @ingroup main
- * @overload
- */
-template<typename R>
-inline R rf ( const typename R::rf_info &rf_info ) {
-    return rf<R> ( rf_info.reptend, rf_info.leading_zeros, rf_info.pre, rf_info.pre_leading_zeros );
 }
 
 }
