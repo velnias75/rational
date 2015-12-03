@@ -1626,19 +1626,19 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
     rf_info.reptent_digits.clear();
     rf_info.pre_digits.clear();
 
-    typename std::vector<integer_type>::reverse_iterator j ( dg.rbegin() );
+    typename std::vector<integer_type>::const_iterator j ( dg.begin() );
 
     if ( !isFinite ) {
 
         const typename std::vector<integer_type>::difference_type
         rs ( std::distance ( rd.rbegin(), rit ) );
 
-        for ( typename std::vector<integer_type>::difference_type p ( 0u );
-                j != dg.rend() && p < rs; ++j, ++p ) {
-            rf_info.reptend += op_multiplies() ( *j, pow ( base,
-                                                 static_cast<unsigned long> ( p ) ) );
-
-            rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(), 1u, *j );
+        rf_info.reptend = j != dg.end() ? *j : zero_;
+        for ( typename std::vector<integer_type>::difference_type p ( 0u ); j != dg.end() && p < rs;
+                ++j, ++p ) {
+            if ( p > 0 ) rf_info.reptend =
+                    op_plus() ( op_multiplies() ( rf_info.reptend, base ), *j );
+            rf_info.reptent_digits.push_back ( *j );
         }
 
         for ( typename std::vector<integer_type>::const_iterator
@@ -1651,9 +1651,10 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
             }
         }
 
-        for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
-            rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
-            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
+        rf_info.pre = j != dg.end() ? *j : zero_;
+        for ( std::size_t p = 0u; j != dg.end(); ++j, ++p ) {
+            if ( p > 0 ) rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
+            rf_info.pre_digits.push_back ( *j );
         }
 
         for ( typename  std::vector<integer_type>::const_iterator
@@ -1679,9 +1680,10 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
 
     } else {
 
-        for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
-            rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
-            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
+        rf_info.pre = j != dg.end() ? *j : zero_;
+        for ( std::size_t p = 0u; j != dg.end(); ++j, ++p ) {
+            if ( p > 0 ) rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
+            rf_info.pre_digits.push_back ( *j );
         }
 
         for ( typename std::vector<integer_type>::const_iterator
