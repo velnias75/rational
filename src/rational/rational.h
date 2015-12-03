@@ -1633,8 +1633,25 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
         const typename std::vector<integer_type>::difference_type
         rs ( std::distance ( rd.rbegin(), rit ) );
 
+        rf_info.pre = (dg.size() - static_cast<typename std::vector<integer_type>::size_type>(rs)) ? *j : zero_;
+        for ( typename std::vector<integer_type>::difference_type p ( 0u ); 
+            j != dg.end() && static_cast<typename std::vector<integer_type>::size_type>(p) < dg.size() - static_cast<typename std::vector<integer_type>::size_type>(rs); ++j, ++p ) {
+            if ( p > 0 ) rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
+            rf_info.pre_digits.push_back ( *j );
+        }
+
+        for ( typename  std::vector<integer_type>::const_iterator
+                z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
+
+            if ( *z == zero_ ) {
+                ++rf_info.pre_leading_zeros;
+            } else {
+                break;
+            }
+        }
+        
         rf_info.reptend = j != dg.end() ? *j : zero_;
-        for ( typename std::vector<integer_type>::difference_type p ( 0u ); j != dg.end() && p < rs;
+        for ( typename std::vector<integer_type>::difference_type p ( 0u ); j != dg.end();
                 ++j, ++p ) {
             if ( p > 0 ) rf_info.reptend =
                     op_plus() ( op_multiplies() ( rf_info.reptend, base ), *j );
@@ -1646,22 +1663,6 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
 
             if ( *z == zero_ ) {
                 ++rf_info.leading_zeros;
-            } else {
-                break;
-            }
-        }
-
-        rf_info.pre = j != dg.end() ? *j : zero_;
-        for ( std::size_t p = 0u; j != dg.end(); ++j, ++p ) {
-            if ( p > 0 ) rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
-            rf_info.pre_digits.push_back ( *j );
-        }
-
-        for ( typename  std::vector<integer_type>::const_iterator
-                z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
-
-            if ( *z == zero_ ) {
-                ++rf_info.pre_leading_zeros;
             } else {
                 break;
             }
