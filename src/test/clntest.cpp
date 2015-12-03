@@ -643,6 +643,14 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), m.decompose ( dc ) );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), cln_rational ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), cln_rational ( dc ).denominator() );
+
+    const cln_rational n ( "(70/2) - (1741832/249975)" );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 28 ), n.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), dc.pre );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1975 ), dc.reptend );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
 }
 
 void CLNTest::testGoldenRatio() {

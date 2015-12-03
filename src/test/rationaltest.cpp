@@ -1321,14 +1321,14 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 2ul, m.decompose ( dc ) );
     CPPUNIT_ASSERT_EQUAL ( 2ul, Rational<unsigned long> ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 3ul, Rational<unsigned long> ( dc ).denominator() );
-    
+
     const Rational<unsigned long> n ( "(70/2) - (1741832/249975)" );
-    
+
     CPPUNIT_ASSERT_EQUAL ( 28ul, n.decompose ( dc ) );
     CPPUNIT_ASSERT_EQUAL ( 3ul, dc.pre );
-    CPPUNIT_ASSERT_EQUAL ( std::size_t(1), dc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( 1975ul, dc.reptend );
-    CPPUNIT_ASSERT_EQUAL ( std::size_t(0), dc.leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
 }
 
 void RationalTest::testRatRat() {

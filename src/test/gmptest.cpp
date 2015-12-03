@@ -623,14 +623,14 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 31l, gmp_rational ( dc ).denominator().get_si() );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "32258064516129" ), dc.reptend.get_str() );
-    
+
     const gmp_rational p ( "(70/2) - (1741832/249975)" );
-    
+
     CPPUNIT_ASSERT_EQUAL ( 28l, p.decompose ( dc ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 3l, dc.pre.get_si() );
-    CPPUNIT_ASSERT_EQUAL ( std::size_t(1), dc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( 1975l, dc.reptend.get_si() );
-    CPPUNIT_ASSERT_EQUAL ( std::size_t(0), dc.leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
 }
 
 void GMPTest::testGoldenRatio() {
