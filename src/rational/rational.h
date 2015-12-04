@@ -1102,6 +1102,9 @@ public:
 private:
     Rational &reduce();
 
+    static std::size_t md ( integer_type &out, const typename std::vector<integer_type> &dv,
+                            const integer_type &base );
+
     inline static std::set<char> sy_operators() {
 
         std::set<char> ops;
@@ -1581,6 +1584,36 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
+        const typename std::vector<integer_type> &dv, const integer_type &base ) {
+
+    std::size_t zeros = 0u;
+
+    if ( !dv.empty() ) {
+
+        typename std::vector<integer_type>::const_iterator j ( dv.begin() );
+
+        out = *j++;
+
+        for ( ; j != dv.end(); ++j ) out = op_plus() ( op_multiplies() ( out, base ), *j );
+
+        for ( typename std::vector<integer_type>::const_iterator z ( dv.begin() );
+                z != dv.end(); ++z ) {
+
+            if ( *z == zero_ ) {
+                ++zeros;
+            } else {
+                break;
+            }
+        }
+    }
+
+    return zeros;
+}
+
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
@@ -1619,114 +1652,31 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
 
     if ( rd.back() != zero_ ) {
 
+        const typename std::vector<integer_type>::iterator &mid ( dg.begin() + std::distance
+                ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) + 1 );
+
         if ( rd.back() != rd.front() ) {
-
-            const typename std::vector<integer_type>::iterator &mid ( dg.begin() + std::distance
-                    ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) + 1 );
-
             std::copy ( dg.begin() + 1, mid, std::back_inserter ( rf_info.pre_digits ) );
-
-            if ( !rf_info.pre_digits.empty() ) {
-
-                typename std::vector<integer_type>::const_iterator j ( rf_info.pre_digits.begin() );
-
-                rf_info.pre = *j++;
-
-                for ( ; j != rf_info.pre_digits.end(); ++j ) {
-                    rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
-                }
-
-                for ( typename std::vector<integer_type>::const_iterator
-                        z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
-
-                    if ( *z == zero_ ) {
-                        ++rf_info.pre_leading_zeros;
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            std::copy ( mid, dg.end(), std::back_inserter ( rf_info.reptent_digits ) );
-
-            if ( !rf_info.reptent_digits.empty() ) {
-
-                typename std::vector<integer_type>::const_iterator
-                j ( rf_info.reptent_digits.begin() );
-
-                rf_info.reptend = *j++;
-
-                for ( ; j != rf_info.reptent_digits.end(); ++j ) {
-                    rf_info.reptend = op_plus() ( op_multiplies() ( rf_info.reptend, base ), *j );
-                }
-
-                for ( typename std::vector<integer_type>::const_iterator
-                        z ( rf_info.reptent_digits.begin() ); z != rf_info.reptent_digits.end();
-                        ++z ) {
-
-                    if ( *z == zero_ ) {
-                        ++rf_info.leading_zeros;
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-        } else {
-
-            typename std::vector<integer_type>::const_iterator j ( dg.begin() + 1 );
-
-            rf_info.reptend = j != dg.end() ? *j : zero_;
-
-            for ( typename std::vector<integer_type>::difference_type p ( 0u ); j != dg.end();
-                    ++j, ++p ) {
-                if ( p > 0 ) rf_info.reptend =
-                        op_plus() ( op_multiplies() ( rf_info.reptend, base ), *j );
-                rf_info.reptent_digits.push_back ( *j );
-            }
-
-            for ( typename std::vector<integer_type>::const_iterator
-                    z ( rf_info.reptent_digits.begin() ); z != rf_info.reptent_digits.end(); ++z ) {
-
-                if ( *z == zero_ ) {
-                    ++rf_info.leading_zeros;
-                } else {
-                    break;
-                }
-            }
+            rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
         }
 
-        if ( m_numer < zero_ ) {
+        std::copy ( rd.back() != rd.front() ? mid : dg.begin() + 1, dg.end(),
+                    std::back_inserter ( rf_info.reptent_digits ) );
 
+        rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
+
+        if ( m_numer < zero_ ) {
             if ( !rf_info.pre_digits.empty() ) {
-                rf_info.pre_digits.front() =
-                    integer_type ( -rf_info.pre_digits.front() );
+                rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
             } else if ( !rf_info.reptent_digits.empty() ) {
-                rf_info.reptent_digits.front() =
-                    integer_type ( -rf_info.reptent_digits.front() );
+                rf_info.reptent_digits.front() = integer_type ( -rf_info.reptent_digits.front() );
             }
         }
 
     } else {
 
-        typename std::vector<integer_type>::const_iterator j ( dg.begin() + 1 );
-
-        rf_info.pre = j != dg.end() ? *j : zero_;
-
-        for ( std::size_t p = 0u; j != dg.end(); ++j, ++p ) {
-            if ( p > 0 ) rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
-            rf_info.pre_digits.push_back ( *j );
-        }
-
-        for ( typename std::vector<integer_type>::const_iterator
-                z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
-
-            if ( *z == zero_ ) {
-                ++rf_info.pre_leading_zeros;
-            } else {
-                break;
-            }
-        }
+        std::copy ( dg.begin() + 1, dg.end(), std::back_inserter ( rf_info.pre_digits ) );
+        rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
 
         if ( dg.front() == zero_ && m_numer < zero_ ) rf_info.pre_digits.front() =
                 integer_type ( -rf_info.pre_digits.front() );
