@@ -63,7 +63,6 @@
 #include <vector>
 #include <stack>
 #include <cmath>
-#include <set>
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 #include <type_traits>
@@ -1105,19 +1104,19 @@ private:
     static std::size_t md ( integer_type &out, const typename std::vector<integer_type> &dv,
                             const integer_type &base );
 
-    inline static std::set<char> sy_operators() {
-
-        std::set<char> ops;
-
-        ops.insert ( 1 ); // unary minus
-        ops.insert ( 2 ); // unary plus
-        ops.insert ( '+' );
-        ops.insert ( '-' );
-        ops.insert ( '*' );
-        ops.insert ( '/' );
-
-        return ops;
-    }
+//     inline static std::set<char> sy_operators() {
+//
+//         std::set<char> ops;
+//
+//         ops.insert ( 1 ); // unary minus
+//         ops.insert ( 2 ); // unary plus
+//         ops.insert ( '+' );
+//         ops.insert ( '-' );
+//         ops.insert ( '*' );
+//         ops.insert ( '/' );
+//
+//         return ops;
+//     }
 
     RATIONAL_CONSTEXPR inline static bool isLeftAssoc ( const char op ) {
         return op > 2;
@@ -1202,25 +1201,18 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
     if ( expr && *expr ) {
 
-        const std::set<char> operators ( sy_operators() );
+        static const char td_op[11] = { '\n', '\t', ' ', '(', ')', 1, 2, '+', '-', '*', '/' };
 
-        std::set<char> tok_delimiters ( operators );
         std::stack<char, std::vector<char> > syard;
         std::string token;
         evalStack rpn;
-
-        tok_delimiters.insert ( '\n' );
-        tok_delimiters.insert ( '\t' );
-        tok_delimiters.insert ( ' ' );
-        tok_delimiters.insert ( '(' );
-        tok_delimiters.insert ( ')' );
 
         const char *ptr = expr;
         char top, prev = 0;
 
         while ( *ptr ) {
 
-            if ( tok_delimiters.find ( *ptr ) == tok_delimiters.end() ) {
+            if ( !std::count ( td_op, td_op + 11, *ptr ) ) {
 
                 if ( ( *ptr >= '0' && *ptr <= '9' ) || *ptr == '.' ) {
                     token.append ( 1, *ptr );
@@ -1233,8 +1225,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 }
 
                 if ( ! * ( ptr + 1 ) ) {
-                    rpn.push ( TYPE_CONVERT<const char *>
-                               ( token.c_str() ).template
+                    rpn.push ( TYPE_CONVERT<const char *> ( token.c_str() ).template
                                convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
                 }
 
@@ -1243,8 +1234,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
             } else if ( !token.empty() ) {
 
-                rpn.push ( TYPE_CONVERT<const char *>
-                           ( token.c_str() ).template
+                rpn.push ( TYPE_CONVERT<const char *> ( token.c_str() ).template
                            convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
                 token.clear();
             }
@@ -1285,27 +1275,23 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 #endif
                 }
 
-            } else if ( operators.find ( *ptr ) != operators.end() ) {
+            } else if ( std::count ( td_op + 5, td_op + 11, *ptr ) ) {
 
-                char op = *ptr;
+                char cop = *ptr;
 
                 const bool isUnary = ( ptr == expr ) || ( prev == '(' ||
-                                     operators.find ( prev ) != operators.end() );
+                                     std::count ( td_op + 5, td_op + 11, prev ) );
 
                 if ( *ptr == '-' && isUnary ) {
-
-                    op = 1;
-
+                    cop = 1;
                 } else if ( *ptr == '+' && isUnary ) {
-
-                    op = 2;
-
+                    cop = 2;
                 } else {
 
                     while ( !syard.empty() &&
-                            operators.find ( ( top = syard.top() ) ) != operators.end() &&
-                            ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( top ) ) ||
-                              ( !isLeftAssoc ( op ) && getPrec ( op ) < getPrec ( top ) ) ) ) {
+                            std::count ( td_op + 5, td_op + 11, top = syard.top() ) &&
+                            ( ( isLeftAssoc ( cop ) && getPrec ( cop ) <= getPrec ( top ) ) ||
+                              ( !isLeftAssoc ( cop ) && getPrec ( cop ) < getPrec ( top ) ) ) ) {
 
                         if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
@@ -1319,13 +1305,13 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 }
 
                 prev = *ptr;
-                syard.push ( op );
+                syard.push ( cop );
             }
 
             ++ptr;
         }
 
-        while ( !syard.empty() && operators.find ( ( top = syard.top() ) ) != operators.end() ) {
+        while ( !syard.empty() && std::count ( td_op + 5, td_op + 11, top = syard.top() ) ) {
 
             if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
@@ -1655,12 +1641,14 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
         const typename std::vector<integer_type>::iterator &mid ( dg.begin() + std::distance
                 ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) + 1 );
 
-        if ( rd.back() != rd.front() ) {
+        const bool hasPre = rd.back() != rd.front();
+
+        if ( hasPre ) {
             std::copy ( dg.begin() + 1, mid, std::back_inserter ( rf_info.pre_digits ) );
             rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
         }
 
-        std::copy ( rd.back() != rd.front() ? mid : dg.begin() + 1, dg.end(),
+        std::copy ( hasPre ? mid : dg.begin() + 1, dg.end(),
                     std::back_inserter ( rf_info.reptent_digits ) );
 
         rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
