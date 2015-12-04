@@ -1592,12 +1592,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
 
     using namespace std;
 
-    typename std::vector<integer_type>::reverse_iterator rit;
-
     std::vector<integer_type> rd, dg;
     integer_type d ( m_numer );
-
-    bool isFinite = false;
 
     do {
 
@@ -1610,15 +1606,10 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
         if ( rd.back() != zero_ ) {
             d = op_multiplies() ( base, rd.back() );
         } else {
-            isFinite = true;
             break;
         }
 
-    } while ( ( rit = std::find ( rd.rbegin() + 1, rd.rend(), rd.back() ) ) == rd.rend() );
-
-    integer_type rt ( m_numer < zero_ ? integer_type ( -dg.front() ) : dg.front() );
-
-    dg.erase ( dg.begin() );
+    } while ( !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
@@ -1626,49 +1617,82 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
     rf_info.reptent_digits.clear();
     rf_info.pre_digits.clear();
 
-    typename std::vector<integer_type>::const_iterator j ( dg.begin() );
+    if ( rd.back() != zero_ ) {
 
-    if ( !isFinite ) {
+        if ( rd.back() != rd.front() ) {
 
-        const typename std::vector<integer_type>::difference_type
-        rs ( std::distance ( rd.rbegin(), rit ) );
+            const typename std::vector<integer_type>::iterator &mid ( dg.begin() + std::distance
+                    ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) + 1 );
 
-        rf_info.pre = ( dg.size() -
-                        static_cast<typename std::vector<integer_type>::size_type> ( rs ) ) ?
-                      *j : zero_;
-        for ( typename std::vector<integer_type>::difference_type p ( 0u );
-                j != dg.end() && static_cast<typename std::vector<integer_type>::size_type> ( p ) <
-                dg.size() - static_cast<typename std::vector<integer_type>::size_type> ( rs );
-                ++j, ++p ) {
-            if ( p > 0 ) rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
-            rf_info.pre_digits.push_back ( *j );
-        }
+            std::copy ( dg.begin() + 1, mid, std::back_inserter ( rf_info.pre_digits ) );
 
-        for ( typename  std::vector<integer_type>::const_iterator
-                z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
+            if ( !rf_info.pre_digits.empty() ) {
 
-            if ( *z == zero_ ) {
-                ++rf_info.pre_leading_zeros;
-            } else {
-                break;
+                typename std::vector<integer_type>::const_iterator j ( rf_info.pre_digits.begin() );
+
+                rf_info.pre = *j++;
+
+                for ( ; j != rf_info.pre_digits.end(); ++j ) {
+                    rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
+                }
+
+                for ( typename std::vector<integer_type>::const_iterator
+                        z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
+
+                    if ( *z == zero_ ) {
+                        ++rf_info.pre_leading_zeros;
+                    } else {
+                        break;
+                    }
+                }
             }
-        }
 
-        rf_info.reptend = j != dg.end() ? *j : zero_;
-        for ( typename std::vector<integer_type>::difference_type p ( 0u ); j != dg.end();
-                ++j, ++p ) {
-            if ( p > 0 ) rf_info.reptend =
-                    op_plus() ( op_multiplies() ( rf_info.reptend, base ), *j );
-            rf_info.reptent_digits.push_back ( *j );
-        }
+            std::copy ( mid, dg.end(), std::back_inserter ( rf_info.reptent_digits ) );
 
-        for ( typename std::vector<integer_type>::const_iterator
-                z ( rf_info.reptent_digits.begin() ); z != rf_info.reptent_digits.end(); ++z ) {
+            if ( !rf_info.reptent_digits.empty() ) {
 
-            if ( *z == zero_ ) {
-                ++rf_info.leading_zeros;
-            } else {
-                break;
+                typename std::vector<integer_type>::const_iterator
+                j ( rf_info.reptent_digits.begin() );
+
+                rf_info.reptend = *j++;
+
+                for ( ; j != rf_info.reptent_digits.end(); ++j ) {
+                    rf_info.reptend = op_plus() ( op_multiplies() ( rf_info.reptend, base ), *j );
+                }
+
+                for ( typename std::vector<integer_type>::const_iterator
+                        z ( rf_info.reptent_digits.begin() ); z != rf_info.reptent_digits.end();
+                        ++z ) {
+
+                    if ( *z == zero_ ) {
+                        ++rf_info.leading_zeros;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+        } else {
+
+            typename std::vector<integer_type>::const_iterator j ( dg.begin() + 1 );
+
+            rf_info.reptend = j != dg.end() ? *j : zero_;
+
+            for ( typename std::vector<integer_type>::difference_type p ( 0u ); j != dg.end();
+                    ++j, ++p ) {
+                if ( p > 0 ) rf_info.reptend =
+                        op_plus() ( op_multiplies() ( rf_info.reptend, base ), *j );
+                rf_info.reptent_digits.push_back ( *j );
+            }
+
+            for ( typename std::vector<integer_type>::const_iterator
+                    z ( rf_info.reptent_digits.begin() ); z != rf_info.reptent_digits.end(); ++z ) {
+
+                if ( *z == zero_ ) {
+                    ++rf_info.leading_zeros;
+                } else {
+                    break;
+                }
             }
         }
 
@@ -1685,7 +1709,10 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
 
     } else {
 
+        typename std::vector<integer_type>::const_iterator j ( dg.begin() + 1 );
+
         rf_info.pre = j != dg.end() ? *j : zero_;
+
         for ( std::size_t p = 0u; j != dg.end(); ++j, ++p ) {
             if ( p > 0 ) rf_info.pre = op_plus() ( op_multiplies() ( rf_info.pre, base ), *j );
             rf_info.pre_digits.push_back ( *j );
@@ -1701,11 +1728,11 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
             }
         }
 
-        if ( rt == zero_ && m_numer < zero_ ) rf_info.pre_digits.front() =
+        if ( dg.front() == zero_ && m_numer < zero_ ) rf_info.pre_digits.front() =
                 integer_type ( -rf_info.pre_digits.front() );
     }
 
-    return rt;
+    return m_numer < zero_ ? integer_type ( -dg.front() ) : dg.front();
 }
 #pragma GCC diagnostic pop
 
