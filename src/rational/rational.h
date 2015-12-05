@@ -63,7 +63,6 @@
 #include <vector>
 #include <stack>
 #include <cmath>
-#include <set>
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 #include <type_traits>
@@ -590,6 +589,11 @@ public:
      */
     typedef struct _rf_info {
 
+        inline _rf_info ( const integer_type &r, std::size_t lz = 0u,
+                          const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
+            reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ),
+            pre_digits(), reptent_digits() {}
+
         inline _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ),
             pre_digits(), reptent_digits() {}
 
@@ -604,6 +608,39 @@ public:
     } rf_info;
 
     /**
+     * @ingroup main
+     * @brief Constructs a fraction from a repeating decimal
+     *
+     * @see Commons::Math::Rational::decompose()
+     *
+     * The fraction is calculated by the formula: \n \n
+     * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{reptend}}}{\begin{cases}
+     * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
+     * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{reptend}| + 1)\rceil +
+     * \mathrm{leading\_zeros}}} - 1} & \displaystyle{\text{if } \mathrm{x} \neq 0}
+     * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
+     * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
+     *
+     * @remarks
+     * * to get an intuitive result @c reptend and @c pre should be positive numbers
+     * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the
+     * decimal value of the fraction
+     *
+     * @b Examples: \n
+     * * to construct a fraction representing
+     *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
+     * Commons::Math::Rational<long> frac =
+     *      Commons::Math::Rational<long>(Commons::Math::rf_info(123456789));@endcode
+     * * to construct a fraction representing
+     *   @f$\frac{667}{6000} = 0.1111\overline{66}@f$ you'll need to write: @code{.cpp}
+     * Commons::Math::Rational<long> frac =
+     *      Commons::Math::Rational<long>(Commons::Math::rf_info(6, 0, 1111));@endcode
+     *
+     * @param[in] info a repeating decimal description
+     */
+    Rational ( const rf_info &info );
+
+    /**
      * @brief Splits a fraction in its whole and repetitive part
      *
      * @param[out] rf_info rf_info structure to store the result
@@ -615,6 +652,8 @@ public:
                              const integer_type &base = integer_type ( 10 ) ) const;
     /**
      * @brief extract the integral and fractional part
+     *
+     * each part has the same sign as the Rational
      *
      * @see mod_type
      *
@@ -1064,19 +1103,22 @@ public:
 private:
     Rational &reduce();
 
-    inline static std::set<char> sy_operators() {
+    static std::size_t md ( integer_type &out, const typename std::vector<integer_type> &dv,
+                            const integer_type &base );
 
-        std::set<char> ops;
-
-        ops.insert ( 1 ); // unary minus
-        ops.insert ( 2 ); // unary plus
-        ops.insert ( '+' );
-        ops.insert ( '-' );
-        ops.insert ( '*' );
-        ops.insert ( '/' );
-
-        return ops;
-    }
+//     inline static std::set<char> sy_operators() {
+//
+//         std::set<char> ops;
+//
+//         ops.insert ( 1 ); // unary minus
+//         ops.insert ( 2 ); // unary plus
+//         ops.insert ( '+' );
+//         ops.insert ( '-' );
+//         ops.insert ( '*' );
+//         ops.insert ( '/' );
+//
+//         return ops;
+//     }
 
     RATIONAL_CONSTEXPR inline static bool isLeftAssoc ( const char op ) {
         return op > 2;
@@ -1135,31 +1177,44 @@ template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberTy
                      std::numeric_limits<NumberType>::is_exact ) >() ( *this, nt );
 }
 
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic push
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP>::Rational ( const rf_info &info ) : m_numer (), m_denom () {
+
+    using namespace std;
+
+    *this = ( Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
+                         static_cast<integer_type>
+                         ( pow10 ( ceil ( log10 ( ( info.reptend < integer_type() ?
+                                          integer_type ( -info.reptend ) : info.reptend ) +
+                                          one_ ) ) + info.leading_zeros ) - one_ ) ) *=
+                  Rational ( one_, static_cast<integer_type>
+                             ( pow10 ( ceil ( log10 ( ( info.pre < integer_type() ?
+                                       integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
+                                       info.pre_leading_zeros ) ) ) );
+}
+#pragma GCC diagnostic pop
+
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( one_ ) {
 
     if ( expr && *expr ) {
 
-        const std::set<char> operators ( sy_operators() );
+        static const char td_op[11] = { '\n', '\t', ' ', '(', ')', 1, 2, '+', '-', '*', '/' };
 
-        std::set<char> tok_delimiters ( operators );
         std::stack<char, std::vector<char> > syard;
         std::string token;
         evalStack rpn;
-
-        tok_delimiters.insert ( '\n' );
-        tok_delimiters.insert ( '\t' );
-        tok_delimiters.insert ( ' ' );
-        tok_delimiters.insert ( '(' );
-        tok_delimiters.insert ( ')' );
 
         const char *ptr = expr;
         char top, prev = 0;
 
         while ( *ptr ) {
 
-            if ( tok_delimiters.find ( *ptr ) == tok_delimiters.end() ) {
+            if ( !std::count ( td_op, td_op + 11, *ptr ) ) {
 
                 if ( ( *ptr >= '0' && *ptr <= '9' ) || *ptr == '.' ) {
                     token.append ( 1, *ptr );
@@ -1172,8 +1227,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 }
 
                 if ( ! * ( ptr + 1 ) ) {
-                    rpn.push ( TYPE_CONVERT<const char *>
-                               ( token.c_str() ).template
+                    rpn.push ( TYPE_CONVERT<const char *> ( token.c_str() ).template
                                convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
                 }
 
@@ -1182,8 +1236,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
             } else if ( !token.empty() ) {
 
-                rpn.push ( TYPE_CONVERT<const char *>
-                           ( token.c_str() ).template
+                rpn.push ( TYPE_CONVERT<const char *> ( token.c_str() ).template
                            convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
                 token.clear();
             }
@@ -1224,27 +1277,23 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 #endif
                 }
 
-            } else if ( operators.find ( *ptr ) != operators.end() ) {
+            } else if ( std::count ( td_op + 5, td_op + 11, *ptr ) ) {
 
-                char op = *ptr;
+                char cop = *ptr;
 
                 const bool isUnary = ( ptr == expr ) || ( prev == '(' ||
-                                     operators.find ( prev ) != operators.end() );
+                                     std::count ( td_op + 5, td_op + 11, prev ) );
 
                 if ( *ptr == '-' && isUnary ) {
-
-                    op = 1;
-
+                    cop = 1;
                 } else if ( *ptr == '+' && isUnary ) {
-
-                    op = 2;
-
+                    cop = 2;
                 } else {
 
                     while ( !syard.empty() &&
-                            operators.find ( ( top = syard.top() ) ) != operators.end() &&
-                            ( ( isLeftAssoc ( op ) && getPrec ( op ) <= getPrec ( top ) ) ||
-                              ( !isLeftAssoc ( op ) && getPrec ( op ) < getPrec ( top ) ) ) ) {
+                            std::count ( td_op + 5, td_op + 11, top = syard.top() ) &&
+                            ( ( isLeftAssoc ( cop ) && getPrec ( cop ) <= getPrec ( top ) ) ||
+                              ( !isLeftAssoc ( cop ) && getPrec ( cop ) < getPrec ( top ) ) ) ) {
 
                         if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
@@ -1258,13 +1307,13 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 }
 
                 prev = *ptr;
-                syard.push ( op );
+                syard.push ( cop );
             }
 
             ++ptr;
         }
 
-        while ( !syard.empty() && operators.find ( ( top = syard.top() ) ) != operators.end() ) {
+        while ( !syard.empty() && std::count ( td_op + 5, td_op + 11, top = syard.top() ) ) {
 
             if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
@@ -1523,6 +1572,36 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
+        const typename std::vector<integer_type> &dv, const integer_type &base ) {
+
+    std::size_t zeros = 0u;
+
+    if ( !dv.empty() ) {
+
+        typename std::vector<integer_type>::const_iterator j ( dv.begin() );
+
+        out = *j++;
+
+        for ( ; j != dv.end(); ++j ) out = op_plus() ( op_multiplies() ( out, base ), *j );
+
+        for ( typename std::vector<integer_type>::const_iterator z ( dv.begin() );
+                z != dv.end(); ++z ) {
+
+            if ( *z == zero_ ) {
+                ++zeros;
+            } else {
+                break;
+            }
+        }
+    }
+
+    return zeros;
+}
+
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
@@ -1534,12 +1613,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
 
     using namespace std;
 
-    typename std::vector<integer_type>::reverse_iterator rit;
-
     std::vector<integer_type> rd, dg;
     integer_type d ( m_numer );
-
-    bool isFinite = false;
 
     do {
 
@@ -1552,15 +1627,10 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
         if ( rd.back() != zero_ ) {
             d = op_multiplies() ( base, rd.back() );
         } else {
-            isFinite = true;
             break;
         }
 
-    } while ( ( rit = std::find ( rd.rbegin() + 1, rd.rend(), rd.back() ) ) == rd.rend() );
-
-    integer_type rt ( m_numer < zero_ ? integer_type ( -dg.front() ) : dg.front() );
-
-    dg.erase ( dg.begin() );
+    } while ( !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
@@ -1568,79 +1638,41 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
     rf_info.reptent_digits.clear();
     rf_info.pre_digits.clear();
 
-    typename std::vector<integer_type>::reverse_iterator j ( dg.rbegin() );
+    if ( rd.back() != zero_ ) {
 
-    if ( !isFinite ) {
+        const typename std::vector<integer_type>::iterator &mid ( dg.begin() + std::distance
+                ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) + 1 );
 
-        const typename std::vector<integer_type>::difference_type
-        rs ( std::distance ( rd.rbegin(), rit ) );
+        const bool hasPre = rd.back() != rd.front();
 
-        for ( typename std::vector<integer_type>::difference_type p ( 0u );
-                j != dg.rend() && p < rs; ++j, ++p ) {
-            rf_info.reptend += op_multiplies() ( *j, pow ( base,
-                                                 static_cast<unsigned long> ( p ) ) );
-
-            rf_info.reptent_digits.insert ( rf_info.reptent_digits.begin(), 1u, *j );
+        if ( hasPre ) {
+            std::copy ( dg.begin() + 1, mid, std::back_inserter ( rf_info.pre_digits ) );
+            rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
         }
 
-        for ( typename std::vector<integer_type>::const_iterator
-                z ( rf_info.reptent_digits.begin() ); z != rf_info.reptent_digits.end(); ++z ) {
+        std::copy ( hasPre ? mid : dg.begin() + 1, dg.end(),
+                    std::back_inserter ( rf_info.reptent_digits ) );
 
-            if ( *z == zero_ ) {
-                ++rf_info.leading_zeros;
-            } else {
-                break;
-            }
-        }
-
-        for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
-            rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
-            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
-        }
-
-        for ( typename  std::vector<integer_type>::const_iterator
-                z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
-
-            if ( *z == zero_ ) {
-                ++rf_info.pre_leading_zeros;
-            } else {
-                break;
-            }
-        }
+        rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
 
         if ( m_numer < zero_ ) {
-
             if ( !rf_info.pre_digits.empty() ) {
-                rf_info.pre_digits.front() =
-                    integer_type ( -rf_info.pre_digits.front() );
+                rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
             } else if ( !rf_info.reptent_digits.empty() ) {
-                rf_info.reptent_digits.front() =
-                    integer_type ( -rf_info.reptent_digits.front() );
+                rf_info.reptent_digits.front() = integer_type ( -rf_info.reptent_digits.front() );
             }
         }
 
     } else {
 
-        for ( std::size_t p = 0u; j != dg.rend(); ++j, ++p ) {
-            rf_info.pre += op_multiplies() ( *j, pow ( base, p ) );
-            rf_info.pre_digits.insert ( rf_info.pre_digits.begin(), 1u, *j );
-        }
+        std::copy ( dg.begin() + 1, dg.end(), std::back_inserter ( rf_info.pre_digits ) );
+        rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
 
-        for ( typename std::vector<integer_type>::const_iterator
-                z ( rf_info.pre_digits.begin() ); z != rf_info.pre_digits.end(); ++z ) {
-
-            if ( *z == zero_ ) {
-                ++rf_info.pre_leading_zeros;
-            } else {
-                break;
-            }
-        }
-
-        if ( rt == zero_ && m_numer < zero_ ) rf_info.pre_digits.front() =
+        if ( dg.front() == zero_ && m_numer < zero_ ) rf_info.pre_digits.front() =
                 integer_type ( -rf_info.pre_digits.front() );
     }
 
-    return rt;
+    return m_numer < zero_ ? integer_type ( -dg.front() ) : dg.front();
 }
 #pragma GCC diagnostic pop
 
@@ -1757,13 +1789,13 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
         if ( p.first != zero_ ) os << p.first << ' ';
 
-        os << p.second.str ( false );
+        os << p.second.abs().str ( false );
 
     } else if ( mixed && m_denom == one_ ) {
 
         const mod_type &p ( mod() );
 
-        os << ( p.first + p.second.numerator() );
+        os << ( p.first + p.second.abs().numerator() );
 
     } else {
 
@@ -2213,7 +2245,7 @@ _mod<T, GCD, CHKOP, true>::operator() ( const Rational<T, GCD, CHKOP> &r ) const
                                                    ( r.m_numer, r.m_denom ) ), r.m_denom ) );
 
     return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
-                            r.m_denom ), r.m_numer < Rational<T, GCD, CHKOP>::zero_ ? -h : h );
+                            r.m_denom ), h );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -2731,7 +2763,6 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
     typedef Rational<T, GCD, CHKOP> rat;
 
     rat h ( r );
-    const static rat one_ ( rat::one_, rat::one_ );
 
     typename rat::mod_type mt;
 
@@ -2740,73 +2771,9 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
         mt = h.mod();
         * ( out++ ) = mt.first;
 
-    } while ( mt.second.numerator() != T() && ( h = one_ / mt.second, true ) );
+    } while ( mt.second.numerator() != T() && ( h = mt.second.invert(), true ) );
 
     return out;
-}
-
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic push
-/**
- * @ingroup main
- * @brief Constructs a fraction from a repeating decimal
- *
- * @see Commons::Math::Rational::decompose()
- *
- * The fraction is calculated by the formula: \n \n
- * @f$ \frac{\displaystyle{\mathrm{pre}} + \frac{\displaystyle{\mathrm{reptend}}}{\begin{cases}
- * \displaystyle{1} & \displaystyle{\text{if } \mathrm{x} = 0} \\
- * \displaystyle{10^{\displaystyle{\lceil\log_{10}(|\mathrm{reptend}| + 1)\rceil +
- * \mathrm{leading\_zeros}}} - 1} & \displaystyle{\text{if } \mathrm{x} \neq 0}
- * \end{cases}}}{\displaystyle{10}^{\displaystyle{\displaystyle{\lceil\log_{10}(|\mathrm{pre}|
- * + 1)\rceil + \mathrm{pre\_leading\_zeros}}}}} @f$
- *
- * @remarks
- * * to get an intuitive result @c reptend and @c pre should be positive numbers
- * * the resulting fraction will be within @f$ 0 \leq x \leq 1@f$, where @f$ x @f$ is the
- * decimal value of the fraction
- *
- * @b Examples: \n
- * * to construct a fraction representing
- *   @f$\frac{13717421}{111111111} = 0.\overline{123456789}@f$ you'll need to write: @code{.cpp}
- * Commons::Math::Rational<long> frac =
- *      Commons::Math::rf<Commons::Math::Rational<long> >(123456789);@endcode
- * * to construct a fraction representing
- *   @f$\frac{667}{6000} = 0.1111\overline{66}@f$ you'll need to write: @code{.cpp}
- * Commons::Math::Rational<long> frac =
- *      Commons::Math::rf<Commons::Math::Rational<long> >(6, 0, 1111);@endcode
- *
- * @tparam R a Commons::Math::Rational type
- *
- * @param[in] reptend the digit sequence to repeat
- * @param[in] leading_zeros amount of leading zeros to @c reptend
- * @param[in] pre a digit sequence before @c reptend
- * @param[in] pre_leading_zeros amount of leading zeros to @c pre
- *
- * @return A Rational representing the repeating decimal
- */
-template<typename R>
-inline R rf ( const typename R::integer_type &reptend, std::size_t leading_zeros = 0u,
-              const typename R::integer_type &pre = typename R::integer_type(),
-              std::size_t pre_leading_zeros = 0u ) {
-
-    using namespace std;
-
-    return ( R ( pre, reptend, reptend == R::zero_ ? R::one_ :
-                 pow10 ( ceil ( log10 ( abs ( reptend ) + R::one_ ) ) + leading_zeros ) -
-                 R::one_ ) *= R ( R::one_, pow10 ( ceil ( log10 ( abs ( pre ) + R::one_ ) ) +
-                                  pre_leading_zeros ) ) );
-
-}
-#pragma GCC diagnostic pop
-
-/**
- * @ingroup main
- * @overload
- */
-template<typename R>
-inline R rf ( const typename R::rf_info &rf_info ) {
-    return rf<R> ( rf_info.reptend, rf_info.leading_zeros, rf_info.pre, rf_info.pre_leading_zeros );
 }
 
 }

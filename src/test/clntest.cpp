@@ -315,7 +315,7 @@ void CLNTest::testModulo() {
     cln_rational i ( 11, -4 );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -2l ), i.mod().first );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3l ), i.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -3l ), i.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4l ), i.mod().second.denominator() );
 
     cln_rational j ( 18, 8 );
@@ -327,7 +327,7 @@ void CLNTest::testModulo() {
     cln_rational k ( -18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -2l ), k.mod().first );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1l ), k.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -1l ), k.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4l ), k.mod().second.denominator() );
 
     cln_rational l ( 1, 8 );
@@ -335,7 +335,6 @@ void CLNTest::testModulo() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 0l ), l.mod().first );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1l ), l.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 8l ), l.mod().second.denominator() );
-
 }
 
 void CLNTest::testIncDec() {
@@ -574,52 +573,52 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( -11, 3 ).abs().str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "11/3" ), cln_rational ( 11, 3 ).abs().str() );
 
-    const cln_rational &a ( rf<cln_rational> ( 142857 ) );
+    const cln_rational &a ( cln_rational::rf_info ( 142857 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), a.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 7 ), a.denominator() );
 
-    const cln_rational &b ( rf<cln_rational> ( 34 ) );
+    const cln_rational &b ( cln_rational::rf_info ( 34 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 34 ), b.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 99 ), b.denominator() );
 
-    const cln_rational &c ( rf<cln_rational> ( 123456789 ) );
+    const cln_rational &c ( cln_rational::rf_info ( 123456789 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 13717421 ), c.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 111111111 ), c.denominator() );
 
-    const cln_rational &d ( rf<cln_rational> ( 12, 1 ) );
+    const cln_rational &d ( cln_rational::rf_info ( 12, 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4 ), d.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 333 ), d.denominator() );
 
-    const cln_rational &e ( rf<cln_rational> ( 6, 0, 1111 ) );
+    const cln_rational &e ( cln_rational::rf_info ( 6, 0, 1111 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 667 ), e.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6000 ), e.denominator() );
 
-    const cln_rational &f ( rf<cln_rational> ( 1, 2, 3, 4 ) );
+    const cln_rational &f ( cln_rational::rf_info ( 1, 2, 3, 4 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1499 ), f.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 49950000 ), f.denominator() );
 
-    const cln_rational &g ( rf<cln_rational> ( 6, 0, 0, 1 ) );
+    const cln_rational &g ( cln_rational::rf_info ( 6, 0, 0, 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), g.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 15 ), g.denominator() );
 
-    const cln_rational &h ( rf<cln_rational> ( 6, 0, 1 ) );
+    const cln_rational &h ( cln_rational::rf_info ( 6, 0, 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), h.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6 ), h.denominator() );
 
-    const cln_rational &i ( rf<cln_rational> ( 1, 1 ) );
+    const cln_rational &i ( cln_rational::rf_info ( 1, 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), i.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 99 ), i.denominator() );
 
-    const cln_rational &j ( rf<cln_rational> ( 1 ) );
+    const cln_rational &j ( cln_rational::rf_info ( 1 ) );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), j.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 9 ), j.denominator() );
@@ -629,20 +628,28 @@ void CLNTest::testStdMath() {
     const cln_rational k ( 7, 13 );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 0 ), k.decompose ( dc ) );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 7 ), rf<cln_rational > ( dc ).numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 13 ), rf<cln_rational > ( dc ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 7 ), cln_rational ( dc ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 13 ), cln_rational ( dc ).denominator() );
 
     const cln_rational l ( 88, 100 );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 0 ), l.decompose ( dc ) );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 22 ), rf<cln_rational > ( dc ).numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 25 ), rf<cln_rational > ( dc ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 22 ), cln_rational ( dc ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 25 ), cln_rational ( dc ).denominator() );
 
     const cln_rational m ( 8, 3 );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), m.decompose ( dc ) );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), rf<cln_rational > ( dc ).numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), rf<cln_rational > ( dc ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), cln_rational ( dc ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), cln_rational ( dc ).denominator() );
+
+    const cln_rational n ( "(70/2) - (1741832/249975)" );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 28 ), n.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), dc.pre );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1975 ), dc.reptend );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
 }
 
 void CLNTest::testGoldenRatio() {

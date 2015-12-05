@@ -434,12 +434,6 @@ inline mpz_class floor ( const mpz_class &z ) {
 }
 #endif
 
-inline mpz_class pow ( const mpz_class &x, unsigned long int y ) {
-    mpz_class r;
-    mpz_pow_ui ( r.get_mpz_t(), x.get_mpz_t(), y );
-    return r;
-}
-
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

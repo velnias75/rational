@@ -264,7 +264,7 @@ void InfIntTest::testModulo() {
     infint_rational i ( 11, -4 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "-2" ), i.mod().first.toString() );
-    CPPUNIT_ASSERT_EQUAL ( 3l, i.mod().second.numerator().toLong() );
+    CPPUNIT_ASSERT_EQUAL ( -3l, i.mod().second.numerator().toLong() );
     CPPUNIT_ASSERT_EQUAL ( 4l, i.mod().second.denominator().toLong() );
 
     infint_rational j ( 18, 8 );
@@ -276,7 +276,7 @@ void InfIntTest::testModulo() {
     infint_rational k ( -18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "-2" ), k.mod().first.toString() );
-    CPPUNIT_ASSERT_EQUAL ( 1l, k.mod().second.numerator().toLong() );
+    CPPUNIT_ASSERT_EQUAL ( -1l, k.mod().second.numerator().toLong() );
     CPPUNIT_ASSERT_EQUAL ( 4l, k.mod().second.denominator().toLong() );
 
     infint_rational l ( 1, 8 );
