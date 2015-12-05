@@ -1244,7 +1244,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                                                         expr + tok_start + tok_len ).c_str() ).
                            template convert<typename
                            ExpressionEvalTraits<integer_type>::NumberType>() );
-                tok_len = 0u;
+                tok_len = 0;
             }
 
             if ( *ptr == ' ' || *ptr == '\t' || *ptr == '\n' ) {
