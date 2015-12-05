@@ -59,6 +59,7 @@
 #include <functional>
 #include <algorithm>
 #include <sstream>
+#include <string>
 #include <limits>
 #include <vector>
 #include <stack>
@@ -1206,7 +1207,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
         static const char td_op[11] = { '\n', '\t', ' ', '(', ')', 1, 2, '+', '-', '*', '/' };
 
         std::stack<char, std::vector<char> > syard;
-        std::string token;
+        std::ptrdiff_t tok_start = 0, tok_len = 0;
         evalStack rpn;
 
         const char *ptr = expr;
@@ -1217,28 +1218,33 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
             if ( !std::count ( td_op, td_op + 11, *ptr ) ) {
 
                 if ( ( *ptr >= '0' && *ptr <= '9' ) || *ptr == '.' ) {
-                    token.append ( 1, *ptr );
+                    if ( !tok_len++ ) tok_start = ptr - expr;
                 } else {
 #ifdef __EXCEPTIONS
                     throw std::runtime_error ( std::string
-                                               ( "invalid character(s) in expression: " )
-                                               .append ( expr ) );
+                                               ( "invalid character(s) in expression: " ).
+                                               append ( expr ) );
 #endif
                 }
 
                 if ( ! * ( ptr + 1 ) ) {
-                    rpn.push ( TYPE_CONVERT<const char *> ( token.c_str() ).template
-                               convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
+                    rpn.push ( TYPE_CONVERT<const char *> ( std::string ( expr + tok_start,
+                                                            expr + tok_start + tok_len ).c_str() ).
+                               template convert<typename
+                               ExpressionEvalTraits<integer_type>::NumberType>() );
+                    tok_len = 0;
                 }
 
                 prev = *ptr++;
                 continue;
 
-            } else if ( !token.empty() ) {
+            } else if ( tok_len ) {
 
-                rpn.push ( TYPE_CONVERT<const char *> ( token.c_str() ).template
-                           convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
-                token.clear();
+                rpn.push ( TYPE_CONVERT<const char *> ( std::string ( expr + tok_start,
+                                                        expr + tok_start + tok_len ).c_str() ).
+                           template convert<typename
+                           ExpressionEvalTraits<integer_type>::NumberType>() );
+                tok_len = 0u;
             }
 
             if ( *ptr == ' ' || *ptr == '\t' || *ptr == '\n' ) {
