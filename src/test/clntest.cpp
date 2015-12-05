@@ -315,7 +315,7 @@ void CLNTest::testModulo() {
     cln_rational i ( 11, -4 );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -2l ), i.mod().first );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3l ), i.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -3l ), i.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4l ), i.mod().second.denominator() );
 
     cln_rational j ( 18, 8 );
@@ -327,7 +327,7 @@ void CLNTest::testModulo() {
     cln_rational k ( -18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -2l ), k.mod().first );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1l ), k.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -1l ), k.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4l ), k.mod().second.denominator() );
 
     cln_rational l ( 1, 8 );
@@ -335,7 +335,6 @@ void CLNTest::testModulo() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 0l ), l.mod().first );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1l ), l.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 8l ), l.mod().second.denominator() );
-
 }
 
 void CLNTest::testIncDec() {

@@ -313,7 +313,7 @@ void GMPTest::testModulo() {
     gmp_rational i ( 11, -4 );
 
     CPPUNIT_ASSERT_EQUAL ( -2l, i.mod().first.get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 3l, i.mod().second.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( -3l, i.mod().second.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 4l, i.mod().second.denominator().get_si() );
 
     gmp_rational j ( 18, 8 );
@@ -325,7 +325,7 @@ void GMPTest::testModulo() {
     gmp_rational k ( -18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( -2l, k.mod().first.get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 1l, k.mod().second.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( -1l, k.mod().second.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 4l, k.mod().second.denominator().get_si() );
 
     gmp_rational l ( 1, 8 );

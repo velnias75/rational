@@ -653,6 +653,8 @@ public:
     /**
      * @brief extract the integral and fractional part
      *
+     * each part has the same sign as the Rational
+     *
      * @see mod_type
      *
      * @return a @c mod_type containing the integral and fractional part
@@ -1787,13 +1789,13 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
         if ( p.first != zero_ ) os << p.first << ' ';
 
-        os << p.second.str ( false );
+        os << p.second.abs().str ( false );
 
     } else if ( mixed && m_denom == one_ ) {
 
         const mod_type &p ( mod() );
 
-        os << ( p.first + p.second.numerator() );
+        os << ( p.first + p.second.abs().numerator() );
 
     } else {
 
@@ -2243,7 +2245,7 @@ _mod<T, GCD, CHKOP, true>::operator() ( const Rational<T, GCD, CHKOP> &r ) const
                                                    ( r.m_numer, r.m_denom ) ), r.m_denom ) );
 
     return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
-                            r.m_denom ), r.m_numer < Rational<T, GCD, CHKOP>::zero_ ? -h : h );
+                            r.m_denom ), h );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -2761,7 +2763,6 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
     typedef Rational<T, GCD, CHKOP> rat;
 
     rat h ( r );
-    const static rat one_ ( rat::one_, rat::one_ );
 
     typename rat::mod_type mt;
 
@@ -2770,7 +2771,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
         mt = h.mod();
         * ( out++ ) = mt.first;
 
-    } while ( mt.second.numerator() != T() && ( h = one_ / mt.second, true ) );
+    } while ( mt.second.numerator() != T() && ( h = mt.second.invert(), true ) );
 
     return out;
 }

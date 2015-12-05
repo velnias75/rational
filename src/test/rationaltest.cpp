@@ -738,7 +738,7 @@ void RationalTest::testModulo() {
     const Rational<rational_type> i ( 11, -4 );
 
     CPPUNIT_ASSERT_EQUAL ( -2, i.mod().first );
-    CPPUNIT_ASSERT_EQUAL ( 3, i.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( -3, i.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 4, i.mod().second.denominator() );
 
     const Rational<rational_type> j ( 18, 8 );
@@ -750,7 +750,7 @@ void RationalTest::testModulo() {
     const Rational<rational_type> k ( -18, 8 );
 
     CPPUNIT_ASSERT_EQUAL ( -2, k.mod().first );
-    CPPUNIT_ASSERT_EQUAL ( 1, k.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( -1, k.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 4, k.mod().second.denominator() );
 
     const Rational<rational_type> l ( 1, 8 );
@@ -1232,6 +1232,14 @@ void RationalTest::testAlgorithm() {
 
     CPPUNIT_ASSERT_EQUAL ( 2u, ocf.size() );
     CPPUNIT_ASSERT ( std::equal ( ocf.begin(), ocf.end(), ccf ) );
+
+    const Rational<rational_type> c ( 88, -77 );
+    const rational_type ancf[] = { -1, -7 };
+    std::vector<rational_type> negcf;
+
+    seq ( c, std::back_inserter ( negcf ) );
+
+    CPPUNIT_ASSERT ( std::equal ( negcf.begin(), negcf.end(), ancf ) );
 }
 
 void RationalTest::testStdMath() {
