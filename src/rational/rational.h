@@ -162,14 +162,14 @@ private:
     const T& val;
 };
 
-template<> struct TYPE_CONVERT<const char *> {
+template<> struct TYPE_CONVERT<std::string> {
 
     /**
      * @brief Constructs a type converter
      *
      * @param[in] v the value to convert
      */
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const char *v ) : val ( v ) {}
+    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const std::string &v ) : val ( v ) {}
 
     /**
      * @brief converts the value to @c U
@@ -183,7 +183,34 @@ template<> struct TYPE_CONVERT<const char *> {
     }
 
 private:
+    const std::string &val;
+};
+
+template<> struct TYPE_CONVERT<const char *> {
+
+    /**
+     * @brief Constructs a type converter
+     *
+     * @param[in] v the value to convert
+     */
+    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const char *f, const char *l = 0L ) :
+        val ( f ), len ( l ), isRange ( l ) {}
+
+    /**
+     * @brief converts the value to @c U
+     *
+     * @tparam U the type to convert to
+     */
+    template<typename U> inline U convert() const {
+        U aux;
+        ( std::istringstream ( isRange ? std::string ( val, len ) : val ) ) >> aux;
+        return aux;
+    }
+
+private:
     const char *val;
+    const char *len;
+    const bool isRange;
 };
 
 template<> struct TYPE_CONVERT<float> {
@@ -1228,10 +1255,11 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 }
 
                 if ( ! * ( ptr + 1 ) ) {
-                    rpn.push ( TYPE_CONVERT<const char *> ( std::string ( expr + tok_start,
-                                                            expr + tok_start + tok_len ).c_str() ).
+                    rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
+                                                            expr + tok_start + tok_len ).
                                template convert<typename
                                ExpressionEvalTraits<integer_type>::NumberType>() );
+
                     tok_len = 0;
                 }
 
@@ -1240,10 +1268,11 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
             } else if ( tok_len ) {
 
-                rpn.push ( TYPE_CONVERT<const char *> ( std::string ( expr + tok_start,
-                                                        expr + tok_start + tok_len ).c_str() ).
+                rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
+                                                        expr + tok_start + tok_len ).
                            template convert<typename
                            ExpressionEvalTraits<integer_type>::NumberType>() );
+
                 tok_len = 0;
             }
 

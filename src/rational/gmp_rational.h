@@ -69,10 +69,14 @@
 #define GMP_EPSILON "1e-100"
 #endif
 
-#if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
-          < 50100
 namespace std {
 
+template<> inline void swap<mpz_class> ( mpz_class &x, mpz_class &y ) {
+    mpz_swap ( x.get_mpz_t(), y.get_mpz_t() );
+}
+
+#if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
+          < 50100
 template<>
 struct numeric_limits<mpz_class> {
 
@@ -139,9 +143,8 @@ struct numeric_limits<mpz_class> {
     static const bool tinyness_before = false;
     static const float_round_style round_style = round_toward_zero;
 };
-
-}
 #endif
+}
 
 namespace Commons {
 
@@ -163,13 +166,21 @@ template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() cons
     return mpz_class ( os.str() );
 }
 
+template<> inline mpf_class TYPE_CONVERT<std::string>::convert<mpf_class>() const {
+    return mpf_class ( val.c_str() );
+}
+
 template<> inline mpf_class TYPE_CONVERT<const char *>::convert<mpf_class>() const {
-    return mpf_class ( val );
+    return mpf_class ( isRange ? std::string ( val, len ).c_str() : val );
 }
 
 #ifdef HAVE_MPREAL_H
+template<> inline mpfr::mpreal TYPE_CONVERT<std::string>::convert<mpfr::mpreal>() const {
+    return mpfr::mpreal ( val.c_str() );
+}
+
 template<> inline mpfr::mpreal TYPE_CONVERT<const char *>::convert<mpfr::mpreal>() const {
-    return mpfr::mpreal ( val );
+    return mpfr::mpreal ( isRange ? std::string ( val, len ) : val );
 }
 #endif
 
