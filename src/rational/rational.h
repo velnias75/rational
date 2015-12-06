@@ -240,7 +240,7 @@ template<> struct TYPE_CONVERT<long double> {
 
     RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const long double v ) : val ( v ) {}
 
-    template<class U> RATIONAL_CONSTEXPR inline U convert() const {
+    template<class U> inline U convert() const {
         return static_cast<U> ( val );
     }
 

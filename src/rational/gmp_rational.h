@@ -441,7 +441,14 @@ inline mpz_class pow10 ( const mpf_class &f ) {
 inline mpz_class floor ( const mpz_class &z ) {
     mpf_class r, f ( z );
     mpf_floor ( r.get_mpf_t(), f.get_mpf_t() );
+#if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
+          <= 50103
+    mpz_class aux;
+    mpz_set_f(aux.get_mpz_t(), r.get_mpf_t());
+    return aux;
+#else
     return r;
+#endif
 }
 #endif
 
