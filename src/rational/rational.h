@@ -1642,13 +1642,9 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
         dg.push_back ( ( aux = floor ( op_divides() ( d, m_denom ) ) ) < zero_ ?
                        integer_type ( -aux ) : aux ) ;
 
-        if ( rd.back() != zero_ ) {
-            d = op_multiplies() ( base, rd.back() );
-        } else {
-            break;
-        }
+        d = op_multiplies() ( base, rd.back() );
 
-    } while ( !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
+    } while ( rd.back() != zero_ && !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
@@ -1668,23 +1664,24 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
     }
 
     if ( hasPer ) {
-
         std::copy ( mid, dg.end(), std::back_inserter ( rf_info.reptent_digits ) );
         rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
-
-        if ( m_numer < zero_ ) {
-            if ( !rf_info.pre_digits.empty() ) {
-                rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
-            } else if ( !rf_info.reptent_digits.empty() ) {
-                rf_info.reptent_digits.front() = integer_type ( -rf_info.reptent_digits.front() );
-            }
-        }
-
-    } else if ( dg.front() == zero_ && m_numer < zero_ ) {
-        rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
     }
 
-    return m_numer < zero_ ? integer_type ( -dg.front() ) : dg.front();
+    const bool isNegative = m_numer < zero_;
+
+    if ( isNegative ) {
+
+        if ( !rf_info.pre_digits.empty() ) {
+            rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
+        }
+
+        if ( !rf_info.reptent_digits.empty() ) {
+            rf_info.reptent_digits.front() = integer_type ( -rf_info.reptent_digits.front() );
+        }
+    }
+
+    return isNegative ? integer_type ( -dg.front() ) : dg.front();
 }
 #pragma GCC diagnostic pop
 

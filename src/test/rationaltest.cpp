@@ -1337,6 +1337,32 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( 1975ul, dc.reptend );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    Rational<long>::rf_info sdc;
+
+    const Rational<long> o ( -3, 1, 3 );
+
+    CPPUNIT_ASSERT_EQUAL ( -2l, o.decompose ( sdc ) );
+    CPPUNIT_ASSERT ( sdc.pre_digits.empty() );
+    CPPUNIT_ASSERT_EQUAL ( -6l, sdc.reptent_digits.front() );
+
+    const Rational<long> p ( 13, -30 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, p.decompose ( sdc ) );
+    CPPUNIT_ASSERT_EQUAL ( -4l, sdc.pre_digits.front() );
+    CPPUNIT_ASSERT_EQUAL ( -3l, sdc.reptent_digits.front() );
+
+    const Rational<long> q ( -2, 5 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, q.decompose ( sdc ) );
+    CPPUNIT_ASSERT_EQUAL ( -4l, sdc.pre_digits.front() );
+    CPPUNIT_ASSERT ( sdc.reptent_digits.empty() );
+
+    const Rational<long> r ( 8, -2, 5 );
+
+    CPPUNIT_ASSERT_EQUAL ( 7l, r.decompose ( sdc ) );
+    CPPUNIT_ASSERT_EQUAL ( 6l, sdc.pre_digits.front() );
+    CPPUNIT_ASSERT ( sdc.reptent_digits.empty() );
 }
 
 void RationalTest::testRatRat() {
