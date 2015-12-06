@@ -135,8 +135,13 @@ template<> inline cln::cl_I TYPE_CONVERT<long double>::convert<cln::cl_I>() cons
     return os.str().c_str();
 }
 
-template<> inline cln::cl_F TYPE_CONVERT<const char *>::convert<cln::cl_F>() const {
+template<> inline cln::cl_F TYPE_CONVERT<std::string>::convert<cln::cl_F>() const {
     return std::string ( val ).append ( "L0_" ).append ( CLN_PRECISION ).c_str();
+}
+
+template<> inline cln::cl_F TYPE_CONVERT<const char *>::convert<cln::cl_F>() const {
+    return ( isRange ? std::string ( val, len ) : std::string ( val ) ).append ( "L0_" ).
+           append ( CLN_PRECISION ).c_str();
 }
 
 template<> struct TYPE_CONVERT<cln::cl_F> {

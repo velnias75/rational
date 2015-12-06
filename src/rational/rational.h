@@ -59,6 +59,7 @@
 #include <functional>
 #include <algorithm>
 #include <sstream>
+#include <string>
 #include <limits>
 #include <vector>
 #include <stack>
@@ -161,14 +162,14 @@ private:
     const T& val;
 };
 
-template<> struct TYPE_CONVERT<const char *> {
+template<> struct TYPE_CONVERT<std::string> {
 
     /**
      * @brief Constructs a type converter
      *
      * @param[in] v the value to convert
      */
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const char *v ) : val ( v ) {}
+    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const std::string &v ) : val ( v ) {}
 
     /**
      * @brief converts the value to @c U
@@ -182,7 +183,34 @@ template<> struct TYPE_CONVERT<const char *> {
     }
 
 private:
+    const std::string &val;
+};
+
+template<> struct TYPE_CONVERT<const char *> {
+
+    /**
+     * @brief Constructs a type converter
+     *
+     * @param[in] v the value to convert
+     */
+    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const char *f, const char *l = 0L ) :
+        val ( f ), len ( l ), isRange ( l ) {}
+
+    /**
+     * @brief converts the value to @c U
+     *
+     * @tparam U the type to convert to
+     */
+    template<typename U> inline U convert() const {
+        U aux;
+        ( std::istringstream ( isRange ? std::string ( val, len ) : val ) ) >> aux;
+        return aux;
+    }
+
+private:
     const char *val;
+    const char *len;
+    const bool isRange;
 };
 
 template<> struct TYPE_CONVERT<float> {
@@ -1106,20 +1134,6 @@ private:
     static std::size_t md ( integer_type &out, const typename std::vector<integer_type> &dv,
                             const integer_type &base );
 
-//     inline static std::set<char> sy_operators() {
-//
-//         std::set<char> ops;
-//
-//         ops.insert ( 1 ); // unary minus
-//         ops.insert ( 2 ); // unary plus
-//         ops.insert ( '+' );
-//         ops.insert ( '-' );
-//         ops.insert ( '*' );
-//         ops.insert ( '/' );
-//
-//         return ops;
-//     }
-
     RATIONAL_CONSTEXPR inline static bool isLeftAssoc ( const char op ) {
         return op > 2;
     }
@@ -1203,10 +1217,11 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
     if ( expr && *expr ) {
 
-        static const char td_op[11] = { '\n', '\t', ' ', '(', ')', 1, 2, '+', '-', '*', '/' };
+        static const char td_op[11] = { '\t', '\n', ' ', '(', ')', 1, 2, '-', '/', '*', '+' };
+        static const char *td_op_end = td_op + 11, *op_start = td_op + 5;
 
         std::stack<char, std::vector<char> > syard;
-        std::string token;
+        std::ptrdiff_t tok_start = 0, tok_len = 0;
         evalStack rpn;
 
         const char *ptr = expr;
@@ -1214,31 +1229,38 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
         while ( *ptr ) {
 
-            if ( !std::count ( td_op, td_op + 11, *ptr ) ) {
+            if ( std::find ( td_op, td_op_end, *ptr ) == td_op_end ) {
 
                 if ( ( *ptr >= '0' && *ptr <= '9' ) || *ptr == '.' ) {
-                    token.append ( 1, *ptr );
+                    if ( !tok_len++ ) tok_start = ptr - expr;
                 } else {
 #ifdef __EXCEPTIONS
                     throw std::runtime_error ( std::string
-                                               ( "invalid character(s) in expression: " )
-                                               .append ( expr ) );
+                                               ( "invalid character(s) in expression: " ).
+                                               append ( expr ) );
 #endif
                 }
 
                 if ( ! * ( ptr + 1 ) ) {
-                    rpn.push ( TYPE_CONVERT<const char *> ( token.c_str() ).template
-                               convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
+                    rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
+                                                            expr + tok_start + tok_len ).
+                               template convert<typename
+                               ExpressionEvalTraits<integer_type>::NumberType>() );
+
+                    tok_len = 0;
                 }
 
                 prev = *ptr++;
                 continue;
 
-            } else if ( !token.empty() ) {
+            } else if ( tok_len ) {
 
-                rpn.push ( TYPE_CONVERT<const char *> ( token.c_str() ).template
-                           convert<typename ExpressionEvalTraits<integer_type>::NumberType>() );
-                token.clear();
+                rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
+                                                        expr + tok_start + tok_len ).
+                           template convert<typename
+                           ExpressionEvalTraits<integer_type>::NumberType>() );
+
+                tok_len = 0;
             }
 
             if ( *ptr == ' ' || *ptr == '\t' || *ptr == '\n' ) {
@@ -1277,12 +1299,12 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 #endif
                 }
 
-            } else if ( std::count ( td_op + 5, td_op + 11, *ptr ) ) {
+            } else if ( std::find ( op_start, td_op_end, *ptr ) != td_op_end ) {
 
                 char cop = *ptr;
 
                 const bool isUnary = ( ptr == expr ) || ( prev == '(' ||
-                                     std::count ( td_op + 5, td_op + 11, prev ) );
+                                     std::find ( op_start, td_op_end, prev ) != td_op_end );
 
                 if ( *ptr == '-' && isUnary ) {
                     cop = 1;
@@ -1291,7 +1313,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                 } else {
 
                     while ( !syard.empty() &&
-                            std::count ( td_op + 5, td_op + 11, top = syard.top() ) &&
+                            std::find ( op_start, td_op_end, top = syard.top() ) != td_op_end &&
                             ( ( isLeftAssoc ( cop ) && getPrec ( cop ) <= getPrec ( top ) ) ||
                               ( !isLeftAssoc ( cop ) && getPrec ( cop ) < getPrec ( top ) ) ) ) {
 
@@ -1313,7 +1335,8 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
             ++ptr;
         }
 
-        while ( !syard.empty() && std::count ( td_op + 5, td_op + 11, top = syard.top() ) ) {
+        while ( !syard.empty() &&
+                std::find ( op_start, td_op_end, top = syard.top() ) != td_op_end ) {
 
             if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
@@ -2107,7 +2130,6 @@ struct _approxUtils {
     const static NumberType eps_;
 
 private:
-
     inline static NumberType abs ( const NumberType &nt ) {
         return nt < NumberType() ? NumberType ( -nt ) : nt;
     }
@@ -2719,7 +2741,8 @@ cf ( IIter first, IIter last ) {
     typedef typename CFRationalTraits<typename
     std::iterator_traits<IIter>::value_type>::rational_type rat;
 
-    value_type m[2][2] = { { value_type(), value_type ( 1 ) },
+    value_type m[2][2] = {
+        { value_type(), value_type ( 1 ) },
         { value_type ( 1 ), value_type() }
     };
 
