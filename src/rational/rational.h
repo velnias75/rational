@@ -2130,7 +2130,6 @@ struct _approxUtils {
     const static NumberType eps_;
 
 private:
-
     inline static NumberType abs ( const NumberType &nt ) {
         return nt < NumberType() ? NumberType ( -nt ) : nt;
     }
@@ -2742,7 +2741,8 @@ cf ( IIter first, IIter last ) {
     typedef typename CFRationalTraits<typename
     std::iterator_traits<IIter>::value_type>::rational_type rat;
 
-    value_type m[2][2] = { { value_type(), value_type ( 1 ) },
+    value_type m[2][2] = {
+        { value_type(), value_type ( 1 ) },
         { value_type ( 1 ), value_type() }
     };
 
