@@ -171,7 +171,7 @@ template<> inline mpf_class TYPE_CONVERT<std::string>::convert<mpf_class>() cons
 }
 
 template<> inline mpf_class TYPE_CONVERT<const char *>::convert<mpf_class>() const {
-    return mpf_class ( isRange ? std::string ( val, len ).c_str() : val );
+    return mpf_class ( len ? std::string ( val, len ).c_str() : val );
 }
 
 #ifdef HAVE_MPREAL_H
@@ -180,7 +180,7 @@ template<> inline mpfr::mpreal TYPE_CONVERT<std::string>::convert<mpfr::mpreal>(
 }
 
 template<> inline mpfr::mpreal TYPE_CONVERT<const char *>::convert<mpfr::mpreal>() const {
-    return mpfr::mpreal ( isRange ? std::string ( val, len ) : val );
+    return mpfr::mpreal ( len ? std::string ( val, len ) : val );
 }
 #endif
 

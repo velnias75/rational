@@ -140,7 +140,7 @@ template<> inline cln::cl_F TYPE_CONVERT<std::string>::convert<cln::cl_F>() cons
 }
 
 template<> inline cln::cl_F TYPE_CONVERT<const char *>::convert<cln::cl_F>() const {
-    return ( isRange ? std::string ( val, len ) : std::string ( val ) ).append ( "L0_" ).
+    return ( len ? std::string ( val, len ) : std::string ( val ) ).append ( "L0_" ).
            append ( CLN_PRECISION ).c_str();
 }
 

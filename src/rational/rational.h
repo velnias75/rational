@@ -194,7 +194,7 @@ template<> struct TYPE_CONVERT<const char *> {
      * @param[in] v the value to convert
      */
     RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const char *f, const char *l = 0L ) :
-        val ( f ), len ( l ), isRange ( l ) {}
+        val ( f ), len ( l ) {}
 
     /**
      * @brief converts the value to @c U
@@ -203,14 +203,13 @@ template<> struct TYPE_CONVERT<const char *> {
      */
     template<typename U> inline U convert() const {
         U aux;
-        ( std::istringstream ( isRange ? std::string ( val, len ) : val ) ) >> aux;
+        ( std::istringstream ( len ? std::string ( val, len ) : val ) ) >> aux;
         return aux;
     }
 
 private:
     const char *val;
     const char *len;
-    const bool isRange;
 };
 
 template<> struct TYPE_CONVERT<float> {
@@ -1146,6 +1145,17 @@ private:
 
     static bool eval ( const char op, evalStack &s, const char *expr );
 
+    static void pushToken ( evalStack &rpn, const char *expr, std::ptrdiff_t tok_start,
+                            std::ptrdiff_t *tok_len ) {
+
+        rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
+                                                expr + tok_start + *tok_len ).
+                   template convert<typename
+                   ExpressionEvalTraits<integer_type>::NumberType>() );
+
+        *tok_len = 0;
+    }
+
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
 
@@ -1241,27 +1251,12 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 #endif
                 }
 
-                if ( ! * ( ptr + 1 ) ) {
-                    rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
-                                                            expr + tok_start + tok_len ).
-                               template convert<typename
-                               ExpressionEvalTraits<integer_type>::NumberType>() );
-
-                    tok_len = 0;
-                }
+                if ( ! * ( ptr + 1 ) ) pushToken ( rpn, expr, tok_start, &tok_len );
 
                 prev = *ptr++;
                 continue;
 
-            } else if ( tok_len ) {
-
-                rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
-                                                        expr + tok_start + tok_len ).
-                           template convert<typename
-                           ExpressionEvalTraits<integer_type>::NumberType>() );
-
-                tok_len = 0;
-            }
+            } else if ( tok_len ) pushToken ( rpn, expr, tok_start, &tok_len );
 
             if ( *ptr == ' ' || *ptr == '\t' || *ptr == '\n' ) {
                 ++ptr;
@@ -1661,21 +1656,20 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
     rf_info.reptent_digits.clear();
     rf_info.pre_digits.clear();
 
-    if ( rd.back() != zero_ ) {
+    const bool hasPer = rd.back() != zero_;
+    const bool hasPre = !hasPer || rd.back() != rd.front();
 
-        const typename std::vector<integer_type>::iterator &mid ( dg.begin() + std::distance
-                ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) + 1 );
+    const typename std::vector<integer_type>::iterator &mid ( dg.begin() + ( hasPre ?
+            std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) : 0 ) + 1 );
 
-        const bool hasPre = rd.back() != rd.front();
+    if ( hasPre ) {
+        std::copy ( dg.begin() + 1, mid, std::back_inserter ( rf_info.pre_digits ) );
+        rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
+    }
 
-        if ( hasPre ) {
-            std::copy ( dg.begin() + 1, mid, std::back_inserter ( rf_info.pre_digits ) );
-            rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
-        }
+    if ( hasPer ) {
 
-        std::copy ( hasPre ? mid : dg.begin() + 1, dg.end(),
-                    std::back_inserter ( rf_info.reptent_digits ) );
-
+        std::copy ( mid, dg.end(), std::back_inserter ( rf_info.reptent_digits ) );
         rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
 
         if ( m_numer < zero_ ) {
@@ -1686,13 +1680,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
             }
         }
 
-    } else {
-
-        std::copy ( dg.begin() + 1, dg.end(), std::back_inserter ( rf_info.pre_digits ) );
-        rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
-
-        if ( dg.front() == zero_ && m_numer < zero_ ) rf_info.pre_digits.front() =
-                integer_type ( -rf_info.pre_digits.front() );
+    } else if ( dg.front() == zero_ && m_numer < zero_ ) {
+        rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
     }
 
     return m_numer < zero_ ? integer_type ( -dg.front() ) : dg.front();
