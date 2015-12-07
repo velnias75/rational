@@ -158,6 +158,14 @@ template<> struct ExpressionEvalTraits<mpz_class> {
 #endif
 };
 
+template<> struct _type_round<mpz_class> {
+    
+    inline typename ExpressionEvalTraits<mpz_class>::NumberType 
+    operator()(const typename ExpressionEvalTraits<mpz_class>::NumberType &tr) const {
+        return tr;
+    }
+};
+
 template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() const {
     std::ostringstream os;
     os.precision ( std::numeric_limits<double>::digits );
