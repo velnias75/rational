@@ -478,6 +478,8 @@ void GMPTest::testIOStreamOps() {
 
 }
 
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic push
 void GMPTest::testAlgorithm() {
 
     const mpf_class &r (
@@ -522,6 +524,7 @@ void GMPTest::testAlgorithm() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<gmp_rational::integer_type>::size_type>(97u), o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
 }
+#pragma GCC diagnostic pop
 
 void GMPTest::testStdMath() {
 
@@ -651,4 +654,4 @@ void GMPTest::testGoldenRatio() {
                                          "138525" ), phi.inverse().denominator().get_str() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

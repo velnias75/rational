@@ -1143,6 +1143,8 @@ void RationalTest::testPrecision() {
 
 }
 
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic push
 void RationalTest::testAlgorithm() {
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL ( 3.77595817775351, static_cast<double>
@@ -1241,6 +1243,7 @@ void RationalTest::testAlgorithm() {
 
     CPPUNIT_ASSERT ( std::equal ( negcf.begin(), negcf.end(), ancf ) );
 }
+#pragma GCC diagnostic pop
 
 void RationalTest::testStdMath() {
 
@@ -1397,4 +1400,4 @@ void RationalTest::testGoldenRatio() {
     CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.inverse().denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

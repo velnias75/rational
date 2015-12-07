@@ -1210,11 +1210,11 @@ Rational<T, GCD, CHKOP>::Rational ( const rf_info &info ) : m_numer (), m_denom 
     using namespace std;
 
     *this = ( Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
-                         static_cast<integer_type>(typename ExpressionEvalTraits<integer_type>::NumberType(0.5) +
+                         static_cast<integer_type>(TYPE_CONVERT<typename ExpressionEvalTraits<integer_type>::NumberType>(typename ExpressionEvalTraits<integer_type>::NumberType(0.5)).template convert<integer_type>() +
                           pow10 ( ceil ( log10 ( ( info.reptend < integer_type() ?
                                           integer_type ( -info.reptend ) : info.reptend ) +
                                           one_ ) ) + info.leading_zeros ) - one_ ) ) *=
-                  Rational ( one_, static_cast<integer_type>(typename ExpressionEvalTraits<integer_type>::NumberType(0.5) +
+                  Rational ( one_, static_cast<integer_type>(TYPE_CONVERT<typename ExpressionEvalTraits<integer_type>::NumberType>(typename ExpressionEvalTraits<integer_type>::NumberType(0.5)).template convert<integer_type>() +
                               pow10 ( ceil ( log10 ( ( info.pre < integer_type() ?
                                        integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
                                        info.pre_leading_zeros ) ) ) );
@@ -2847,4 +2847,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
