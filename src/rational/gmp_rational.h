@@ -75,7 +75,8 @@ template<> inline void swap<mpz_class> ( mpz_class &x, mpz_class &y ) {
     mpz_swap ( x.get_mpz_t(), y.get_mpz_t() );
 }
 
-#if __GMP_MP_RELEASE < 50100
+#if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE < 50103) || \
+    (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE < 50103)
 template<>
 struct numeric_limits<mpz_class> {
 
@@ -446,7 +447,8 @@ inline mpz_class pow10 ( const mpf_class &f ) {
 inline mpz_class floor ( const mpz_class &z ) {
     mpf_class r, f ( z );
     mpf_floor ( r.get_mpf_t(), f.get_mpf_t() );
-#if __GMP_MP_RELEASE <= 50103
+#if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE <= 50103) || \
+    (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE <= 50103)
     mpz_class aux;
     mpz_set_f ( aux.get_mpz_t(), r.get_mpf_t() );
     return aux;
