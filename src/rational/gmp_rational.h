@@ -159,9 +159,7 @@ template<> struct ExpressionEvalTraits<mpz_class> {
 };
 
 template<> struct _type_round<mpz_class> {
-    
-    inline typename ExpressionEvalTraits<mpz_class>::NumberType 
-    operator()(const typename ExpressionEvalTraits<mpz_class>::NumberType &tr) const {
+    inline mpz_class operator()(const mpz_class &tr) const {
         return tr;
     }
 };
@@ -462,4 +460,4 @@ inline mpz_class floor ( const mpz_class &z ) {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
