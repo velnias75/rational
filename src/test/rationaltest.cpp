@@ -1222,7 +1222,7 @@ void RationalTest::testAlgorithm() {
     std::vector<rational_type> o_pi;
     seq ( cf ( cf_pi, cf_pi + 5 ), std::back_inserter ( o_pi ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 5u, o_pi.size() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<rational_type>::size_type>(5u), o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
 
     rational_type ccf[] = { 0, 3 };
@@ -1230,7 +1230,7 @@ void RationalTest::testAlgorithm() {
 
     seq ( Rational<rational_type> ( 1, 3 ), std::back_inserter ( ocf ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 2u, ocf.size() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<rational_type>::size_type>(2u), ocf.size() );
     CPPUNIT_ASSERT ( std::equal ( ocf.begin(), ocf.end(), ccf ) );
 
     const Rational<rational_type> c ( 88, -77 );

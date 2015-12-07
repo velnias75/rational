@@ -519,7 +519,7 @@ void GMPTest::testAlgorithm() {
     std::vector<gmp_rational::integer_type> o_pi;
     seq ( cf ( cf_pi, cf_pi + 97 ), std::back_inserter ( o_pi ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 97u, o_pi.size() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<gmp_rational::integer_type>::size_type>(97u), o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
 }
 
