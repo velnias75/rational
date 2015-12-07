@@ -75,8 +75,7 @@ template<> inline void swap<mpz_class> ( mpz_class &x, mpz_class &y ) {
     mpz_swap ( x.get_mpz_t(), y.get_mpz_t() );
 }
 
-#if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
-          < 50100
+#if __GMP_MP_RELEASE < 50100
 template<>
 struct numeric_limits<mpz_class> {
 
@@ -158,8 +157,8 @@ template<> struct ExpressionEvalTraits<mpz_class> {
 #endif
 };
 
-template<> struct _type_round<mpz_class> {
-    inline mpz_class operator()(const mpz_class &tr) const {
+template<> struct _type_round_helper<mpz_class> {
+    inline mpz_class operator() ( const mpz_class &tr ) const {
         return tr;
     }
 };
@@ -447,10 +446,9 @@ inline mpz_class pow10 ( const mpf_class &f ) {
 inline mpz_class floor ( const mpz_class &z ) {
     mpf_class r, f ( z );
     mpf_floor ( r.get_mpf_t(), f.get_mpf_t() );
-#if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
-          <= 50103
+#if __GMP_MP_RELEASE <= 50103
     mpz_class aux;
-    mpz_set_f(aux.get_mpz_t(), r.get_mpf_t());
+    mpz_set_f ( aux.get_mpz_t(), r.get_mpf_t() );
     return aux;
 #else
     return r;
@@ -460,4 +458,4 @@ inline mpz_class floor ( const mpz_class &z ) {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

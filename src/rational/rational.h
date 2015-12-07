@@ -371,11 +371,10 @@ struct ExpressionEvalTraits {
     typedef long double NumberType; ///< the corresponding @c NumberType
 };
 
-template<typename T> struct _type_round {
-    
-    inline typename ExpressionEvalTraits<T>::NumberType 
-    operator()(const typename ExpressionEvalTraits<T>::NumberType &tr) const {
-        return typename ExpressionEvalTraits<T>::NumberType(0.5) + tr;
+template<typename T> struct _type_round_helper {
+    inline typename ExpressionEvalTraits<T>::NumberType
+    operator() ( const typename ExpressionEvalTraits<T>::NumberType &tr ) const {
+        return typename ExpressionEvalTraits<T>::NumberType ( 0.5 ) + tr;
     }
 };
 
@@ -1218,14 +1217,14 @@ Rational<T, GCD, CHKOP>::Rational ( const rf_info &info ) : m_numer (), m_denom 
     using namespace std;
 
     *this = ( Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
-                         static_cast<integer_type>(_type_round<integer_type>()(
-                          pow10 ( ceil ( log10 ( ( info.reptend < integer_type() ?
-                                          integer_type ( -info.reptend ) : info.reptend ) +
-                                          one_ ) ) + info.leading_zeros ) - one_ )) ) *=
-                  Rational ( one_, static_cast<integer_type>(_type_round<integer_type>()(
-                              pow10 ( ceil ( log10 ( ( info.pre < integer_type() ?
-                                       integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
-                                       info.pre_leading_zeros ) )) ) );
+                         static_cast<integer_type> ( _type_round_helper<integer_type>() (
+                                     pow10 ( ceil ( log10 ( ( info.reptend < integer_type() ?
+                                             integer_type ( -info.reptend ) : info.reptend ) +
+                                             one_ ) ) + info.leading_zeros ) - one_ ) ) ) *=
+                  Rational ( one_, static_cast<integer_type> ( _type_round_helper<integer_type>() (
+                                 pow10 ( ceil ( log10 ( ( info.pre < integer_type() ?
+                                         integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
+                                         info.pre_leading_zeros ) ) ) ) );
 }
 #pragma GCC diagnostic pop
 
@@ -2855,4 +2854,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

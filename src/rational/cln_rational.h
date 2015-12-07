@@ -128,9 +128,8 @@ template<> struct ExpressionEvalTraits<cln::cl_I> {
     typedef cln::cl_F NumberType;
 };
 
-template<> struct _type_round<cln::cl_I> {
-
-    inline cln::cl_I operator()(const cln::cl_I &tr) const {
+template<> struct _type_round_helper<cln::cl_I> {
+    inline cln::cl_I operator() ( const cln::cl_I &tr ) const {
         return tr;
     }
 };
@@ -371,4 +370,4 @@ inline cl_I pow10 ( const cl_I &i ) {
 
 #endif /* COMMONS_MATH_CLN_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
