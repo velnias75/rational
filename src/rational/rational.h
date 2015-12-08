@@ -1662,16 +1662,18 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
     const bool hasPer = rd.back() != zero_;
     const bool hasPre = !hasPer || rd.back() != rd.front();
 
-    const typename std::vector<integer_type>::iterator &mid ( dg.begin() + ( hasPre ?
+    const typename std::vector<integer_type>::iterator &pivot ( dg.begin() + ( hasPre ?
             std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) : 0 ) + 1 );
 
     if ( hasPre ) {
-        std::copy ( dg.begin() + 1, mid, std::back_inserter ( rf_info.pre_digits ) );
+        rf_info.pre_digits.reserve ( std::distance ( dg.begin() + 1, pivot ) );
+        rf_info.pre_digits.insert ( rf_info.pre_digits.end(), dg.begin() + 1, pivot );
         rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
     }
 
     if ( hasPer ) {
-        std::copy ( mid, dg.end(), std::back_inserter ( rf_info.reptent_digits ) );
+        rf_info.reptent_digits.reserve ( std::distance ( pivot, dg.end() ) );
+        rf_info.reptent_digits.insert ( rf_info.reptent_digits.end(), pivot, dg.end() );
         rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
     }
 
