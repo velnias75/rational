@@ -1666,13 +1666,15 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
             std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) : 0 ) + 1 );
 
     if ( hasPre ) {
-        rf_info.pre_digits.reserve ( std::distance ( dg.begin() + 1, pivot ) );
+        rf_info.pre_digits.reserve ( static_cast<std::size_t>( std::distance ( dg.begin() + 1,
+            pivot ) ) );
         rf_info.pre_digits.insert ( rf_info.pre_digits.end(), dg.begin() + 1, pivot );
         rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
     }
 
     if ( hasPer ) {
-        rf_info.reptent_digits.reserve ( std::distance ( pivot, dg.end() ) );
+        rf_info.reptent_digits.reserve ( static_cast<std::size_t>( std::distance ( pivot,
+            dg.end() ) ) );
         rf_info.reptent_digits.insert ( rf_info.reptent_digits.end(), pivot, dg.end() );
         rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
     }
@@ -2856,4 +2858,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
