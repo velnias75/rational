@@ -156,8 +156,7 @@ template<> struct TYPE_CONVERT<cln::cl_F> {
 
     inline explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( cln::double_approx ( v ) ) {}
 
-    template<class U>
-    RATIONAL_CONSTEXPR inline U convert() const {
+    template<class U> inline U convert() const {
         return cln::floor1 ( val );
     }
 

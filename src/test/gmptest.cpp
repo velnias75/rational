@@ -618,7 +618,7 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 53l, gmp_rational ( dc ).denominator().get_si() );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "188679245283" ), dc.reptend.get_str() );
-    CPPUNIT_ASSERT ( std::equal ( dc.reptent_digits.begin(), dc.reptent_digits.end(), n_digits ) );
+    CPPUNIT_ASSERT ( std::equal ( dc.reptend_digits.begin(), dc.reptend_digits.end(), n_digits ) );
 
     const gmp_rational o ( 1, 31 );
 
@@ -678,7 +678,7 @@ void GMPTest::testStdMath() {
                                          "87729864289729382478117722637115554484863085200353328" \
                                          "515217216734923311651810808" ), dc.reptend.get_str() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
-    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), dc.reptent_digits.size() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), dc.reptend_digits.size() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
 }
 

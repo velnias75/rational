@@ -1318,7 +1318,7 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 7ul, Rational<unsigned long> ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 13ul, Rational<unsigned long> ( dc ).denominator() );
 
-    CPPUNIT_ASSERT ( std::equal ( dc.reptent_digits.begin(), dc.reptent_digits.begin(),
+    CPPUNIT_ASSERT ( std::equal ( dc.reptend_digits.begin(), dc.reptend_digits.begin(),
                                   k_digits ) );
 
     const Rational<unsigned long> l ( 88ul, 100ul );
@@ -1347,25 +1347,25 @@ void RationalTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( -2l, o.decompose ( sdc ) );
     CPPUNIT_ASSERT ( sdc.pre_digits.empty() );
-    CPPUNIT_ASSERT_EQUAL ( -6l, sdc.reptent_digits.front() );
+    CPPUNIT_ASSERT_EQUAL ( -6l, sdc.reptend_digits.front() );
 
     const Rational<long> p ( 13, -30 );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, p.decompose ( sdc ) );
     CPPUNIT_ASSERT_EQUAL ( -4l, sdc.pre_digits.front() );
-    CPPUNIT_ASSERT_EQUAL ( -3l, sdc.reptent_digits.front() );
+    CPPUNIT_ASSERT_EQUAL ( -3l, sdc.reptend_digits.front() );
 
     const Rational<long> q ( -2, 5 );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, q.decompose ( sdc ) );
     CPPUNIT_ASSERT_EQUAL ( -4l, sdc.pre_digits.front() );
-    CPPUNIT_ASSERT ( sdc.reptent_digits.empty() );
+    CPPUNIT_ASSERT ( sdc.reptend_digits.empty() );
 
     const Rational<long> r ( 8, -2, 5 );
 
     CPPUNIT_ASSERT_EQUAL ( 7l, r.decompose ( sdc ) );
     CPPUNIT_ASSERT_EQUAL ( 6l, sdc.pre_digits.front() );
-    CPPUNIT_ASSERT ( sdc.reptent_digits.empty() );
+    CPPUNIT_ASSERT ( sdc.reptend_digits.empty() );
 }
 
 void RationalTest::testRatRat() {

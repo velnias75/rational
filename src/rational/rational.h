@@ -147,14 +147,14 @@ template<typename T> struct TYPE_CONVERT {
      *
      * @param[in] v the value to convert
      */
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
 
     /**
      * @brief converts the value to @c U
      *
      * @tparam U the type to convert to
      */
-    template<typename U> RATIONAL_CONSTEXPR inline U convert() const {
+    template<typename U> inline U convert() const {
         return static_cast<U> ( val );
     }
 
@@ -169,7 +169,7 @@ template<> struct TYPE_CONVERT<std::string> {
      *
      * @param[in] v the value to convert
      */
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const std::string &v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const std::string &v ) : val ( v ) {}
 
     /**
      * @brief converts the value to @c U
@@ -193,7 +193,7 @@ template<> struct TYPE_CONVERT<const char *> {
      *
      * @param[in] v the value to convert
      */
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const char *f, const char *l = 0L ) :
+    inline explicit TYPE_CONVERT ( const char *f, const char *l = 0L ) :
         val ( f ), len ( l ) {}
 
     /**
@@ -214,9 +214,9 @@ private:
 
 template<> struct TYPE_CONVERT<float> {
 
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const float v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const float v ) : val ( v ) {}
 
-    template<class U> RATIONAL_CONSTEXPR inline U convert() const {
+    template<class U> inline U convert() const {
         return static_cast<U> ( val );
     }
 
@@ -226,9 +226,9 @@ private:
 
 template<> struct TYPE_CONVERT<double> {
 
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const double v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const double v ) : val ( v ) {}
 
-    template<class U> RATIONAL_CONSTEXPR inline U convert() const {
+    template<class U> inline U convert() const {
         return static_cast<U> ( val );
     }
 
@@ -238,7 +238,7 @@ private:
 
 template<> struct TYPE_CONVERT<long double> {
 
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const long double v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const long double v ) : val ( v ) {}
 
     template<class U> inline U convert() const {
         return static_cast<U> ( val );
@@ -626,10 +626,10 @@ public:
         inline _rf_info ( const integer_type &r, std::size_t lz = 0u,
                           const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
             reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ),
-            pre_digits(), reptent_digits() {}
+            pre_digits(), reptend_digits() {}
 
         inline _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ),
-            pre_digits(), reptent_digits() {}
+            pre_digits(), reptend_digits() {}
 
         integer_type reptend; ///< the repeating part as integer_type
         std::size_t leading_zeros; ///< the amount of zeros at the beginning of @c reptend
@@ -637,7 +637,7 @@ public:
         std::size_t pre_leading_zeros; ///< the amount of zeros at the beginning of @c pre
 
         std::vector<integer_type> pre_digits; ///< the part before the reptent as digit sequence
-        std::vector<integer_type> reptent_digits; ///< the repeating part as digit sequence
+        std::vector<integer_type> reptend_digits; ///< the repeating part as digit sequence
 
     } rf_info;
 
@@ -1656,7 +1656,7 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
-    rf_info.reptent_digits.clear();
+    rf_info.reptend_digits.clear();
     rf_info.pre_digits.clear();
 
     const bool hasPer = rd.back() != zero_;
@@ -1666,17 +1666,17 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
             std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) : 0 ) + 1 );
 
     if ( hasPre ) {
-        rf_info.pre_digits.reserve ( static_cast<std::size_t>( std::distance ( dg.begin() + 1,
-            pivot ) ) );
+        rf_info.pre_digits.reserve ( static_cast<typename std::vector<integer_type>::size_type>
+                                     ( std::distance ( dg.begin() + 1, pivot ) ) );
         rf_info.pre_digits.insert ( rf_info.pre_digits.end(), dg.begin() + 1, pivot );
         rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
     }
 
     if ( hasPer ) {
-        rf_info.reptent_digits.reserve ( static_cast<std::size_t>( std::distance ( pivot,
-            dg.end() ) ) );
-        rf_info.reptent_digits.insert ( rf_info.reptent_digits.end(), pivot, dg.end() );
-        rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
+        rf_info.reptend_digits.reserve ( static_cast<typename std::vector<integer_type>::size_type>
+                                         ( std::distance ( pivot, dg.end() ) ) );
+        rf_info.reptend_digits.insert ( rf_info.reptend_digits.end(), pivot, dg.end() );
+        rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptend_digits, base );
     }
 
     const bool isNegative = m_numer < zero_;
@@ -1687,8 +1687,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
             rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
         }
 
-        if ( !rf_info.reptent_digits.empty() ) {
-            rf_info.reptent_digits.front() = integer_type ( -rf_info.reptent_digits.front() );
+        if ( !rf_info.reptend_digits.empty() ) {
+            rf_info.reptend_digits.front() = integer_type ( -rf_info.reptend_digits.front() );
         }
     }
 
@@ -2858,4 +2858,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
