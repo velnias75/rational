@@ -343,7 +343,7 @@ template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 struct _remquo<cln::cl_I, GCD, CHKOP> {
-    inline cln::cl_I operator() ( const cln::cl_I &x, const cln::cl_I &y, cln::cl_I &quo ) {
+    inline cln::cl_I operator() ( const cln::cl_I &x, const cln::cl_I &y, cln::cl_I &quo ) const {
 
         const cln::cl_I_div_t &d ( cln::floor2 ( x, y ) );
 
@@ -382,4 +382,4 @@ inline cl_I pow10 ( const cl_I &i ) {
 
 #endif /* COMMONS_MATH_CLN_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

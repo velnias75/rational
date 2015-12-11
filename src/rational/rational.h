@@ -1633,10 +1633,10 @@ template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
 struct _remquo {
-
-    inline T operator() ( const T &x, const T &y, T &quo ) {
-        quo = typename Rational<T, GCD, CHKOP>::op_divides() ( x, y );
-        return typename Rational<T, GCD, CHKOP>::op_modulus() ( x, y );
+    inline T operator() ( const T &x, const T &y, T &quo ) const {
+        return typename Rational<T, GCD, CHKOP>::op_minus() ( x,
+            typename Rational<T, GCD, CHKOP>::op_multiplies() ( y,
+                (quo = typename Rational<T, GCD, CHKOP>::op_divides()(x, y))));
     }
 };
 
@@ -1645,7 +1645,7 @@ template<template<typename, bool,
          template<class, typename, bool> class CHKOP>
 struct _remquo<int, GCD, CHKOP> {
 
-    inline int operator() ( const int &x, const int &y, int &quo ) {
+    inline int operator() ( const int &x, const int &y, int &quo ) const {
 
         using namespace std;
 
@@ -1661,7 +1661,7 @@ template<template<typename, bool,
          template<class, typename, bool> class CHKOP>
 struct _remquo<long, GCD, CHKOP> {
 
-    inline long operator() ( const long &x, const long &y, long &quo ) {
+    inline long operator() ( const long &x, const long &y, long &quo ) const {
 
         using namespace std;
 
@@ -1678,7 +1678,7 @@ template<template<typename, bool,
          template<class, typename, bool> class CHKOP>
 struct _remquo<long long, GCD, CHKOP> {
 
-    inline long long operator() ( const long long &x, const long long &y, long long &quo ) {
+    inline long long operator() ( const long long &x, const long long &y, long long &quo ) const {
 
         using namespace std;
 
