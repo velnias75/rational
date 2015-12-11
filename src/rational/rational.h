@@ -1609,17 +1609,18 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
 
         typename std::vector<integer_type>::const_iterator j ( dv.begin() );
 
-        out = *j++;
+        if ( ( out = *j++ ) == zero_ ) ++zeros;
 
-        for ( ; j != dv.end(); ++j ) out = op_plus() ( op_multiplies() ( out, base ), *j );
+        bool pre_zeros = false;
 
-        for ( typename std::vector<integer_type>::const_iterator z ( dv.begin() );
-                z != dv.end(); ++z ) {
+        for ( ; j != dv.end(); ++j ) {
 
-            if ( *z == zero_ ) {
+            out = op_plus() ( op_multiplies() ( out, base ), *j );
+
+            if ( !pre_zeros && *j == zero_ ) {
                 ++zeros;
             } else {
-                break;
+                pre_zeros = true;
             }
         }
     }
