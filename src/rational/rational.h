@@ -1643,7 +1643,7 @@ template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> struct _remquo<int, GCD, CHKOP> {
 
-    inline int operator() ( const int &x, const int &y, int &quo ) const {
+    inline int operator() ( int x, int y, int &quo ) const {
 
         using namespace std;
 
@@ -1658,7 +1658,7 @@ template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> struct _remquo<long, GCD, CHKOP> {
 
-    inline long operator() ( const long &x, const long &y, long &quo ) const {
+    inline long operator() ( long x, long y, long &quo ) const {
 
         using namespace std;
 
@@ -1675,7 +1675,7 @@ template<template<typename, bool,
          template<class, typename, bool> class CHKOP>
 struct _remquo<long long, GCD, CHKOP> {
 
-    inline long long operator() ( const long long &x, const long long &y, long long &quo ) const {
+    inline long long operator() ( long long x, long long y, long long &quo ) const {
 
         using namespace std;
 
