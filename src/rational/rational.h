@@ -1631,19 +1631,17 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-struct _remquo {
+         template<class, typename, bool> class CHKOP> struct _remquo {
     inline T operator() ( const T &x, const T &y, T &quo ) const {
         return typename Rational<T, GCD, CHKOP>::op_minus() ( x,
-            typename Rational<T, GCD, CHKOP>::op_multiplies() ( y,
-                (quo = typename Rational<T, GCD, CHKOP>::op_divides()(x, y))));
+                typename Rational<T, GCD, CHKOP>::op_multiplies() ( y,
+                        ( quo = typename Rational<T, GCD, CHKOP>::op_divides() ( x, y ) ) ) );
     }
 };
 
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-struct _remquo<int, GCD, CHKOP> {
+         template<class, typename, bool> class CHKOP> struct _remquo<int, GCD, CHKOP> {
 
     inline int operator() ( const int &x, const int &y, int &quo ) const {
 
@@ -1658,8 +1656,7 @@ struct _remquo<int, GCD, CHKOP> {
 
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-struct _remquo<long, GCD, CHKOP> {
+         template<class, typename, bool> class CHKOP> struct _remquo<long, GCD, CHKOP> {
 
     inline long operator() ( const long &x, const long &y, long &quo ) const {
 
@@ -2921,4 +2918,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

@@ -401,8 +401,7 @@ template<> struct CFRationalTraits<mpz_class> {
 
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-struct _remquo<mpz_class, GCD, CHKOP> {
+         template<class, typename, bool> class CHKOP> struct _remquo<mpz_class, GCD, CHKOP> {
     inline mpz_class operator() ( const mpz_class &x, const mpz_class &y, mpz_class &quo ) const {
         mpz_class r;
         mpz_fdiv_qr ( quo.get_mpz_t(), r.get_mpz_t(), x.get_mpz_t(), y.get_mpz_t() );
@@ -471,4 +470,4 @@ inline mpz_class floor ( const mpz_class &z ) {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
