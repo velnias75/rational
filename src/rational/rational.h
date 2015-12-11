@@ -1635,14 +1635,8 @@ template<typename T, template<typename, bool,
 struct _remquo {
 
     inline T operator() ( const T &x, const T &y, T &quo ) {
-
-        using namespace std;
-
-        const ldiv_t &d ( ldiv ( TYPE_CONVERT<T> ( x ).template convert<long>(),
-                                 TYPE_CONVERT<T> ( y ).template convert<long>() ) );
-
-        quo = TYPE_CONVERT<long> ( d.quot ).template convert<T>();
-        return TYPE_CONVERT<long> ( d.rem ).template convert<T>();
+        quo = typename Rational<T, GCD, CHKOP>::op_divides() ( x, y );
+        return typename Rational<T, GCD, CHKOP>::op_modulus() ( x, y );
     }
 };
 
@@ -1677,6 +1671,24 @@ struct _remquo<long, GCD, CHKOP> {
         return d.rem;
     }
 };
+
+#if (_XOPEN_SOURCE >= 600 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L)
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct _remquo<long long, GCD, CHKOP> {
+
+    inline long long operator() ( const long long &x, const long long &y, long long &quo ) {
+
+        using namespace std;
+
+        const lldiv_t &d ( lldiv ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+#endif
 
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -2909,4 +2921,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

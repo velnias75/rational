@@ -176,8 +176,6 @@ void CLNTest::testConstructFrom_cl_F_class() {
 
 void CLNTest::testAddition() {
 
-    // TODO: euclid failed here (modulus-op)
-
     const cln_rational a ( 17, 21 );
     const cln_rational b ( 44, 35 );
 
@@ -513,6 +511,8 @@ void CLNTest::testIOStreamOps() {
 
 }
 
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic push
 void CLNTest::testAlgorithm() {
 
     std::ostringstream os;
@@ -560,6 +560,7 @@ void CLNTest::testAlgorithm() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<cln_rational::integer_type>::size_type> ( 97u ), o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
 }
+#pragma GCC diagnostic pop
 
 void CLNTest::testStdMath() {
 
@@ -727,4 +728,4 @@ void CLNTest::testGoldenRatio() {
                                          "138525" ), os.str() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
