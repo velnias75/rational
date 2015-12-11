@@ -59,6 +59,7 @@
 #include <functional>
 #include <algorithm>
 #include <sstream>
+#include <cstdlib>
 #include <string>
 #include <limits>
 #include <vector>
@@ -1628,6 +1629,55 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
     return zeros;
 }
 
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct _remquo {
+
+    inline T operator() ( const T &x, const T &y, T &quo ) {
+
+        using namespace std;
+
+        const ldiv_t &d ( ldiv ( TYPE_CONVERT<T> ( x ).template convert<long>(),
+                                 TYPE_CONVERT<T> ( y ).template convert<long>() ) );
+
+        quo = TYPE_CONVERT<long> ( d.quot ).template convert<T>();
+        return TYPE_CONVERT<long> ( d.rem ).template convert<T>();
+    }
+};
+
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct _remquo<int, GCD, CHKOP> {
+
+    inline int operator() ( const int &x, const int &y, int &quo ) {
+
+        using namespace std;
+
+        const div_t &d ( div ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct _remquo<long, GCD, CHKOP> {
+
+    inline long operator() ( const long &x, const long &y, long &quo ) {
+
+        using namespace std;
+
+        const ldiv_t &d ( ldiv ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
@@ -1644,11 +1694,11 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
 
     do {
 
-        integer_type aux;
+        integer_type q, aux;
 
-        rd.push_back ( op_modulus() ( d, m_denom ) );
-        dg.push_back ( ( aux = floor ( op_divides() ( d, m_denom ) ) ) < zero_ ?
-                       integer_type ( -aux ) : aux ) ;
+        rd.push_back ( ( aux = _remquo<T, GCD, CHKOP> () ( d, m_denom, q ) ) < zero_ ?
+                       integer_type ( -aux ) : aux );
+        dg.push_back ( q < zero_ ? integer_type ( -q ) : q );
 
         d = op_multiplies() ( base, rd.back() );
 

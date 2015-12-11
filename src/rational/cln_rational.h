@@ -339,6 +339,19 @@ template<> struct CFRationalTraits<cln::cl_I> {
     typedef cln_rational rational_type;
 };
 
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct _remquo<cln::cl_I, GCD, CHKOP> {
+    inline cln::cl_I operator() ( const cln::cl_I &x, const cln::cl_I &y, cln::cl_I &quo ) {
+
+        const cln::cl_I_div_t &d ( cln::floor2 ( x, y ) );
+
+        quo = d.quotient;
+        return d.remainder;
+    }
+};
+
 }
 
 }

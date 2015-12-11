@@ -399,6 +399,17 @@ template<> struct CFRationalTraits<mpz_class> {
     typedef gmp_rational rational_type;
 };
 
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct _remquo<mpz_class, GCD, CHKOP> {
+    inline mpz_class operator() ( const mpz_class &x, const mpz_class &y, mpz_class &quo ) {
+        mpz_class r;
+        mpz_fdiv_qr ( quo.get_mpz_t(), r.get_mpz_t(), x.get_mpz_t(), y.get_mpz_t() );
+        return r;
+    }
+};
+
 }
 
 }
