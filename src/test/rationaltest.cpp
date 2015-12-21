@@ -1366,6 +1366,11 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 7l, r.decompose ( sdc ) );
     CPPUNIT_ASSERT_EQUAL ( 6l, sdc.pre_digits.front() );
     CPPUNIT_ASSERT ( sdc.reptend_digits.empty() );
+
+    const Rational<rational_type> s ( 3, 4 );
+
+    CPPUNIT_ASSERT_EQUAL ( 243, s.pow ( 5 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1024, s.pow ( 5 ).denominator() );
 }
 
 void RationalTest::testRatRat() {

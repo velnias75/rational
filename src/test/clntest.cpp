@@ -701,6 +701,11 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), dc.reptend_digits.size() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    const cln_rational s ( 3, 4 );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 243l ), s.pow ( 5.0 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1024l ), s.pow ( 5.0 ).denominator() );
 }
 
 void CLNTest::testGoldenRatio() {

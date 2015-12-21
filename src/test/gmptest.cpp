@@ -680,6 +680,11 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), dc.reptend_digits.size() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    const gmp_rational s ( 3, 4 );
+
+    CPPUNIT_ASSERT_EQUAL ( 243l, s.pow ( 5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1024l, s.pow ( 5 ).denominator().get_si() );
 }
 
 void GMPTest::testGoldenRatio() {

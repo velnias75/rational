@@ -121,6 +121,9 @@ struct _ifThenElse<false, Ta, Tb> {
 namespace Math {
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class, template<class, typename, bool> class> struct _pow;
+
+template<typename, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class, template<class, typename, bool> class, bool> struct _mod;
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
@@ -708,6 +711,11 @@ public:
     RATIONAL_CONSTEXPR inline Rational abs() const {
         return _abs<integer_type, GCD, CHKOP,
                std::numeric_limits<integer_type>::is_signed>() ( *this );
+    }
+
+    inline Rational pow ( const typename
+                          ExpressionEvalTraits<integer_type>::NumberType &exp ) const {
+        return _pow<integer_type, GCD, CHKOP>() ( *this, exp );
     }
 
     /**
@@ -2338,6 +2346,23 @@ struct _mod<T, GCD, CHKOP, false> {
                                 r.m_denom ), Rational<T, GCD, CHKOP> (
                                     ( typename Rational<T, GCD, CHKOP>::op_modulus() ( r.m_numer,
                                             r.m_denom ) ), r.m_denom ) );
+    }
+};
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _pow {
+
+    inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r,
+            const typename ExpressionEvalTraits<T>::NumberType &exp ) const {
+
+        using namespace std;
+
+        return Rational<T, GCD, CHKOP> (
+                   TYPE_CONVERT<typename ExpressionEvalTraits<T>::NumberType>
+                   ( pow ( r.numerator(), exp ) ).template convert<T>(),
+                   TYPE_CONVERT<typename ExpressionEvalTraits<T>::NumberType>
+                   ( pow ( r.denominator(), exp ) ).template convert<T>() );
     }
 };
 

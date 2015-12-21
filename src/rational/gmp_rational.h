@@ -414,6 +414,10 @@ template<template<typename, bool,
 }
 
 #ifdef HAVE_MPREAL_H
+inline mpfr::mpreal pow ( const  mpz_class &z, const mpfr::mpreal &f ) {
+    return mpfr::pow ( z.get_mpz_t(), f );
+}
+
 inline mpz_class ceil ( const mpf_class &f ) {
     mpf_class aux;
     mpf_ceil ( aux.get_mpf_t(), f.get_mpf_t() );
@@ -442,6 +446,12 @@ inline mpz_class floor ( const mpz_class &z ) {
     return r;
 }
 #else
+inline mpf_class pow ( const mpz_class &z, const mpf_class &f ) {
+    mpf_class r;
+    mpf_pow_ui ( r.get_mpf_t(), mpf_class ( z ).get_mpf_t(), mpf_get_si ( f.get_mpf_t() ) );
+    return r;
+}
+
 inline mpz_class ceil ( const mpf_class &f ) {
     return std::ceil ( f.get_d() );
 }
