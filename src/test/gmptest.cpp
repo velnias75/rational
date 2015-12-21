@@ -559,10 +559,10 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 4l, d.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 333l, d.denominator().get_si() );
 
-    const gmp_rational &e ( gmp_rational::rf_info ( 6, 0, 1111 ) );
+    const gmp_rational &ex ( gmp_rational::rf_info ( 6, 0, 1111 ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 667l, e.numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 6000l, e.denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 667l, ex.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 6000l, ex.denominator().get_si() );
 
     const gmp_rational &f ( gmp_rational::rf_info ( 1, 2, 3, 4 ) );
 
@@ -685,6 +685,13 @@ void GMPTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( 243l, s.pow ( 5 ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1024l, s.pow ( 5 ).denominator().get_si() );
+
+#ifdef __EXCEPTIONS
+    const gmp_rational t ( 3, 4 );
+
+    CPPUNIT_ASSERT_THROW ( t.pow ( 0 ), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
+#endif
 }
 
 void GMPTest::testGoldenRatio() {

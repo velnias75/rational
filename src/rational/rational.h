@@ -121,7 +121,7 @@ struct _ifThenElse<false, Ta, Tb> {
 namespace Math {
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class, template<class, typename, bool> class> struct _pow;
+         template<typename> class> class, template<class, typename, bool> class, bool> struct _pow;
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class, template<class, typename, bool> class, bool> struct _mod;
@@ -713,9 +713,9 @@ public:
                std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
 
-    inline Rational pow ( const typename
-                          ExpressionEvalTraits<integer_type>::NumberType &exp ) const {
-        return _pow<integer_type, GCD, CHKOP>() ( *this, exp );
+    inline Rational pow ( const integer_type &exp ) const {
+        return _pow<integer_type, GCD, CHKOP,
+               std::numeric_limits<integer_type>::is_signed>() ( *this, exp );
     }
 
     /**
@@ -2351,18 +2351,47 @@ struct _mod<T, GCD, CHKOP, false> {
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _pow {
+struct _pow<T, GCD, CHKOP, false> {
 
     inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r,
-            const typename ExpressionEvalTraits<T>::NumberType &exp ) const {
+            const T &exp ) const {
+#ifdef __EXCEPTIONS
+        if ( exp > Rational<T, GCD, CHKOP>::zero_ ) {
+#endif
+            using namespace std;
 
-        using namespace std;
+            return exp != Rational<T, GCD, CHKOP>::one_ ? Rational<T, GCD, CHKOP> (
+                       TYPE_CONVERT<typename ExpressionEvalTraits<T>::NumberType>
+                       ( pow ( r.numerator(), exp ) ).template convert<T>(),
+                       TYPE_CONVERT<typename ExpressionEvalTraits<T>::NumberType>
+                       ( pow ( r.denominator(), exp ) ).template convert<T>() ) :
+                   Rational<T, GCD, CHKOP> ( r );
 
-        return Rational<T, GCD, CHKOP> (
-                   TYPE_CONVERT<typename ExpressionEvalTraits<T>::NumberType>
-                   ( pow ( r.numerator(), exp ) ).template convert<T>(),
-                   TYPE_CONVERT<typename ExpressionEvalTraits<T>::NumberType>
-                   ( pow ( r.denominator(), exp ) ).template convert<T>() );
+#ifdef __EXCEPTIONS
+        } else {
+            throw std::domain_error ( "power is undefined for zero" );
+        }
+#endif
+    }
+};
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _pow<T, GCD, CHKOP, true> {
+
+    inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r,
+            const T &exp ) const {
+
+#ifdef __EXCEPTIONS
+        if ( exp >= Rational<T, GCD, CHKOP>::zero_ ) {
+#endif
+            return _pow<T, GCD, CHKOP, false>() ( r, exp );
+
+#ifdef __EXCEPTIONS
+        } else {
+            throw std::domain_error ( "power is undefined for negative numbers" );
+        }
+#endif
     }
 };
 

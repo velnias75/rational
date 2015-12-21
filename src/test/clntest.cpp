@@ -594,10 +594,10 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4 ), d.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 333 ), d.denominator() );
 
-    const cln_rational &e ( cln_rational::rf_info ( 6, 0, 1111 ) );
+    const cln_rational &ex ( cln_rational::rf_info ( 6, 0, 1111 ) );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 667 ), e.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6000 ), e.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 667 ), ex.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6000 ), ex.denominator() );
 
     const cln_rational &f ( cln_rational::rf_info ( 1, 2, 3, 4 ) );
 
@@ -704,8 +704,15 @@ void CLNTest::testStdMath() {
 
     const cln_rational s ( 3, 4 );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 243l ), s.pow ( 5.0 ).numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1024l ), s.pow ( 5.0 ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 243l ), s.pow ( 5 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1024l ), s.pow ( 5 ).denominator() );
+
+#ifdef __EXCEPTIONS
+    const cln_rational t ( 3, 4 );
+
+    CPPUNIT_ASSERT_THROW ( t.pow ( 0 ), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
+#endif
 }
 
 void CLNTest::testGoldenRatio() {
