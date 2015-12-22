@@ -216,6 +216,15 @@ void RationalTest::testConstructFromDouble() {
 
 void RationalTest::testConstructFromExpression() {
 
+    const Rational<rational_type, GCD_euclid> &a ( "(3/4) % (2/4)" );
+    const Rational<rational_type, GCD_stein> &a_stein ( "(3/4) % (2/4)" );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, a.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, a.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, a_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, a_stein.denominator() );
+
     const Rational<rational_type, GCD_euclid> &p ( "19/51" );
     const Rational<rational_type, GCD_stein> &p_stein ( "19/51" );
 
@@ -1143,6 +1152,8 @@ void RationalTest::testPrecision() {
 
 }
 
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic push
 void RationalTest::testAlgorithm() {
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL ( 3.77595817775351, static_cast<double>
@@ -1222,7 +1233,7 @@ void RationalTest::testAlgorithm() {
     std::vector<rational_type> o_pi;
     seq ( cf ( cf_pi, cf_pi + 5 ), std::back_inserter ( o_pi ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 5u, o_pi.size() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<rational_type>::size_type> ( 5u ), o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
 
     rational_type ccf[] = { 0, 3 };
@@ -1230,7 +1241,7 @@ void RationalTest::testAlgorithm() {
 
     seq ( Rational<rational_type> ( 1, 3 ), std::back_inserter ( ocf ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 2u, ocf.size() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<rational_type>::size_type> ( 2u ), ocf.size() );
     CPPUNIT_ASSERT ( std::equal ( ocf.begin(), ocf.end(), ccf ) );
 
     const Rational<rational_type> c ( 88, -77 );
@@ -1241,6 +1252,7 @@ void RationalTest::testAlgorithm() {
 
     CPPUNIT_ASSERT ( std::equal ( negcf.begin(), negcf.end(), ancf ) );
 }
+#pragma GCC diagnostic pop
 
 void RationalTest::testStdMath() {
 
@@ -1275,10 +1287,10 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 4, d.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 333, d.denominator() );
 
-    const Rational<rational_type> &e ( Rational<rational_type>::rf_info ( 6, 0, 1111 ) );
+    const Rational<rational_type> &ex ( Rational<rational_type>::rf_info ( 6, 0, 1111 ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 667, e.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 6000, e.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 667, ex.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 6000, ex.denominator() );
 
     const Rational<unsigned long> &f ( Rational<unsigned long>::rf_info ( 1, 2, 3, 4 ) );
 
@@ -1315,7 +1327,7 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 7ul, Rational<unsigned long> ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 13ul, Rational<unsigned long> ( dc ).denominator() );
 
-    CPPUNIT_ASSERT ( std::equal ( dc.reptent_digits.begin(), dc.reptent_digits.begin(),
+    CPPUNIT_ASSERT ( std::equal ( dc.reptend_digits.begin(), dc.reptend_digits.begin(),
                                   k_digits ) );
 
     const Rational<unsigned long> l ( 88ul, 100ul );
@@ -1337,6 +1349,47 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( 1975ul, dc.reptend );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    Rational<long>::rf_info sdc;
+
+    const Rational<long> o ( -3, 1, 3 );
+
+    CPPUNIT_ASSERT_EQUAL ( -2l, o.decompose ( sdc ) );
+    CPPUNIT_ASSERT ( sdc.pre_digits.empty() );
+    CPPUNIT_ASSERT_EQUAL ( -6l, sdc.reptend_digits.front() );
+
+    const Rational<long> p ( 13, -30 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, p.decompose ( sdc ) );
+    CPPUNIT_ASSERT_EQUAL ( -4l, sdc.pre_digits.front() );
+    CPPUNIT_ASSERT_EQUAL ( -3l, sdc.reptend_digits.front() );
+
+    const Rational<long> q ( -2, 5 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0l, q.decompose ( sdc ) );
+    CPPUNIT_ASSERT_EQUAL ( -4l, sdc.pre_digits.front() );
+    CPPUNIT_ASSERT ( sdc.reptend_digits.empty() );
+
+    const Rational<long> r ( 8, -2, 5 );
+
+    CPPUNIT_ASSERT_EQUAL ( 7l, r.decompose ( sdc ) );
+    CPPUNIT_ASSERT_EQUAL ( 6l, sdc.pre_digits.front() );
+    CPPUNIT_ASSERT ( sdc.reptend_digits.empty() );
+
+    const Rational<unsigned long> s ( 3, 4 );
+
+    CPPUNIT_ASSERT_EQUAL ( 81ul, s.pow ( 4 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 256ul, s.pow ( 4 ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 243ul, s.pow ( 5 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1024ul, s.pow ( 5 ).denominator() );
+
+#ifdef __EXCEPTIONS
+    const Rational<long> t ( 3, 4 );
+
+    CPPUNIT_ASSERT_THROW ( t.pow ( 0 ), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
+#endif
 }
 
 void RationalTest::testRatRat() {

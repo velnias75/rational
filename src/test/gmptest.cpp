@@ -478,6 +478,8 @@ void GMPTest::testIOStreamOps() {
 
 }
 
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic push
 void GMPTest::testAlgorithm() {
 
     const mpf_class &r (
@@ -519,9 +521,11 @@ void GMPTest::testAlgorithm() {
     std::vector<gmp_rational::integer_type> o_pi;
     seq ( cf ( cf_pi, cf_pi + 97 ), std::back_inserter ( o_pi ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 97u, o_pi.size() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<gmp_rational::integer_type>::size_type> ( 97u ),
+                           o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
 }
+#pragma GCC diagnostic pop
 
 void GMPTest::testStdMath() {
 
@@ -555,10 +559,10 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 4l, d.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 333l, d.denominator().get_si() );
 
-    const gmp_rational &e ( gmp_rational::rf_info ( 6, 0, 1111 ) );
+    const gmp_rational &ex ( gmp_rational::rf_info ( 6, 0, 1111 ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 667l, e.numerator().get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 6000l, e.denominator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 667l, ex.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 6000l, ex.denominator().get_si() );
 
     const gmp_rational &f ( gmp_rational::rf_info ( 1, 2, 3, 4 ) );
 
@@ -614,7 +618,7 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 53l, gmp_rational ( dc ).denominator().get_si() );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "188679245283" ), dc.reptend.get_str() );
-    CPPUNIT_ASSERT ( std::equal ( dc.reptent_digits.begin(), dc.reptent_digits.end(), n_digits ) );
+    CPPUNIT_ASSERT ( std::equal ( dc.reptend_digits.begin(), dc.reptend_digits.end(), n_digits ) );
 
     const gmp_rational o ( 1, 31 );
 
@@ -631,6 +635,73 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( 1975l, dc.reptend.get_si() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    const gmp_rational q ( "123.32 / (12453/370)" );
+
+    CPPUNIT_ASSERT_EQUAL ( 228142l, q.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 62265l, q.denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 3l, q.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 6l, dc.pre.get_si() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "64048823576648197221553039428250220830322010760459327" \
+                                         "06978238175540030514735405123263470649642656388018951" \
+                                         "25672528707941861398859712519071709628202039669156026" \
+                                         "66024251184453545330442463663374287320324419818517626" \
+                                         "27479322251666265156990283465831526539789608929575202" \
+                                         "76238657351642174576407291415723118927166144704087368" \
+                                         "50558098450172649160844776359110254557134826949329478" \
+                                         "84044005460531598811531357905725527985224443909098209" \
+                                         "26684333092427527503412832249257207098691078454990765" \
+                                         "27744318638079177708182767204689633020155785754436681" \
+                                         "92403436922829840199148799486067614229502931020637597" \
+                                         "36609652292620252148076768650124467999678792258893439" \
+                                         "33188789849835381032682887657592547980406327792499799" \
+                                         "24516180839958242993656147113145426804785995342487753" \
+                                         "95487031237452822613024973901871035091945715891752991" \
+                                         "24708905484622179394523408014133140608688669396932466" \
+                                         "07243234561952943065927888862121577130008833212880430" \
+                                         "41837308279129527021601220589416204930538825985706255" \
+                                         "52075805026901148317674455954388500762868385128081586" \
+                                         "76624106640970047378141813217698546534971492812976792" \
+                                         "74070505099172890066650606279611338633261061591584357" \
+                                         "18300811049546294065686983056291656628924757086645788" \
+                                         "16349474022323938006905966433791054364410182285393077" \
+                                         "97317915361760218421263952461254316229021119408977756" \
+                                         "36392837067373323697101100136513289970288283947643138" \
+                                         "19963061109772745523167108327310688187585320806231430" \
+                                         "17746727696137476913193607965951979442704569180117240" \
+                                         "82550389464386091704810085923070746004978719987151690" \
+                                         "35573757327551593993415241307315506303701919216253111" \
+                                         "69999196980647233598329719746245884525817072191439813" \
+                                         "69951015819481249498112904520998956074841403677828635" \
+                                         "67011964988356219384887175780936320565325624347546775" \
+                                         "87729864289729382478117722637115554484863085200353328" \
+                                         "515217216734923311651810808" ), dc.reptend.get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), dc.reptend_digits.size() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    const gmp_rational s ( 3, 4 );
+
+    CPPUNIT_ASSERT_EQUAL ( 81l, s.pow ( 4 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 256l, s.pow ( 4 ).denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( 243l, s.pow ( 5 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1024l, s.pow ( 5 ).denominator().get_si() );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "485192780976896426811558553967593360" \
+                                         "72749841943521979872827" ),
+                           s.pow ( 123 ).numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "113078212145816597093331040047546785" \
+                                         "012958969400039613319782796882727665" \
+                                         "664" ), s.pow ( 123 ).denominator().get_str() );
+
+#ifdef __EXCEPTIONS
+    const gmp_rational t ( 3, 4 );
+
+    CPPUNIT_ASSERT_THROW ( t.pow ( 0 ), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
+#endif
 }
 
 void GMPTest::testGoldenRatio() {

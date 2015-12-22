@@ -75,8 +75,8 @@ template<> inline void swap<mpz_class> ( mpz_class &x, mpz_class &y ) {
     mpz_swap ( x.get_mpz_t(), y.get_mpz_t() );
 }
 
-#if (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL) \
-          < 50100
+#if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE < 50103) || \
+    (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE < 50103)
 template<>
 struct numeric_limits<mpz_class> {
 
@@ -158,6 +158,12 @@ template<> struct ExpressionEvalTraits<mpz_class> {
 #endif
 };
 
+template<> struct _type_round_helper<mpz_class> {
+    inline mpz_class operator() ( const mpz_class &tr ) const {
+        return tr;
+    }
+};
+
 template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() const {
     std::ostringstream os;
     os.precision ( std::numeric_limits<double>::digits );
@@ -171,7 +177,7 @@ template<> inline mpf_class TYPE_CONVERT<std::string>::convert<mpf_class>() cons
 }
 
 template<> inline mpf_class TYPE_CONVERT<const char *>::convert<mpf_class>() const {
-    return mpf_class ( isRange ? std::string ( val, len ).c_str() : val );
+    return mpf_class ( len ? std::string ( val, len ).c_str() : val );
 }
 
 #ifdef HAVE_MPREAL_H
@@ -180,7 +186,7 @@ template<> inline mpfr::mpreal TYPE_CONVERT<std::string>::convert<mpfr::mpreal>(
 }
 
 template<> inline mpfr::mpreal TYPE_CONVERT<const char *>::convert<mpfr::mpreal>() const {
-    return mpfr::mpreal ( isRange ? std::string ( val, len ) : val );
+    return mpfr::mpreal ( len ? std::string ( val, len ) : val );
 }
 #endif
 
@@ -393,6 +399,16 @@ template<> struct CFRationalTraits<mpz_class> {
     typedef gmp_rational rational_type;
 };
 
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> struct _remquo<mpz_class, GCD, CHKOP> {
+    inline mpz_class operator() ( const mpz_class &x, const mpz_class &y, mpz_class &quo ) const {
+        mpz_class r;
+        mpz_fdiv_qr ( quo.get_mpz_t(), r.get_mpz_t(), x.get_mpz_t(), y.get_mpz_t() );
+        return r;
+    }
+};
+
 }
 
 }
@@ -441,7 +457,14 @@ inline mpz_class pow10 ( const mpf_class &f ) {
 inline mpz_class floor ( const mpz_class &z ) {
     mpf_class r, f ( z );
     mpf_floor ( r.get_mpf_t(), f.get_mpf_t() );
+#if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE <= 50103) || \
+    (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE <= 50103)
+    mpz_class aux;
+    mpz_set_f ( aux.get_mpz_t(), r.get_mpf_t() );
+    return aux;
+#else
     return r;
+#endif
 }
 #endif
 

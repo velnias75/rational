@@ -2,13 +2,15 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [2.2], [heiko@rangun.de])
+AC_INIT([rational], [2.4], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign dist-xz no-dist-gzip tar-pax no-installinfo no-texinfo.tex])
 AM_MAINTAINER_MODE
 LT_INIT
+
+CFLAGS="${CXXFLAGS} -std=c99"
 
 # Checks for programs.
 AC_PROG_CXX
@@ -43,12 +45,12 @@ if test x$enable_gmp = xyes; then
   if test -n "${GMP_CFLAGS}" ; then
     CPPFLAGS=$ac_save_cppflags
   fi
-  AC_ARG_WITH([mpreal], [AS_HELP_STRING([--with-mpreal], 
+  AC_ARG_WITH([mpreal], [AS_HELP_STRING([--with-mpreal],
     [if gmp is enabled, use mpreal.h and mpfr for floating points])], [
   if test x$with_mpreal = xyes; then
     ac_save_cppflags="${CPPFLAGS}"
     CPPFLAGS="${CPPFLAGS} -std=c++0x"
-    AC_CHECK_HEADER([mpreal.h], 
+    AC_CHECK_HEADER([mpreal.h],
       [ AC_LANG_PUSH([C])
         AC_CHECK_LIB([mpfr], [mpfr_set_str], [
         AM_CONDITIONAL([HAVE_MPREAL_H], [true])
@@ -63,16 +65,16 @@ if test x$enable_gmp = xyes; then
   if test -z "${GMP_LIBS}" -o "${GMP_LIBS}" = " -lmpfr"; then
     GMP_LIBS="${GMP_LIBS}"
     AC_LANG_PUSH([C])
-    AC_CHECK_LIB([gmpxx], main, [GMP_LIBS="${GMP_LIBS} -lgmpxx"], 
+    AC_CHECK_LIB([gmpxx], main, [GMP_LIBS="${GMP_LIBS} -lgmpxx"],
       [AC_MSG_ERROR([GNU MP++ not found, see https://gmplib.org/])])
-    AC_CHECK_LIB([gmp], [__gmpz_gcd], [GMP_LIBS="${GMP_LIBS} -lgmp"], 
+    AC_CHECK_LIB([gmp], [__gmpz_gcd], [GMP_LIBS="${GMP_LIBS} -lgmp"],
       [AC_MSG_ERROR([GNU MP not found, see https://gmplib.org/])])
     AC_LANG_POP([C])
   fi
 fi
 ])
 AM_CONDITIONAL([WITH_INFINT], [false])
-AC_ARG_ENABLE([infint], [AS_HELP_STRING([--enable-infint], 
+AC_ARG_ENABLE([infint], [AS_HELP_STRING([--enable-infint],
   [enable InfInt extension (deprecated)])], [
 if test x$enable_infint = xyes; then
   if test -n "${INFINT_CFLAGS}" ; then

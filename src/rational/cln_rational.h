@@ -128,6 +128,12 @@ template<> struct ExpressionEvalTraits<cln::cl_I> {
     typedef cln::cl_F NumberType;
 };
 
+template<> struct _type_round_helper<cln::cl_I> {
+    inline cln::cl_I operator() ( const cln::cl_I &tr ) const {
+        return tr;
+    }
+};
+
 template<> inline cln::cl_I TYPE_CONVERT<long double>::convert<cln::cl_I>() const {
     std::ostringstream os;
     os.precision ( std::numeric_limits<long double>::digits );
@@ -140,7 +146,7 @@ template<> inline cln::cl_F TYPE_CONVERT<std::string>::convert<cln::cl_F>() cons
 }
 
 template<> inline cln::cl_F TYPE_CONVERT<const char *>::convert<cln::cl_F>() const {
-    return ( isRange ? std::string ( val, len ) : std::string ( val ) ).append ( "L0_" ).
+    return ( len ? std::string ( val, len ) : std::string ( val ) ).append ( "L0_" ).
            append ( CLN_PRECISION ).c_str();
 }
 
@@ -150,8 +156,7 @@ template<> struct TYPE_CONVERT<cln::cl_F> {
 
     inline explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( cln::double_approx ( v ) ) {}
 
-    template<class U>
-    RATIONAL_CONSTEXPR inline U convert() const {
+    template<class U> inline U convert() const {
         return cln::floor1 ( val );
     }
 
@@ -332,6 +337,18 @@ typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_C
 
 template<> struct CFRationalTraits<cln::cl_I> {
     typedef cln_rational rational_type;
+};
+
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> struct _remquo<cln::cl_I, GCD, CHKOP> {
+    inline cln::cl_I operator() ( const cln::cl_I &x, const cln::cl_I &y, cln::cl_I &quo ) const {
+
+        const cln::cl_I_div_t &d ( cln::floor2 ( x, y ) );
+
+        quo = d.quotient;
+        return d.remainder;
+    }
 };
 
 }

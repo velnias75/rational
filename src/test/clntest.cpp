@@ -176,8 +176,6 @@ void CLNTest::testConstructFrom_cl_F_class() {
 
 void CLNTest::testAddition() {
 
-    // TODO: euclid failed here (modulus-op)
-
     const cln_rational a ( 17, 21 );
     const cln_rational b ( 44, 35 );
 
@@ -513,6 +511,8 @@ void CLNTest::testIOStreamOps() {
 
 }
 
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+#pragma GCC diagnostic push
 void CLNTest::testAlgorithm() {
 
     std::ostringstream os;
@@ -557,9 +557,10 @@ void CLNTest::testAlgorithm() {
     std::vector<cln_rational::integer_type> o_pi;
     seq ( cf ( cf_pi, cf_pi + 97 ), std::back_inserter ( o_pi ) );
 
-    CPPUNIT_ASSERT_EQUAL ( 97u, o_pi.size() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<cln_rational::integer_type>::size_type> ( 97u ), o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
 }
+#pragma GCC diagnostic pop
 
 void CLNTest::testStdMath() {
 
@@ -593,10 +594,10 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4 ), d.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 333 ), d.denominator() );
 
-    const cln_rational &e ( cln_rational::rf_info ( 6, 0, 1111 ) );
+    const cln_rational &ex ( cln_rational::rf_info ( 6, 0, 1111 ) );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 667 ), e.numerator() );
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6000 ), e.denominator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 667 ), ex.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6000 ), ex.denominator() );
 
     const cln_rational &f ( cln_rational::rf_info ( 1, 2, 3, 4 ) );
 
@@ -650,6 +651,71 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1975 ), dc.reptend );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    const cln_rational q ( "123.32 / (12453/370)" );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 228142 ), q.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 62265 ), q.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), q.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6 ), dc.pre );
+
+    std::ostringstream os;
+
+    os << dc.reptend;
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "64048823576648197221553039428250220830322010760459327" \
+                                         "06978238175540030514735405123263470649642656388018951" \
+                                         "25672528707941861398859712519071709628202039669156026" \
+                                         "66024251184453545330442463663374287320324419818517626" \
+                                         "27479322251666265156990283465831526539789608929575202" \
+                                         "76238657351642174576407291415723118927166144704087368" \
+                                         "50558098450172649160844776359110254557134826949329478" \
+                                         "84044005460531598811531357905725527985224443909098209" \
+                                         "26684333092427527503412832249257207098691078454990765" \
+                                         "27744318638079177708182767204689633020155785754436681" \
+                                         "92403436922829840199148799486067614229502931020637597" \
+                                         "36609652292620252148076768650124467999678792258893439" \
+                                         "33188789849835381032682887657592547980406327792499799" \
+                                         "24516180839958242993656147113145426804785995342487753" \
+                                         "95487031237452822613024973901871035091945715891752991" \
+                                         "24708905484622179394523408014133140608688669396932466" \
+                                         "07243234561952943065927888862121577130008833212880430" \
+                                         "41837308279129527021601220589416204930538825985706255" \
+                                         "52075805026901148317674455954388500762868385128081586" \
+                                         "76624106640970047378141813217698546534971492812976792" \
+                                         "74070505099172890066650606279611338633261061591584357" \
+                                         "18300811049546294065686983056291656628924757086645788" \
+                                         "16349474022323938006905966433791054364410182285393077" \
+                                         "97317915361760218421263952461254316229021119408977756" \
+                                         "36392837067373323697101100136513289970288283947643138" \
+                                         "19963061109772745523167108327310688187585320806231430" \
+                                         "17746727696137476913193607965951979442704569180117240" \
+                                         "82550389464386091704810085923070746004978719987151690" \
+                                         "35573757327551593993415241307315506303701919216253111" \
+                                         "69999196980647233598329719746245884525817072191439813" \
+                                         "69951015819481249498112904520998956074841403677828635" \
+                                         "67011964988356219384887175780936320565325624347546775" \
+                                         "87729864289729382478117722637115554484863085200353328" \
+                                         "515217216734923311651810808" ), os.str() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), dc.reptend_digits.size() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    const cln_rational s ( 3, 4 );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 81l ), s.pow ( 4 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 256l ), s.pow ( 4 ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 243l ), s.pow ( 5 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1024l ), s.pow ( 5 ).denominator() );
+
+#ifdef __EXCEPTIONS
+    const cln_rational t ( 3, 4 );
+
+    CPPUNIT_ASSERT_THROW ( t.pow ( 0 ), std::domain_error );
+    CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
+#endif
 }
 
 void CLNTest::testGoldenRatio() {

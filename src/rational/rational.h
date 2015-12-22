@@ -59,6 +59,7 @@
 #include <functional>
 #include <algorithm>
 #include <sstream>
+#include <cstdlib>
 #include <string>
 #include <limits>
 #include <vector>
@@ -120,6 +121,9 @@ struct _ifThenElse<false, Ta, Tb> {
 namespace Math {
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class, template<class, typename, bool> class, bool> struct _pow;
+
+template<typename, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class, template<class, typename, bool> class, bool> struct _mod;
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
@@ -147,14 +151,14 @@ template<typename T> struct TYPE_CONVERT {
      *
      * @param[in] v the value to convert
      */
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const T& v ) : val ( v ) {}
 
     /**
      * @brief converts the value to @c U
      *
      * @tparam U the type to convert to
      */
-    template<typename U> RATIONAL_CONSTEXPR inline U convert() const {
+    template<typename U> inline U convert() const {
         return static_cast<U> ( val );
     }
 
@@ -169,7 +173,7 @@ template<> struct TYPE_CONVERT<std::string> {
      *
      * @param[in] v the value to convert
      */
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const std::string &v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const std::string &v ) : val ( v ) {}
 
     /**
      * @brief converts the value to @c U
@@ -193,8 +197,8 @@ template<> struct TYPE_CONVERT<const char *> {
      *
      * @param[in] v the value to convert
      */
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const char *f, const char *l = 0L ) :
-        val ( f ), len ( l ), isRange ( l ) {}
+    inline explicit TYPE_CONVERT ( const char *f, const char *l = 0L ) :
+        val ( f ), len ( l ) {}
 
     /**
      * @brief converts the value to @c U
@@ -203,21 +207,20 @@ template<> struct TYPE_CONVERT<const char *> {
      */
     template<typename U> inline U convert() const {
         U aux;
-        ( std::istringstream ( isRange ? std::string ( val, len ) : val ) ) >> aux;
+        ( std::istringstream ( len ? std::string ( val, len ) : val ) ) >> aux;
         return aux;
     }
 
 private:
     const char *val;
     const char *len;
-    const bool isRange;
 };
 
 template<> struct TYPE_CONVERT<float> {
 
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const float v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const float v ) : val ( v ) {}
 
-    template<class U> RATIONAL_CONSTEXPR inline U convert() const {
+    template<class U> inline U convert() const {
         return static_cast<U> ( val );
     }
 
@@ -227,9 +230,9 @@ private:
 
 template<> struct TYPE_CONVERT<double> {
 
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const double v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const double v ) : val ( v ) {}
 
-    template<class U> RATIONAL_CONSTEXPR inline U convert() const {
+    template<class U> inline U convert() const {
         return static_cast<U> ( val );
     }
 
@@ -239,9 +242,9 @@ private:
 
 template<> struct TYPE_CONVERT<long double> {
 
-    RATIONAL_CONSTEXPR inline explicit TYPE_CONVERT ( const long double v ) : val ( v ) {}
+    inline explicit TYPE_CONVERT ( const long double v ) : val ( v ) {}
 
-    template<class U> RATIONAL_CONSTEXPR inline U convert() const {
+    template<class U> inline U convert() const {
         return static_cast<U> ( val );
     }
 
@@ -370,6 +373,13 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
 template<typename T>
 struct ExpressionEvalTraits {
     typedef long double NumberType; ///< the corresponding @c NumberType
+};
+
+template<typename T> struct _type_round_helper {
+    inline typename ExpressionEvalTraits<T>::NumberType
+    operator() ( const typename ExpressionEvalTraits<T>::NumberType &tr ) const {
+        return typename ExpressionEvalTraits<T>::NumberType ( 0.5 ) + tr;
+    }
 };
 
 /**
@@ -532,6 +542,7 @@ public:
      * * subtraction (@c -); also @em unary
      * * multiplication (@c *)
      * * division (@c /)
+     * * modulus (@c %)
      * * parenthesises
      *
      * Numbers can be integers or floats in non-scientific notation. Allowed are spaces, tabs
@@ -620,10 +631,10 @@ public:
         inline _rf_info ( const integer_type &r, std::size_t lz = 0u,
                           const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
             reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ),
-            pre_digits(), reptent_digits() {}
+            pre_digits(), reptend_digits() {}
 
         inline _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ),
-            pre_digits(), reptent_digits() {}
+            pre_digits(), reptend_digits() {}
 
         integer_type reptend; ///< the repeating part as integer_type
         std::size_t leading_zeros; ///< the amount of zeros at the beginning of @c reptend
@@ -631,7 +642,7 @@ public:
         std::size_t pre_leading_zeros; ///< the amount of zeros at the beginning of @c pre
 
         std::vector<integer_type> pre_digits; ///< the part before the reptent as digit sequence
-        std::vector<integer_type> reptent_digits; ///< the repeating part as digit sequence
+        std::vector<integer_type> reptend_digits; ///< the repeating part as digit sequence
 
     } rf_info;
 
@@ -701,6 +712,11 @@ public:
     RATIONAL_CONSTEXPR inline Rational abs() const {
         return _abs<integer_type, GCD, CHKOP,
                std::numeric_limits<integer_type>::is_signed>() ( *this );
+    }
+
+    inline Rational pow ( const integer_type &exp ) const {
+        return _pow<integer_type, GCD, CHKOP,
+               std::numeric_limits<integer_type>::is_signed>() ( *this, exp );
     }
 
     /**
@@ -1139,12 +1155,23 @@ private:
     }
 
     RATIONAL_CONSTEXPR inline static unsigned char getPrec ( const char op ) {
-        return !isLeftAssoc ( op ) ? 2 : ( ( op == '*' || op == '/' ) ? 1 : 0 );
+        return !isLeftAssoc ( op ) ? 2 : ( ( op == '*' || op == '/' || op == '%' ) ? 1 : 0 );
     }
 
     typedef std::stack<Rational, std::vector<Rational> > evalStack;
 
     static bool eval ( const char op, evalStack &s, const char *expr );
+
+    static void pushToken ( evalStack &rpn, const char *expr, std::ptrdiff_t tok_start,
+                            std::ptrdiff_t *tok_len ) {
+
+        rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
+                                                expr + tok_start + *tok_len ).
+                   template convert<typename
+                   ExpressionEvalTraits<integer_type>::NumberType>() );
+
+        *tok_len = 0;
+    }
 
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
@@ -1200,14 +1227,14 @@ Rational<T, GCD, CHKOP>::Rational ( const rf_info &info ) : m_numer (), m_denom 
     using namespace std;
 
     *this = ( Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
-                         static_cast<integer_type>
-                         ( pow10 ( ceil ( log10 ( ( info.reptend < integer_type() ?
-                                          integer_type ( -info.reptend ) : info.reptend ) +
-                                          one_ ) ) + info.leading_zeros ) - one_ ) ) *=
-                  Rational ( one_, static_cast<integer_type>
-                             ( pow10 ( ceil ( log10 ( ( info.pre < integer_type() ?
-                                       integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
-                                       info.pre_leading_zeros ) ) ) );
+                         static_cast<integer_type> ( _type_round_helper<integer_type>() (
+                                     pow10 ( ceil ( log10 ( ( info.reptend < integer_type() ?
+                                             integer_type ( -info.reptend ) : info.reptend ) +
+                                             one_ ) ) + info.leading_zeros ) - one_ ) ) ) *=
+                  Rational ( one_, static_cast<integer_type> ( _type_round_helper<integer_type>() (
+                                 pow10 ( ceil ( log10 ( ( info.pre < integer_type() ?
+                                         integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
+                                         info.pre_leading_zeros ) ) ) ) );
 }
 #pragma GCC diagnostic pop
 
@@ -1217,8 +1244,8 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
     if ( expr && *expr ) {
 
-        static const char td_op[11] = { '\t', '\n', ' ', '(', ')', 1, 2, '-', '/', '*', '+' };
-        static const char *td_op_end = td_op + 11, *op_start = td_op + 5;
+        static const char td_op[12] = { '\t', '\n', ' ', '(', ')', 1, 2, '%', '-', '/', '*', '+' };
+        static const char *td_op_end = td_op + 12, *op_start = td_op + 5;
 
         std::stack<char, std::vector<char> > syard;
         std::ptrdiff_t tok_start = 0, tok_len = 0;
@@ -1241,27 +1268,12 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 #endif
                 }
 
-                if ( ! * ( ptr + 1 ) ) {
-                    rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
-                                                            expr + tok_start + tok_len ).
-                               template convert<typename
-                               ExpressionEvalTraits<integer_type>::NumberType>() );
-
-                    tok_len = 0;
-                }
+                if ( ! * ( ptr + 1 ) ) pushToken ( rpn, expr, tok_start, &tok_len );
 
                 prev = *ptr++;
                 continue;
 
-            } else if ( tok_len ) {
-
-                rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
-                                                        expr + tok_start + tok_len ).
-                           template convert<typename
-                           ExpressionEvalTraits<integer_type>::NumberType>() );
-
-                tok_len = 0;
-            }
+            } else if ( tok_len ) pushToken ( rpn, expr, tok_start, &tok_len );
 
             if ( *ptr == ' ' || *ptr == '\t' || *ptr == '\n' ) {
                 ++ptr;
@@ -1607,23 +1619,82 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
 
         typename std::vector<integer_type>::const_iterator j ( dv.begin() );
 
-        out = *j++;
+        if ( ( out = *j++ ) == zero_ ) ++zeros;
 
-        for ( ; j != dv.end(); ++j ) out = op_plus() ( op_multiplies() ( out, base ), *j );
+        bool pre_zeros = false;
 
-        for ( typename std::vector<integer_type>::const_iterator z ( dv.begin() );
-                z != dv.end(); ++z ) {
+        for ( ; j != dv.end(); ++j ) {
 
-            if ( *z == zero_ ) {
+            out = op_plus() ( op_multiplies() ( out, base ), *j );
+
+            if ( !pre_zeros && *j == zero_ ) {
                 ++zeros;
             } else {
-                break;
+                pre_zeros = true;
             }
         }
     }
 
     return zeros;
 }
+
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> struct _remquo {
+    inline T operator() ( const T &x, const T &y, T &quo ) const {
+        return typename Rational<T, GCD, CHKOP>::op_minus() ( x,
+                typename Rational<T, GCD, CHKOP>::op_multiplies() ( y,
+                        ( quo = typename Rational<T, GCD, CHKOP>::op_divides() ( x, y ) ) ) );
+    }
+};
+
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> struct _remquo<int, GCD, CHKOP> {
+
+    inline int operator() ( int x, int y, int &quo ) const {
+
+        using namespace std;
+
+        const div_t &d ( div ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> struct _remquo<long, GCD, CHKOP> {
+
+    inline long operator() ( long x, long y, long &quo ) const {
+
+        using namespace std;
+
+        const ldiv_t &d ( ldiv ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+
+#if (_XOPEN_SOURCE >= 600 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L)
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct _remquo<long long, GCD, CHKOP> {
+
+    inline long long operator() ( long long x, long long y, long long &quo ) const {
+
+        using namespace std;
+
+        const lldiv_t &d ( lldiv ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+#endif
 
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -1641,61 +1712,56 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
 
     do {
 
-        integer_type aux;
+        integer_type q, aux;
 
-        rd.push_back ( op_modulus() ( d, m_denom ) );
-        dg.push_back ( ( aux = floor ( op_divides() ( d, m_denom ) ) ) < zero_ ?
-                       integer_type ( -aux ) : aux ) ;
+        rd.push_back ( ( aux = _remquo<T, GCD, CHKOP> () ( d, m_denom, q ) ) < zero_ ?
+                       integer_type ( -aux ) : aux );
+        dg.push_back ( q < zero_ ? integer_type ( -q ) : q );
 
-        if ( rd.back() != zero_ ) {
-            d = op_multiplies() ( base, rd.back() );
-        } else {
-            break;
-        }
+        d = op_multiplies() ( base, rd.back() );
 
-    } while ( !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
+    } while ( rd.back() != zero_ && !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
-    rf_info.reptent_digits.clear();
+    rf_info.reptend_digits.clear();
     rf_info.pre_digits.clear();
 
-    if ( rd.back() != zero_ ) {
+    const bool hasPer = rd.back() != zero_;
+    const bool hasPre = !hasPer || rd.back() != rd.front();
 
-        const typename std::vector<integer_type>::iterator &mid ( dg.begin() + std::distance
-                ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) + 1 );
+    const typename std::vector<integer_type>::iterator &pivot ( dg.begin() + ( hasPre ?
+            std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) : 0 ) + 1 );
 
-        const bool hasPre = rd.back() != rd.front();
-
-        if ( hasPre ) {
-            std::copy ( dg.begin() + 1, mid, std::back_inserter ( rf_info.pre_digits ) );
-            rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
-        }
-
-        std::copy ( hasPre ? mid : dg.begin() + 1, dg.end(),
-                    std::back_inserter ( rf_info.reptent_digits ) );
-
-        rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptent_digits, base );
-
-        if ( m_numer < zero_ ) {
-            if ( !rf_info.pre_digits.empty() ) {
-                rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
-            } else if ( !rf_info.reptent_digits.empty() ) {
-                rf_info.reptent_digits.front() = integer_type ( -rf_info.reptent_digits.front() );
-            }
-        }
-
-    } else {
-
-        std::copy ( dg.begin() + 1, dg.end(), std::back_inserter ( rf_info.pre_digits ) );
+    if ( hasPre ) {
+        rf_info.pre_digits.reserve ( static_cast<typename std::vector<integer_type>::size_type>
+                                     ( std::distance ( dg.begin() + 1, pivot ) ) );
+        rf_info.pre_digits.insert ( rf_info.pre_digits.end(), dg.begin() + 1, pivot );
         rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
-
-        if ( dg.front() == zero_ && m_numer < zero_ ) rf_info.pre_digits.front() =
-                integer_type ( -rf_info.pre_digits.front() );
     }
 
-    return m_numer < zero_ ? integer_type ( -dg.front() ) : dg.front();
+    if ( hasPer ) {
+        rf_info.reptend_digits.reserve ( static_cast<typename std::vector<integer_type>::size_type>
+                                         ( std::distance ( pivot, dg.end() ) ) );
+        rf_info.reptend_digits.insert ( rf_info.reptend_digits.end(), pivot, dg.end() );
+        rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptend_digits, base );
+    }
+
+    const bool isNegative = m_numer < zero_;
+
+    if ( isNegative ) {
+
+        if ( !rf_info.pre_digits.empty() ) {
+            rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
+        }
+
+        if ( !rf_info.reptend_digits.empty() ) {
+            rf_info.reptend_digits.front() = integer_type ( -rf_info.reptend_digits.front() );
+        }
+    }
+
+    return isNegative ? integer_type ( -dg.front() ) : dg.front();
 }
 #pragma GCC diagnostic pop
 
@@ -1850,6 +1916,11 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *ex
             return true;
         case 2:
             s.push ( operand[0] );
+            return true;
+        case '%':
+            operand[1] = s.top();
+            s.pop();
+            s.push ( operand[1] %= operand[0] );
             return true;
         case '+':
             operand[1] = s.top();
@@ -2281,6 +2352,60 @@ struct _mod<T, GCD, CHKOP, false> {
                                 r.m_denom ), Rational<T, GCD, CHKOP> (
                                     ( typename Rational<T, GCD, CHKOP>::op_modulus() ( r.m_numer,
                                             r.m_denom ) ), r.m_denom ) );
+    }
+};
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _pow<T, GCD, CHKOP, false> {
+
+    inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r,
+            const T &exp ) const {
+#ifdef __EXCEPTIONS
+        if ( exp > Rational<T, GCD, CHKOP>::zero_ ) {
+#endif
+
+            Rational<T, GCD, CHKOP> b ( r );
+            Rational<T, GCD, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
+                                             Rational<T, GCD, CHKOP>::one_ );
+            T e ( exp );
+
+            do {
+
+                if ( ( e & 1 ) != Rational<T, GCD, CHKOP>::zero_ ) result *= b;
+
+                e >>= 1;
+                b *= b;
+
+            } while ( e != Rational<T, GCD, CHKOP>::zero_ );
+
+            return result;
+
+#ifdef __EXCEPTIONS
+        } else {
+            throw std::domain_error ( "power is undefined for zero" );
+        }
+#endif
+    }
+};
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _pow<T, GCD, CHKOP, true> {
+
+    inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r,
+            const T &exp ) const {
+
+#ifdef __EXCEPTIONS
+        if ( exp >= Rational<T, GCD, CHKOP>::zero_ ) {
+#endif
+            return _pow<T, GCD, CHKOP, false>() ( r, exp );
+
+#ifdef __EXCEPTIONS
+        } else {
+            throw std::domain_error ( "power is undefined for negative numbers" );
+        }
+#endif
     }
 };
 
