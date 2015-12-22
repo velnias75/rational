@@ -325,6 +325,22 @@ struct ENABLE_OVERFLOW_CHECK {
 /**
  * @ingroup main
  * @ingroup gcd
+ * @brief NULL GCD algorithm implementation
+ *
+ * Despite it's name this GCD does uncondionally return @c T(1)
+ *
+ * It can be useful if reduction of fractions is not wanted.
+ *
+ * @tparam T storage type
+ * @tparam IsSigned specialization for @em signed or @em unsigned types
+ * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
+ */
+template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
+         template<typename> class CONV = TYPE_CONVERT> struct GCD_null;
+
+/**
+ * @ingroup main
+ * @ingroup gcd
  * @brief Stein GCD algorithm implementation
  *
  * @tparam T storage type
@@ -2365,9 +2381,9 @@ struct _pow<T, GCD, CHKOP, false> {
         if ( exp > Rational<T, GCD, CHKOP>::zero_ ) {
 #endif
 
-            Rational<T, GCD, CHKOP> b ( r );
-            Rational<T, GCD, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
-                                             Rational<T, GCD, CHKOP>::one_ );
+            Rational<T, GCD_null, CHKOP> b ( r.numerator(), r.denominator() );
+            Rational<T, GCD_null, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
+                                                  Rational<T, GCD, CHKOP>::one_ );
             T e ( exp );
 
             do {
@@ -2379,7 +2395,7 @@ struct _pow<T, GCD, CHKOP, false> {
 
             } while ( e != Rational<T, GCD, CHKOP>::zero_ );
 
-            return result;
+            return Rational<T, GCD, CHKOP> ( result.numerator(), result.denominator() );
 
 #ifdef __EXCEPTIONS
         } else {
@@ -2409,21 +2425,8 @@ struct _pow<T, GCD, CHKOP, true> {
     }
 };
 
-/**
- * @ingroup main
- * @ingroup gcd
- * @brief NULL GCD algorithm implementation
- *
- * Despite it's name this GCD does uncondionally return @c T(1)
- *
- * It can be useful if reduction of fractions is not wanted.
- *
- * @tparam T storage type
- * @tparam IsSigned specialization for @em signed or @em unsigned types
- * @tparam CHKOP checked operator @see ENABLE_OVERFLOW_CHECK
- */
-template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
-         template<typename> class CONV = TYPE_CONVERT> struct GCD_null {
+template<typename T, bool IsSigned, template<class, typename, bool> class CHKOP,
+         template<typename> class CONV> struct GCD_null {
 
     RATIONAL_CONSTEXPR inline const T &operator() ( const T&, const T& ) const RATIONAL_NOEXCEPT {
         return one_;
@@ -2986,4 +2989,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
