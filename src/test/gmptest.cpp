@@ -689,6 +689,13 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 243l, s.pow ( 5 ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1024l, s.pow ( 5 ).denominator().get_si() );
 
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "485192780976896426811558553967593360" \
+                                         "72749841943521979872827" ),
+                           s.pow ( 123 ).numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "113078212145816597093331040047546785" \
+                                         "012958969400039613319782796882727665" \
+                                         "664" ), s.pow ( 123 ).denominator().get_str() );
+
 #ifdef __EXCEPTIONS
     const gmp_rational t ( 3, 4 );
 

@@ -542,6 +542,7 @@ public:
      * * subtraction (@c -); also @em unary
      * * multiplication (@c *)
      * * division (@c /)
+     * * modulus (@c %)
      * * parenthesises
      *
      * Numbers can be integers or floats in non-scientific notation. Allowed are spaces, tabs
@@ -1154,7 +1155,7 @@ private:
     }
 
     RATIONAL_CONSTEXPR inline static unsigned char getPrec ( const char op ) {
-        return !isLeftAssoc ( op ) ? 2 : ( ( op == '*' || op == '/' ) ? 1 : 0 );
+        return !isLeftAssoc ( op ) ? 2 : ( ( op == '*' || op == '/' || op == '%' ) ? 1 : 0 );
     }
 
     typedef std::stack<Rational, std::vector<Rational> > evalStack;
@@ -1243,8 +1244,8 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
     if ( expr && *expr ) {
 
-        static const char td_op[11] = { '\t', '\n', ' ', '(', ')', 1, 2, '-', '/', '*', '+' };
-        static const char *td_op_end = td_op + 11, *op_start = td_op + 5;
+        static const char td_op[12] = { '\t', '\n', ' ', '(', ')', 1, 2, '%', '-', '/', '*', '+' };
+        static const char *td_op_end = td_op + 12, *op_start = td_op + 5;
 
         std::stack<char, std::vector<char> > syard;
         std::ptrdiff_t tok_start = 0, tok_len = 0;
@@ -1915,6 +1916,11 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *ex
             return true;
         case 2:
             s.push ( operand[0] );
+            return true;
+        case '%':
+            operand[1] = s.top();
+            s.pop();
+            s.push ( operand[1] %= operand[0] );
             return true;
         case '+':
             operand[1] = s.top();

@@ -216,6 +216,15 @@ void RationalTest::testConstructFromDouble() {
 
 void RationalTest::testConstructFromExpression() {
 
+    const Rational<rational_type, GCD_euclid> &a ( "(3/4) % (2/4)" );
+    const Rational<rational_type, GCD_stein> &a_stein ( "(3/4) % (2/4)" );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, a.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, a.denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, a_stein.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4, a_stein.denominator() );
+
     const Rational<rational_type, GCD_euclid> &p ( "19/51" );
     const Rational<rational_type, GCD_stein> &p_stein ( "19/51" );
 
