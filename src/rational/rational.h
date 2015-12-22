@@ -2358,14 +2358,22 @@ struct _pow<T, GCD, CHKOP, false> {
 #ifdef __EXCEPTIONS
         if ( exp > Rational<T, GCD, CHKOP>::zero_ ) {
 #endif
-            using namespace std;
 
-            return exp != Rational<T, GCD, CHKOP>::one_ ? Rational<T, GCD, CHKOP> (
-                       TYPE_CONVERT<typename ExpressionEvalTraits<T>::NumberType>
-                       ( pow ( r.numerator(), exp ) ).template convert<T>(),
-                       TYPE_CONVERT<typename ExpressionEvalTraits<T>::NumberType>
-                       ( pow ( r.denominator(), exp ) ).template convert<T>() ) :
-                   Rational<T, GCD, CHKOP> ( r );
+            Rational<T, GCD, CHKOP> b ( r );
+            Rational<T, GCD, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
+                                             Rational<T, GCD, CHKOP>::one_ );
+            T e ( exp );
+
+            do {
+
+                if ( ( e & 1 ) != Rational<T, GCD, CHKOP>::zero_ ) result *= b;
+
+                e >>= 1;
+                b *= b;
+
+            } while ( e != Rational<T, GCD, CHKOP>::zero_ );
+
+            return result;
 
 #ifdef __EXCEPTIONS
         } else {

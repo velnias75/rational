@@ -704,6 +704,9 @@ void CLNTest::testStdMath() {
 
     const cln_rational s ( 3, 4 );
 
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 81l ), s.pow ( 4 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 256l ), s.pow ( 4 ).denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 243l ), s.pow ( 5 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1024l ), s.pow ( 5 ).denominator() );
 

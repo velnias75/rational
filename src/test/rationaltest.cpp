@@ -1369,6 +1369,9 @@ void RationalTest::testStdMath() {
 
     const Rational<unsigned long> s ( 3, 4 );
 
+    CPPUNIT_ASSERT_EQUAL ( 81ul, s.pow ( 4 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 256ul, s.pow ( 4 ).denominator() );
+
     CPPUNIT_ASSERT_EQUAL ( 243ul, s.pow ( 5 ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( 1024ul, s.pow ( 5 ).denominator() );
 

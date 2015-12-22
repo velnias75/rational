@@ -683,6 +683,9 @@ void GMPTest::testStdMath() {
 
     const gmp_rational s ( 3, 4 );
 
+    CPPUNIT_ASSERT_EQUAL ( 81l, s.pow ( 4 ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 256l, s.pow ( 4 ).denominator().get_si() );
+
     CPPUNIT_ASSERT_EQUAL ( 243l, s.pow ( 5 ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1024l, s.pow ( 5 ).denominator().get_si() );
 

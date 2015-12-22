@@ -373,10 +373,6 @@ inline cl_F log10 ( const cl_I &i ) {
     return std::log10 ( cln::double_approx ( i ) );
 }
 
-inline cl_F pow ( const cl_I &i, const cl_I &f ) {
-    return exp ( cl_float ( f ) * ln ( cl_float ( i ) ) );
-}
-
 inline cl_I pow10 ( const cl_I &i ) {
     return static_cast<unsigned long> ( std::pow ( 10, cln::double_approx ( i ) ) );
 }
