@@ -730,6 +730,29 @@ public:
                std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
 
+    /**
+     * @brief gets the a new %Rational raised to the power of @c exp
+     *
+     * If overflows can get ruled out (i.e. with use of Commons::Math::gmp_rational),
+     * you can speed up the calculation by initializing a %Rational with
+     * Commons::Math::GCD_null and initializing the resulting power in a %Rational
+     * with the desired GCD: @code{.cpp}
+     * const Commons::Math::gmp_rational r(3, 4);
+     *
+     * typedef Commons::Math::Rational<Commons::Math::gmp_rational::integer_type,
+     *         Commons::Math::GCD_null, Commons::Math::NO_OPERATOR_CHECK> gmp_nogcd_rational;
+     *
+     * const gmp_nogcd_rational &nr(gmp_nogcd_rational(r.numerator(), r.denominator()).pow(256));
+     *
+     * std::cout << Commons::Math::gmp_rational(nr.numerator(), nr.denominator())
+     *           << std::endl;@endcode
+     *
+     * @warning negative values or zero can cause undefined behaviour if compiled
+     * without exceptions
+     *
+     * @param[in] exp the exponent to raise this %Rational
+     * @return a copy of the absolute %Rational raised to the power of @c exp
+     */
     inline Rational pow ( const integer_type &exp ) const {
         return _pow<integer_type, GCD, CHKOP,
                std::numeric_limits<integer_type>::is_signed>() ( *this, exp );
@@ -2381,9 +2404,9 @@ struct _pow<T, GCD, CHKOP, false> {
         if ( exp > Rational<T, GCD, CHKOP>::zero_ ) {
 #endif
 
-            Rational<T, GCD_null, CHKOP> b ( r.numerator(), r.denominator() );
-            Rational<T, GCD_null, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
-                                                  Rational<T, GCD, CHKOP>::one_ );
+            Rational<T, GCD, CHKOP> b ( r );
+            Rational<T, GCD, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
+                                             Rational<T, GCD, CHKOP>::one_ );
             T e ( exp );
 
             do {
@@ -2395,7 +2418,7 @@ struct _pow<T, GCD, CHKOP, false> {
 
             } while ( e != Rational<T, GCD, CHKOP>::zero_ );
 
-            return Rational<T, GCD, CHKOP> ( result.numerator(), result.denominator() );
+            return result;
 
 #ifdef __EXCEPTIONS
         } else {
@@ -2989,4 +3012,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
