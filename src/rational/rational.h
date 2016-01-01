@@ -280,17 +280,24 @@ template<typename R> struct SQRT_HERON_ITERATE {
     }
 
     inline bool operator() ( const R &x, const R &y ) const {
-        return ! ( ( x.numerator() > std::numeric_limits<typename R::integer_type>::max() /
+
+        R v ( x );
+
+        return ! ( ( v.numerator() > std::numeric_limits<typename R::integer_type>::max() /
                      y.denominator() ) ||
-                   ( x.denominator() > std::numeric_limits<typename R::integer_type>::max() /
+                   ( v.denominator() > std::numeric_limits<typename R::integer_type>::max() /
                      y.numerator() ) ||
                    ( std::numeric_limits<typename R::integer_type>::max() -
-                     ( x.numerator() * y.denominator() ) < ( x.denominator() * y.numerator() ) ) ||
-                   ( ( x + y ).denominator() >
-                     std::numeric_limits<typename R::integer_type>::max() /
-                     ( R::one_ + R::one_ ) ) );
+                     ( v.numerator() * y.denominator() ) < ( v.denominator() * y.numerator() ) ) ||
+                   ( ( v += y ).denominator() >
+                     std::numeric_limits<typename R::integer_type>::max() / two_ ) );
     }
+
+private:
+    static typename R::integer_type two_;
 };
+
+template<typename R> typename R::integer_type SQRT_HERON_ITERATE<R>::two_ ( R::one_ + R::one_ );
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class, template<class, typename, bool> class, typename, bool,
