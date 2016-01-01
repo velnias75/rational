@@ -274,11 +274,21 @@ template<typename T> struct EPSILON {
 
 template<typename R> struct SQRT_HERON_ITERATE {
 
+    inline bool operator() ( const typename R::integer_type &x,
+                             const typename R::integer_type &y ) const {
+        return ! ( x > std::numeric_limits<typename R::integer_type>::max() / y );
+    }
+
     inline bool operator() ( const R &x, const R &y ) const {
         return ! ( ( x.numerator() > std::numeric_limits<typename R::integer_type>::max() /
                      y.denominator() ) ||
                    ( x.denominator() > std::numeric_limits<typename R::integer_type>::max() /
-                     y.numerator() ) );
+                     y.numerator() ) ||
+                   ( std::numeric_limits<typename R::integer_type>::max() -
+                     ( x.numerator() * y.denominator() ) < ( x.denominator() * y.numerator() ) ) ||
+                   ( ( x + y ).denominator() >
+                     std::numeric_limits<typename R::integer_type>::max() /
+                     ( R::one_ + R::one_ ) ) );
     }
 };
 
@@ -770,14 +780,13 @@ public:
 
     inline Rational sqrt() const {
 
-        typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
-                 const integer_type &, const integer_type>::ResultT two ( one_ + one_ );
+        if ( m_numer == m_denom ) return Rational ( one_, one_ );
 
-        const Rational half ( one_, two );
-        Rational aux, x ( ( Rational ( one_, one_ ) += *this ) *= half );
+        const Rational half ( one_, one_ + one_ );
+        Rational aux, inv, x ( ( Rational ( one_, one_ ) += *this ) *= half );
 
-        while ( SQRT_HERON_ITERATE<Rational>() ( x,
-                ( aux = Rational ( *this ) *= x.inverse() ) ) ) {
+        while ( SQRT_HERON_ITERATE<Rational>() ( m_numer, ( inv = x.inverse() ).denominator() ) &&
+                SQRT_HERON_ITERATE<Rational>() ( x, ( aux = Rational ( *this ) *= inv ) ) ) {
 
             x += aux;
             x *= half;
@@ -791,7 +800,7 @@ public:
 
             const Rational &y ( m );
 
-            return y.pow ( two ) == *this ? y : x;
+            return ( y * y ) == *this ? y : x;
         }
 
         return x;

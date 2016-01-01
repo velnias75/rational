@@ -400,6 +400,11 @@ typedef Rational<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> gmp_rational;
     gmp_rational::integer_type("0xFFFFFFFFFFFFFFFFFFFF") )
 #endif
 
+template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const mpz_class &,
+        const mpz_class & ) const {
+    return true;
+}
+
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic push
 template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const gmp_rational &x,

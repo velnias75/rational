@@ -340,6 +340,11 @@ typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_C
     cln_rational::integer_type("#xFFFFFFFFFFFFFFFFFFFF") )
 #endif
 
+template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln::cl_I &,
+        const cln::cl_I & ) const {
+    return true;
+}
+
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic push
 template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_rational &x,
