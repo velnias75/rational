@@ -1391,20 +1391,20 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
 #endif
 
-    const Rational<unsigned long> u ( 2, 1 );
+    const Rational<uint32_t> u ( 2, 1 );
 
-    CPPUNIT_ASSERT_EQUAL ( 665857ul, u.sqrt().numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 470832ul, u.sqrt().denominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t>( 665857u ), u.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t>( 470832u ), u.sqrt().denominator() );
 
-    const Rational<unsigned long> v ( 10, 17 );
+    const Rational<uint32_t> v ( 10, 17 );
 
-    CPPUNIT_ASSERT_EQUAL ( 3968161ul, v.sqrt().numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 5173848ul, v.sqrt().denominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t>( 3968161u ), v.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t>( 5173848u ), v.sqrt().denominator() );
 
-    const Rational<unsigned long> w ( 9, 1 );
+    const Rational<uint32_t> w ( 9, 1 );
 
-    CPPUNIT_ASSERT_EQUAL ( 3ul, w.sqrt().numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 1ul, w.sqrt().denominator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t>( 3u ), w.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t>( 1u ), w.sqrt().denominator() );
 }
 
 void RationalTest::testRatRat() {
