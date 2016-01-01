@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -742,6 +742,11 @@ void CLNTest::testStdMath() {
     os << v.sqrt().denominator();
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "2586255495350365951590026592" ),  os.str() );
+
+    const cln_rational w ( 9, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( cln_rational::integer_type ( 3l ), w.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln_rational::integer_type ( 1l ), w.sqrt().denominator() );
 }
 
 void CLNTest::testGoldenRatio() {

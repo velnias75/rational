@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -20,7 +20,7 @@
 /**
  * @file
  * @author Heiko Schäfer <heiko@rangun.de>
- * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * @copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This header contains specialization for use of the
  * [CLN - Class Library for Numbers](http://www.ginac.de/CLN/) as underlying

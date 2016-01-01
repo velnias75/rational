@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -1400,6 +1400,11 @@ void RationalTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( 3968161ul, v.sqrt().numerator() );
     CPPUNIT_ASSERT_EQUAL ( 5173848ul, v.sqrt().denominator() );
+
+    const Rational<unsigned long> w ( 9, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( 3ul, w.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1ul, w.sqrt().denominator() );
 }
 
 void RationalTest::testRatRat() {

@@ -780,6 +780,17 @@ public:
             x *= half;
         }
 
+        typename tmp::_ifThenElse<tmp::_isClassT<typename mod_type::first_type>::Yes,
+                 const typename mod_type::first_type &, const integer_type>::ResultT
+                 m ( x.mod().first );
+
+        if ( m != typename mod_type::first_type() ) {
+
+            const Rational &y ( m );
+
+            return y.pow ( one_ + one_ ) == *this ? y : x;
+        }
+
         return x;
     }
 

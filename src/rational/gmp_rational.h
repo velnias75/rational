@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -25,7 +25,7 @@
  * storage type.
  *
  * @author Heiko Schäfer <heiko@rangun.de>
- * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * @copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * @defgroup gmp GNU Multiple Precisions extensions
  *

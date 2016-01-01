@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -716,6 +716,11 @@ void GMPTest::testStdMath() {
                            v.sqrt().numerator().get_str() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "2586255495350365951590026592" ),
                            v.sqrt().denominator().get_str() );
+
+    const gmp_rational w ( 9, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( 3l, w.sqrt().numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, w.sqrt().denominator().get_si() );
 }
 
 void GMPTest::testGoldenRatio() {
