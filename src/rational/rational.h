@@ -770,7 +770,10 @@ public:
 
     inline Rational sqrt() const {
 
-        const Rational half ( one_, one_ + one_ );
+        typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
+                 const integer_type &, const integer_type>::ResultT two ( one_ + one_ );
+
+        const Rational half ( one_, two );
         Rational aux, x ( ( Rational ( one_, one_ ) += *this ) *= half );
 
         while ( SQRT_HERON_ITERATE<Rational>() ( x,
@@ -781,14 +784,14 @@ public:
         }
 
         typename tmp::_ifThenElse<tmp::_isClassT<typename mod_type::first_type>::Yes,
-                 const typename mod_type::first_type &, const integer_type>::ResultT
-                 m ( x.mod().first );
+                 const typename mod_type::first_type &,
+                 const typename mod_type::first_type>::ResultT m ( x.mod().first );
 
         if ( m != typename mod_type::first_type() ) {
 
             const Rational &y ( m );
 
-            return y.pow ( one_ + one_ ) == *this ? y : x;
+            return y.pow ( two ) == *this ? y : x;
         }
 
         return x;
