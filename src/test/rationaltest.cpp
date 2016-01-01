@@ -1390,6 +1390,16 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_THROW ( t.pow ( 0 ), std::domain_error );
     CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
 #endif
+
+    const Rational<unsigned long> u ( 2, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( 665857ul, u.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 470832ul, u.sqrt().denominator() );
+
+    const Rational<unsigned long> v ( 10, 17 );
+
+    CPPUNIT_ASSERT_EQUAL ( 3968161ul, v.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 5173848ul, v.sqrt().denominator() );
 }
 
 void RationalTest::testRatRat() {

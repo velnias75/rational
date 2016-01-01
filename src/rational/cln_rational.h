@@ -335,6 +335,19 @@ const cln::cl_I _swapSign<cln::cl_I, GCD, CHKOP, true>::zero_ ( 0 );
 
 typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_CHECK> cln_rational;
 
+#ifndef CLN_HERON_ITER
+#define CLN_HERON_ITER(x, y) ( (x).denominator() < \
+    cln_rational::integer_type("#xFFFFFFFFFFFFFFFFFFFF") )
+#endif
+
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic push
+template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_rational &x,
+        const cln_rational &y ) const {
+    return ( CLN_HERON_ITER ( x, y ) );
+}
+#pragma GCC diagnostic pop
+
 template<> struct CFRationalTraits<cln::cl_I> {
     typedef cln_rational rational_type;
 };

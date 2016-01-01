@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -20,7 +20,7 @@
 /**
  * @file
  * @author Heiko Schäfer <heiko@rangun.de>
- * @copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * @copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * @defgroup main Rational fraction class
  *
@@ -269,6 +269,16 @@ template<typename T> struct EPSILON {
      */
     inline static const T value() {
         return std::numeric_limits<T>::epsilon();
+    }
+};
+
+template<typename R> struct SQRT_HERON_ITERATE {
+
+    inline bool operator() ( const R &x, const R &y ) const {
+        return ! ( ( x.numerator() > std::numeric_limits<typename R::integer_type>::max() /
+                     y.denominator() ) ||
+                   ( x.denominator() > std::numeric_limits<typename R::integer_type>::max() /
+                     y.numerator() ) );
     }
 };
 
@@ -756,6 +766,21 @@ public:
     inline Rational pow ( const integer_type &exp ) const {
         return _pow<integer_type, GCD, CHKOP,
                std::numeric_limits<integer_type>::is_signed>() ( *this, exp );
+    }
+
+    inline Rational sqrt() const {
+
+        const Rational half ( one_, one_ + one_ );
+        Rational aux, x ( ( Rational ( one_, one_ ) += *this ) *= half );
+
+        while ( SQRT_HERON_ITERATE<Rational>() ( x,
+                ( aux = Rational ( *this ) *= x.inverse() ) ) ) {
+
+            x += aux;
+            x *= half;
+        }
+
+        return x;
     }
 
     /**

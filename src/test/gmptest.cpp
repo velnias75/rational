@@ -702,6 +702,20 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_THROW ( t.pow ( 0 ), std::domain_error );
     CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
 #endif
+
+    const gmp_rational u ( 2, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "4946041176255201878775086487573351061418968498177" ),
+                           u.sqrt().numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "3497379255757941172020851852070562919437964212608" ),
+                           u.sqrt().denominator().get_str() );
+
+    const gmp_rational v ( 10, 17 );
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1983567417147843927170789761" ),
+                           v.sqrt().numerator().get_str() );
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2586255495350365951590026592" ),
+                           v.sqrt().denominator().get_str() );
 }
 
 void GMPTest::testGoldenRatio() {

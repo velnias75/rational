@@ -716,6 +716,32 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_THROW ( t.pow ( 0 ), std::domain_error );
     CPPUNIT_ASSERT_THROW ( t.pow ( -8 ), std::domain_error );
 #endif
+
+    const cln_rational u ( 2, 1 );
+
+    os.str ( "" );
+    os << u.sqrt().numerator();
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "4946041176255201878775086487573351061418968498177" ),
+                           os.str() );
+
+    os.str ( "" );
+    os << u.sqrt().denominator();
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "3497379255757941172020851852070562919437964212608" ),
+                           os.str() );
+
+    const cln_rational v ( 10, 17 );
+
+    os.str ( "" );
+    os << v.sqrt().numerator();
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "1983567417147843927170789761" ), os.str() );
+
+    os.str ( "" );
+    os << v.sqrt().denominator();
+
+    CPPUNIT_ASSERT_EQUAL ( std::string ( "2586255495350365951590026592" ),  os.str() );
 }
 
 void CLNTest::testGoldenRatio() {

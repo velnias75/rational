@@ -395,6 +395,19 @@ struct _lcm<mpz_class, GCD, CHKOP, true> {
  */
 typedef Rational<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> gmp_rational;
 
+#ifndef GMP_HERON_ITER
+#define GMP_HERON_ITER(x, y) ( (x).denominator() < \
+    gmp_rational::integer_type("0xFFFFFFFFFFFFFFFFFFFF") )
+#endif
+
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic push
+template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const gmp_rational &x,
+        const gmp_rational &y ) const {
+    return ( GMP_HERON_ITER ( x, y ) );
+}
+#pragma GCC diagnostic pop
+
 template<> struct CFRationalTraits<mpz_class> {
     typedef gmp_rational rational_type;
 };
