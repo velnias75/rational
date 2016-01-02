@@ -752,6 +752,16 @@ void CLNTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 28031975l ), x.sqrt().numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1l ), x.sqrt().denominator() );
+
+    const cln_rational y ( 256, 81 );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 16 ), y.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 9 ), y.sqrt().denominator() );
+
+#ifdef __EXCEPTIONS
+    const cln_rational z ( 256, -81 );
+    CPPUNIT_ASSERT_THROW ( z.sqrt(), std::domain_error );
+#endif
 }
 
 void CLNTest::testGoldenRatio() {

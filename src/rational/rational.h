@@ -1491,6 +1491,10 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>:: _sqrt() const {
 
 #ifdef __EXCEPTIONS
+    if ( std::numeric_limits<integer_type>::is_signed && m_numer < zero_ ) {
+        throw std::domain_error ( "sqrt is undefined for negative numbers" );
+    }
+
     if ( m_numer == zero_ ) throw std::domain_error ( "sqrt is undefined for zero" );
 #endif
 
