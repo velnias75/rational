@@ -389,6 +389,27 @@ struct _lcm<mpz_class, GCD, CHKOP, true> {
 
 };
 
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _psq<mpz_class, GCD, CHKOP> {
+
+    inline Rational<mpz_class, GCD, CHKOP> operator() ( const Rational<mpz_class, GCD, CHKOP> &x,
+            const Rational<mpz_class, GCD, CHKOP> &y ) const {
+
+        const typename Rational<mpz_class, GCD, CHKOP>::mod_type::first_type &m ( y.mod().first );
+
+        if ( m != Rational<mpz_class, GCD, CHKOP>::zero_ &&
+                mpz_perfect_square_p ( m.get_mpz_t() ) ) {
+
+            typename Rational<mpz_class, GCD, CHKOP>::integer_type psq;
+            mpz_sqrt ( psq.get_mpz_t(), m.get_mpz_t() );
+            return Rational<mpz_class, GCD, CHKOP> ( psq, Rational<mpz_class, GCD, CHKOP>::one_ );
+        }
+
+        return x;
+    }
+};
+
 /**
  * @ingroup gmp
  * @brief Rational class based on the GMP library
@@ -400,9 +421,13 @@ typedef Rational<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> gmp_rational;
     gmp_rational::integer_type("0xFFFFFFFFFFFFFFFFFFFF") )
 #endif
 
-template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const mpz_class &,
-        const mpz_class & ) const {
-    return true;
+template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const gmp_rational &p,
+        const mpz_class &, const mpz_class & ) const {
+
+    const gmp_rational::mod_type &m ( p.mod() );
+
+    return ! ( m.first != gmp_rational::zero_ && m.second.numerator() == gmp_rational::zero_ &&
+               mpz_perfect_square_p ( m.first.get_mpz_t() ) );
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"

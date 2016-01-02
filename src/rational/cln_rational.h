@@ -328,6 +328,24 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 const cln::cl_I _swapSign<cln::cl_I, GCD, CHKOP, true>::zero_ ( 0 );
 
+template<template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _psq<cln::cl_I, GCD, CHKOP> {
+
+    inline Rational<cln::cl_I, GCD, CHKOP> operator() ( const Rational<cln::cl_I, GCD, CHKOP> &x,
+            const Rational<cln::cl_I, GCD, CHKOP> &y ) const {
+
+        const typename Rational<cln::cl_I, GCD, CHKOP>::mod_type::first_type &m ( y.mod().first );
+        typename Rational<cln::cl_I, GCD, CHKOP>::integer_type psq;
+
+        if ( m != Rational<cln::cl_I, GCD, CHKOP>::zero_ && cln::sqrtp ( m, &psq ) ) {
+            return Rational<cln::cl_I, GCD, CHKOP> ( psq, Rational<cln::cl_I, GCD, CHKOP>::one_ );
+        }
+
+        return x;
+    }
+};
+
 /**
  * @ingroup cln
  * @brief Rational class based on the CLN library
@@ -340,9 +358,14 @@ typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_C
     cln_rational::integer_type("#xFFFFFFFFFFFFFFFFFFFF") )
 #endif
 
-template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln::cl_I &,
-        const cln::cl_I & ) const {
-    return true;
+template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_rational &p,
+        const cln::cl_I &, const cln::cl_I & ) const {
+
+    const cln_rational::mod_type &m ( p.mod() );
+    typename cln_rational::integer_type psq;
+
+    return ! ( m.first != cln_rational::zero_ && m.second.numerator() == cln_rational::zero_ &&
+               cln::sqrtp ( m.first, &psq ) );
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"

@@ -136,6 +136,9 @@ template<typename, template<typename, bool, template<class, typename, bool> clas
          template<typename> class> class, template<class, typename, bool> class, bool>
 struct _swapSign;
 
+template<typename, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class, template<class, typename, bool> class> struct _psq;
+
 /**
  * @ingroup main
  * @brief Type coversion policy class
@@ -274,7 +277,7 @@ template<typename T> struct EPSILON {
 
 template<typename R> struct SQRT_HERON_ITERATE {
 
-    inline bool operator() ( const typename R::integer_type &x,
+    inline bool operator() ( const R &, const typename R::integer_type &x,
                              const typename R::integer_type &y ) const {
         return ! ( x > std::numeric_limits<typename R::integer_type>::max() / y );
     }
@@ -795,27 +798,18 @@ public:
         if ( m_numer == m_denom ) return *this;
 
         const Rational half ( one_, one_ + one_ );
-        Rational aux, inv, x ( ( Rational ( one_, one_ ) += *this ) *= half );
+        Rational aux, inv, x ( SQRT_HERON_ITERATE<Rational>() ( *this, one_, one_ ) ?
+                               ( Rational ( one_, one_ ) += *this ) *= half : *this );
 
-        while ( SQRT_HERON_ITERATE<Rational>() ( m_numer, ( inv = x.inverse() ).denominator() ) &&
-                SQRT_HERON_ITERATE<Rational>() ( x, ( aux = Rational ( *this ) *= inv ) ) ) {
+        while ( SQRT_HERON_ITERATE<Rational>() ( *this, m_numer,
+                ( inv = x.inverse() ).denominator() ) && SQRT_HERON_ITERATE<Rational>() ( x,
+                        ( aux = Rational ( *this ) *= inv ) ) ) {
 
             x += aux;
             x *= half;
         }
 
-        typename tmp::_ifThenElse<tmp::_isClassT<typename mod_type::first_type>::Yes,
-                 const typename mod_type::first_type &,
-                 const typename mod_type::first_type>::ResultT m ( x.mod().first );
-
-        if ( m != typename mod_type::first_type() ) {
-
-            const Rational &y ( m );
-
-            return ( y * y ) == *this ? y : x;
-        }
-
-        return x;
+        return _psq<integer_type, GCD, CHKOP>() ( x, *this );
     }
 
     /**
@@ -2739,6 +2733,30 @@ struct _swapSign<T, GCD, CHKOP, false> {
     RATIONAL_CONSTEXPR inline Rational<T, GCD, CHKOP> &
     operator() ( Rational<T, GCD, CHKOP> &r ) const RATIONAL_NOEXCEPT {
         return r;
+    }
+};
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+struct _psq {
+
+    inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &x,
+            const Rational<T, GCD, CHKOP> &y ) const {
+
+        typename tmp::_ifThenElse<tmp::_isClassT<typename Rational<T, GCD,
+                 CHKOP>::mod_type::first_type>::Yes,
+                 const typename Rational<T, GCD, CHKOP>::mod_type::first_type &,
+                 const typename Rational<T, GCD, CHKOP>::mod_type::first_type>::ResultT
+                 m ( x.mod().first );
+
+        if ( m != typename Rational<T, GCD, CHKOP>::mod_type::first_type() ) {
+
+            const Rational<T, GCD, CHKOP> psq ( m );
+
+            return ( psq * psq ) == y ? psq : x;
+        }
+
+        return x;
     }
 };
 

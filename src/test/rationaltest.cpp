@@ -773,6 +773,12 @@ void RationalTest::testModulo() {
     CPPUNIT_ASSERT_EQUAL ( 2u, m.mod().first );
     CPPUNIT_ASSERT_EQUAL ( 1u, m.mod().second.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 4u, m.mod().second.denominator() );
+
+    const Rational<rational_type> n ( 2, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2, n.mod().first );
+    CPPUNIT_ASSERT_EQUAL ( 0, n.mod().second.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, n.mod().second.denominator() );
 }
 
 void RationalTest::testIncDec() {

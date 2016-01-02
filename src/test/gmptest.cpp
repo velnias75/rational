@@ -333,6 +333,12 @@ void GMPTest::testModulo() {
     CPPUNIT_ASSERT_EQUAL ( 0l, l.mod().first.get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, l.mod().second.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 8l, l.mod().second.denominator().get_si() );
+
+    const gmp_rational n ( 2, 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( 2l, n.mod().first.get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 0l, n.mod().second.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, n.mod().second.denominator().get_si() );
 }
 
 void GMPTest::testIncDec() {
@@ -721,6 +727,11 @@ void GMPTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( 3l, w.sqrt().numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, w.sqrt().denominator().get_si() );
+
+    const gmp_rational x ( mpz_class ( "785791622400625" ), 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( 28031975l, x.sqrt().numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 1l, x.sqrt().denominator().get_si() );
 }
 
 void GMPTest::testGoldenRatio() {

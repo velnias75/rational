@@ -747,6 +747,11 @@ void CLNTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( cln_rational::integer_type ( 3l ), w.sqrt().numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln_rational::integer_type ( 1l ), w.sqrt().denominator() );
+
+    const cln_rational x ( cln::cl_I ( "785791622400625" ), 1 );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 28031975l ), x.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1l ), x.sqrt().denominator() );
 }
 
 void CLNTest::testGoldenRatio() {
