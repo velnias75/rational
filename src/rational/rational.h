@@ -785,9 +785,14 @@ public:
                std::numeric_limits<integer_type>::is_signed>() ( *this, exp );
     }
 
+    /**
+     * @brief gets the square root as a new %Rational
+     *
+     * @return a square root copy of %Rational
+     */
     inline Rational sqrt() const {
 
-        if ( m_numer == m_denom ) return Rational ( one_, one_ );
+        if ( m_numer == m_denom ) return *this;
 
         const Rational half ( one_, one_ + one_ );
         Rational aux, inv, x ( ( Rational ( one_, one_ ) += *this ) *= half );
@@ -1909,16 +1914,16 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator*= ( const Rational& other ) {
 
     typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
-             const integer_type>::ResultT d1 ( GCD<integer_type,
-                     std::numeric_limits<integer_type>::is_signed, CHKOP, TYPE_CONVERT>()
-                     ( m_numer, other.m_denom ) );
-
-    typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
              const integer_type>::ResultT d2 ( GCD<integer_type,
                      std::numeric_limits<integer_type>::is_signed, CHKOP, TYPE_CONVERT>()
                      ( m_denom, other.m_numer ) );
 
-    if ( ! ( d1 == one_ && d2 == one_ ) ) {
+    typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
+             const integer_type>::ResultT d1 ( d2 == one_ ? GCD<integer_type,
+                     std::numeric_limits<integer_type>::is_signed, CHKOP, TYPE_CONVERT>()
+                     ( m_numer, other.m_denom ) : one_ );
+
+    if ( ! ( d2 == one_ && d1 == one_ ) ) {
 
         m_numer = op_multiplies() ( ( op_divides() ( m_numer, d1 ) ),
                                     ( op_divides() ( other.m_numer, d2 ) ) );
