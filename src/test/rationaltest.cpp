@@ -1411,6 +1411,21 @@ void RationalTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 3u ), w.sqrt().numerator() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 1u ), w.sqrt().denominator() );
+
+    const Rational<uint32_t> x ( 1, 16 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 1u ), x.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 4u ), x.sqrt().denominator() );
+
+    const Rational<uint32_t> y ( 16, 144 );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 1u ), y.sqrt().numerator() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<uint32_t> ( 3u ), y.sqrt().denominator() );
+
+#ifdef __EXCEPTIONS
+    const Rational<uint32_t> z ( 0, 144 );
+    CPPUNIT_ASSERT_THROW ( z.sqrt(), std::domain_error );
+#endif
 }
 
 void RationalTest::testRatRat() {

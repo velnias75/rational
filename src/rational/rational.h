@@ -666,6 +666,14 @@ public:
         return m_denom;
     }
 
+    inline bool isInteger () const {
+        return isInteger ( mod() );
+    }
+
+    inline static bool isInteger ( const mod_type &m ) {
+        return m.first != zero_ && m.second.numerator() == zero_;
+    }
+
     /**
      * @brief Structure holding a description of a repeating fraction
      *
@@ -797,19 +805,11 @@ public:
 
         if ( m_numer == m_denom ) return *this;
 
-        const Rational half ( one_, one_ + one_ );
-        Rational aux, inv, x ( SQRT_HERON_ITERATE<Rational>() ( *this, one_, one_ ) ?
-                               ( Rational ( one_, one_ ) += *this ) *= half : *this );
+        const Rational &a ( Rational ( m_numer, one_ )._sqrt() );
+        const Rational &b ( Rational ( m_denom, one_ )._sqrt() );
 
-        while ( SQRT_HERON_ITERATE<Rational>() ( *this, m_numer,
-                ( inv = x.inverse() ).denominator() ) && SQRT_HERON_ITERATE<Rational>() ( x,
-                        ( aux = Rational ( *this ) *= inv ) ) ) {
-
-            x += aux;
-            x *= half;
-        }
-
-        return _psq<integer_type, GCD, CHKOP>() ( x, *this );
+        return ( a.isInteger() && b.isInteger() ) ? Rational ( a.numerator(), b.numerator() ) :
+               _sqrt();
     }
 
     /**
@@ -1240,6 +1240,8 @@ public:
 private:
     Rational &reduce();
 
+    Rational _sqrt() const;
+
     static std::size_t md ( integer_type &out, const typename std::vector<integer_type> &dv,
                             const integer_type &base );
 
@@ -1482,6 +1484,32 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::reduce() {
 
     return _swapSign<integer_type, GCD, CHKOP,
            std::numeric_limits<integer_type>::is_signed>() ( *this );
+}
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>:: _sqrt() const {
+
+#ifdef __EXCEPTIONS
+    if ( m_numer == zero_ ) throw std::domain_error ( "sqrt is undefined for zero" );
+#endif
+
+
+    if ( m_numer == m_denom ) return *this;
+
+    const Rational half ( one_, one_ + one_ );
+    Rational aux, inv, x ( SQRT_HERON_ITERATE<Rational>() ( *this, one_, one_ ) ?
+                           ( Rational ( one_, one_ ) += *this ) *= half : *this );
+
+    while ( SQRT_HERON_ITERATE<Rational>() ( *this, m_numer,
+            ( inv = x.inverse() ).denominator() ) && SQRT_HERON_ITERATE<Rational>() ( x,
+                    ( aux = Rational ( *this ) *= inv ) ) ) {
+
+        x += aux;
+        x *= half;
+    }
+
+    return _psq<integer_type, GCD, CHKOP>() ( x, *this );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -2451,36 +2479,39 @@ struct _mod<T, GCD, CHKOP, false> {
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _pow<T, GCD, CHKOP, false> {
-
-    inline Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r,
-            const T &exp ) const {
-#ifdef __EXCEPTIONS
-        if ( exp > Rational<T, GCD, CHKOP>::zero_ ) {
-#endif
-
-            Rational<T, GCD, CHKOP> b ( r );
-            Rational<T, GCD, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
-                                             Rational<T, GCD, CHKOP>::one_ );
-            T e ( exp );
-
-            do {
-
-                if ( ( e & 1 ) != Rational<T, GCD, CHKOP>::zero_ ) result *= b;
-
-                e >>= 1;
-                b *= b;
-
-            } while ( e != Rational<T, GCD, CHKOP>::zero_ );
-
-            return result;
-
-#ifdef __EXCEPTIONS
-        } else {
-            throw std::domain_error ( "power is undefined for zero" );
-        }
-#endif
-    }
+    Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r, const T &exp ) const;
 };
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP> _pow<T, GCD, CHKOP, false>::operator() ( const Rational<T, GCD, CHKOP> &r,
+        const T &exp ) const {
+#ifdef __EXCEPTIONS
+    if ( exp > Rational<T, GCD, CHKOP>::zero_ ) {
+#endif
+
+        Rational<T, GCD, CHKOP> b ( r );
+        Rational<T, GCD, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
+                                         Rational<T, GCD, CHKOP>::one_ );
+        T e ( exp );
+
+        do {
+
+            if ( ( e & 1 ) != Rational<T, GCD, CHKOP>::zero_ ) result *= b;
+
+            e >>= 1;
+            b *= b;
+
+        } while ( e != Rational<T, GCD, CHKOP>::zero_ );
+
+        return result;
+
+#ifdef __EXCEPTIONS
+    } else {
+        throw std::domain_error ( "power is undefined for zero" );
+    }
+#endif
+}
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>

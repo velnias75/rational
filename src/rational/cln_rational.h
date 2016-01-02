@@ -364,8 +364,7 @@ template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_
     const cln_rational::mod_type &m ( p.mod() );
     typename cln_rational::integer_type psq;
 
-    return ! ( m.first != cln_rational::zero_ && m.second.numerator() == cln_rational::zero_ &&
-               cln::sqrtp ( m.first, &psq ) );
+    return ! ( cln_rational::isInteger ( m ) && cln::sqrtp ( m.first, &psq ) );
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"

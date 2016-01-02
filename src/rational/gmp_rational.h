@@ -426,8 +426,7 @@ template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const gmp_
 
     const gmp_rational::mod_type &m ( p.mod() );
 
-    return ! ( m.first != gmp_rational::zero_ && m.second.numerator() == gmp_rational::zero_ &&
-               mpz_perfect_square_p ( m.first.get_mpz_t() ) );
+    return ! ( gmp_rational::isInteger ( m ) && mpz_perfect_square_p ( m.first.get_mpz_t() ) );
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
