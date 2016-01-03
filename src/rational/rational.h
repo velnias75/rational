@@ -666,12 +666,25 @@ public:
         return m_denom;
     }
 
-    inline bool isInteger () const {
-        return isInteger ( mod() );
-    }
-
+    /**
+     * @brief checks if @c m describes an integer @f$\neq 0@f$
+     *
+     * @see Commons::Math::Rational::mod()
+     *
+     * @param[in] m a mod_type
+     *
+     * @return @c true if @c describes an integer @f$\neq 0@f$, @c false otherwise
+     */
     inline static bool isInteger ( const mod_type &m ) {
         return m.first != zero_ && m.second.numerator() == zero_;
+    }
+
+    /**
+     * @copybrief
+     * @overload
+     */
+    inline bool isInteger () const {
+        return isInteger ( mod() );
     }
 
     /**
@@ -1506,8 +1519,8 @@ Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>:: _sqrt() const {
                            ( Rational ( one_, one_ ) += *this ) *= half : *this );
 
     while ( SQRT_HERON_ITERATE<Rational>() ( *this, m_numer,
-            ( inv = x.inverse() ).denominator() ) && SQRT_HERON_ITERATE<Rational>() ( x,
-                    ( aux = Rational ( *this ) *= inv ) ) ) {
+            ( inv = x.inverse() ).denominator() ) && SQRT_HERON_ITERATE<Rational>()
+            ( x, ( aux = Rational ( *this ) *= inv ) ) ) {
 
         x += aux;
         x *= half;

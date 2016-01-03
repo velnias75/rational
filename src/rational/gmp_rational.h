@@ -56,7 +56,7 @@
  * @ingroup gmp
  * @def GMP_EPSILON
  *
- * The @c EPSILON used for approximating a float
+ * @brief The @c EPSILON used for approximating a float
  *
  * @see Commons::Math::EPSILON
  *
@@ -416,9 +416,16 @@ struct _psq<mpz_class, GCD, CHKOP> {
  */
 typedef Rational<mpz_class, GCD_gmp, NO_OPERATOR_CHECK> gmp_rational;
 
-#ifndef GMP_HERON_ITER
-#define GMP_HERON_ITER(x, y) ( (x).denominator() < \
-    gmp_rational::integer_type("0xFFFFFFFFFFFFFFFFFFFF") )
+#ifndef GMP_HERON_DIGITS
+/**
+ * @ingroup gmp
+ * @def GMP_HERON_DIGITS
+ *
+ * @brief Upper bound in digits of the denominator of square root approximations
+ *
+ * @see Commons::Math::Rational::sqrt()
+ */
+#define GMP_HERON_DIGITS 28u
 #endif
 
 template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const gmp_rational &p,
@@ -429,13 +436,10 @@ template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const gmp_
     return ! ( gmp_rational::isInteger ( m ) && mpz_perfect_square_p ( m.first.get_mpz_t() ) );
 }
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic push
 template<> inline bool SQRT_HERON_ITERATE<gmp_rational>::operator() ( const gmp_rational &x,
-        const gmp_rational &y ) const {
-    return ( GMP_HERON_ITER ( x, y ) );
+        const gmp_rational & ) const {
+    return mpz_sizeinbase ( x.denominator().get_mpz_t(), 10 ) < GMP_HERON_DIGITS;
 }
-#pragma GCC diagnostic pop
 
 template<> struct CFRationalTraits<mpz_class> {
     typedef gmp_rational rational_type;

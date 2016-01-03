@@ -52,7 +52,7 @@
  * @ingroup cln
  * @def CLN_PRECISION
  *
- * The default precision suffix
+ * @brief The default precision suffix
  *
  * @see CLN_EPSILON
  * @see Commons::Math::EPSILON
@@ -67,7 +67,7 @@
  * @ingroup cln
  * @def CLN_EPSILON
  *
- * The @c EPSILON used for approximating a float
+ * @brief The @c EPSILON used for approximating a float
  *
  * @see CLN_PRECISION
  * @see Commons::Math::EPSILON
@@ -353,9 +353,16 @@ struct _psq<cln::cl_I, GCD, CHKOP> {
 
 typedef Rational<cln::cl_I, Commons::Math::GCD_cln, Commons::Math::NO_OPERATOR_CHECK> cln_rational;
 
-#ifndef CLN_HERON_ITER
-#define CLN_HERON_ITER(x, y) ( (x).denominator() < \
-    cln_rational::integer_type("#xFFFFFFFFFFFFFFFFFFFF") )
+#ifndef CLN_HERON_DIGITS
+/**
+ * @ingroup cln
+ * @def CLN_HERON_DIGITS
+ *
+ * @brief Upper bound in digits of the denominator of square root approximations
+ *
+ * @see Commons::Math::Rational::sqrt()
+ */
+#define CLN_HERON_DIGITS 28u
 #endif
 
 template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_rational &p,
@@ -367,13 +374,10 @@ template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_
     return ! ( cln_rational::isInteger ( m ) && cln::sqrtp ( m.first, &psq ) );
 }
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic push
 template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_rational &x,
         const cln_rational &y ) const {
-    return ( CLN_HERON_ITER ( x, y ) );
+    return cln::integer_length ( x.denominator() ) < ( CLN_HERON_DIGITS * 3u );
 }
-#pragma GCC diagnostic pop
 
 template<> struct CFRationalTraits<cln::cl_I> {
     typedef cln_rational rational_type;
