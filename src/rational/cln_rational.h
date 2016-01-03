@@ -375,7 +375,7 @@ template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_
 }
 
 template<> inline bool SQRT_HERON_ITERATE<cln_rational>::operator() ( const cln_rational &x,
-        const cln_rational &y ) const {
+        const cln_rational & ) const {
     return cln::integer_length ( x.denominator() ) < ( CLN_HERON_DIGITS * 3u );
 }
 
