@@ -818,11 +818,11 @@ public:
 
         if ( m_numer == m_denom ) return *this;
 
-        const Rational &a ( Rational ( m_numer, one_ )._sqrt() );
-        const Rational &b ( Rational ( m_denom, one_ )._sqrt() );
+        Rational p, q;
 
-        return ( a.isInteger() && b.isInteger() ) ? Rational ( a.numerator(), b.numerator() ) :
-               _sqrt();
+        return ( ( p = Rational ( m_numer, one_ )._sqrt() ).isInteger() &&
+                 ( q = Rational ( m_denom, one_ )._sqrt() ).isInteger() ) ?
+               Rational ( p.numerator(), q.numerator() ) : _sqrt();
     }
 
     /**
