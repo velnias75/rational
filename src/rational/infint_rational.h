@@ -79,6 +79,8 @@ namespace Math {
 
 template<> struct TYPE_CONVERT<InfInt> {
 
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<InfInt> );
+
     explicit TYPE_CONVERT ( const InfInt &v ) : val ( v ) {}
 
     template<typename U> U convert() const;

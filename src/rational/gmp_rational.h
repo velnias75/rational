@@ -77,8 +77,7 @@ template<> inline void swap<mpz_class> ( mpz_class &x, mpz_class &y ) {
 
 #if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE < 50103) || \
     (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE < 50103)
-template<>
-struct numeric_limits<mpz_class> {
+template<> struct numeric_limits<mpz_class> {
 
     static const bool is_specialized = true;
 
@@ -192,6 +191,8 @@ template<> inline mpfr::mpreal TYPE_CONVERT<const char *>::convert<mpfr::mpreal>
 
 template<> struct TYPE_CONVERT<mpz_class> {
 
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<mpz_class> );
+
     explicit TYPE_CONVERT ( const mpz_class &v ) : val ( v ) {}
 
     template<typename U> U convert() const;
@@ -230,6 +231,8 @@ template<> inline mpfr::mpreal TYPE_CONVERT<mpz_class>::convert<mpfr::mpreal>() 
 }
 
 template<> struct TYPE_CONVERT<mpfr::mpreal> {
+
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<mpfr::mpreal> );
 
     explicit TYPE_CONVERT ( const mpfr::mpreal &v ) : val ( v ) {}
 
@@ -448,6 +451,7 @@ template<> struct CFRationalTraits<mpz_class> {
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> struct _remquo<mpz_class, GCD, CHKOP> {
+
     mpz_class operator() ( const mpz_class &x, const mpz_class &y, mpz_class &quo ) const {
         mpz_class r;
         mpz_fdiv_qr ( quo.get_mpz_t(), r.get_mpz_t(), x.get_mpz_t(), y.get_mpz_t() );

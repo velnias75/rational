@@ -77,9 +77,16 @@
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 #define RATIONAL_NOEXCEPT  noexcept
 #define RATIONAL_CONSTEXPR constexpr
+#define RATIONAL_NOCOPYASSIGN(C) \
+    C(const C &) = delete; \
+    C(const C &&) = delete; \
+    C &operator=(const C &) = delete; \
+    C &operator=(const C &&) = delete
+
 #else
-#define RATIONAL_NOEXCEPT  throw()
+#define RATIONAL_NOEXCEPT throw()
 #define RATIONAL_CONSTEXPR
+#define RATIONAL_NOCOPYASSIGN(C)
 #endif
 
 namespace Commons {
@@ -149,6 +156,8 @@ template<typename, template<typename, bool, template<class, typename, bool> clas
  */
 template<typename T> struct TYPE_CONVERT {
 
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT );
+
     /**
      * @brief Constructs a type converter
      *
@@ -170,6 +179,8 @@ private:
 };
 
 template<> struct TYPE_CONVERT<std::string> {
+
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<std::string> );
 
     /**
      * @brief Constructs a type converter
@@ -194,6 +205,8 @@ private:
 };
 
 template<> struct TYPE_CONVERT<const char *> {
+
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<const char *> );
 
     /**
      * @brief Constructs a type converter
@@ -221,6 +234,8 @@ private:
 
 template<> struct TYPE_CONVERT<float> {
 
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<float> );
+
     explicit TYPE_CONVERT ( const float v ) : val ( v ) {}
 
     template<class U> U convert() const {
@@ -233,6 +248,8 @@ private:
 
 template<> struct TYPE_CONVERT<double> {
 
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<double> );
+
     explicit TYPE_CONVERT ( const double v ) : val ( v ) {}
 
     template<class U> U convert() const {
@@ -244,6 +261,8 @@ private:
 };
 
 template<> struct TYPE_CONVERT<long double> {
+
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<long double> );
 
     explicit TYPE_CONVERT ( const long double v ) : val ( v ) {}
 
@@ -266,6 +285,8 @@ private:
  * @tparam T storage type of Rational
  */
 template<typename T> struct EPSILON {
+
+    RATIONAL_NOCOPYASSIGN ( EPSILON );
 
     /**
      * @brief the value of @c %EPSILON
@@ -346,7 +367,6 @@ struct NO_OPERATOR_CHECK<std::negate<T>, T, IsSigned> {
  */
 template<class Op, typename T, bool IsSigned>
 struct ENABLE_OVERFLOW_CHECK {
-
     RATIONAL_CONSTEXPR T operator() ( const T &x, const T& y ) const {
         return NO_OPERATOR_CHECK<Op, T, IsSigned>() ( x, y );
     }
@@ -694,6 +714,8 @@ public:
      * @see Commons::Math::Rational::rf()
      */
     typedef struct _rf_info {
+
+        RATIONAL_NOCOPYASSIGN ( _rf_info );
 
         _rf_info ( const integer_type &r, std::size_t lz = 0u,
                    const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
@@ -2340,6 +2362,8 @@ bool operator>= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
 
 template<typename NumberType, template<typename> class EPSILON>
 struct _approxUtils {
+
+    RATIONAL_NOCOPYASSIGN ( _approxUtils );
 
     static bool approximated ( const NumberType &af, const NumberType &nt ) {
         return abs ( af - nt ) < eps_;

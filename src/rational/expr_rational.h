@@ -370,8 +370,7 @@ RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP> eval_rat_expr ( const Rational<T, GCD
            ( r ).operator() ( val );
 }
 
-template<class T>
-struct _unaryPlus {
+template<class T> struct _unaryPlus {
 
     typedef T result_type;
 
@@ -380,8 +379,7 @@ struct _unaryPlus {
     }
 };
 
-template<class T>
-struct _unaryAbs {
+template<class T> struct _unaryAbs {
 
     typedef T result_type;
 
@@ -390,8 +388,7 @@ struct _unaryAbs {
     }
 };
 
-template<class T>
-struct _unaryInv {
+template<class T> struct _unaryInv {
 
     typedef T result_type;
 

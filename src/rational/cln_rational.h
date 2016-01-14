@@ -152,6 +152,8 @@ template<> inline cln::cl_F TYPE_CONVERT<const char *>::convert<cln::cl_F>() con
 
 template<> struct TYPE_CONVERT<cln::cl_F> {
 
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<cln::cl_F> );
+
     explicit TYPE_CONVERT ( const cln::cl_F &v ) : val ( v ) {}
 
     explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( cln::double_approx ( v ) ) {}
@@ -169,6 +171,8 @@ template<> inline cln::cl_F TYPE_CONVERT<cln::cl_F>::convert<cln::cl_F>() const 
 }
 
 template<> struct TYPE_CONVERT<cln::cl_I> {
+
+    RATIONAL_NOCOPYASSIGN ( TYPE_CONVERT<cln::cl_I> );
 
     explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( v ) {}
 
@@ -210,6 +214,9 @@ template<> inline cln::cl_I TYPE_CONVERT<double>::convert<cln::cl_I>() const {
 }
 
 template<> struct EPSILON<cln::cl_F> {
+
+    RATIONAL_NOCOPYASSIGN ( EPSILON<cln::cl_F> );
+
     static const cln::cl_F value() {
         return CLN_EPSILON;
     }
@@ -386,6 +393,7 @@ template<> struct CFRationalTraits<cln::cl_I> {
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> struct _remquo<cln::cl_I, GCD, CHKOP> {
+
     cln::cl_I operator() ( const cln::cl_I &x, const cln::cl_I &y, cln::cl_I &quo ) const {
 
         const cln::cl_I_div_t &d ( cln::floor2 ( x, y ) );
