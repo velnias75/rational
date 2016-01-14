@@ -1745,6 +1745,13 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
+#define MDCLOSURE(k) out = op_plus() ( op_multiplies() ( out, base ), (k) );                       \
+	if ( !pre_zeros && (k) == zero_ ) {                                                            \
+		++zeros;                                                                                   \
+	} else {                                                                                       \
+		pre_zeros = true;                                                                          \
+	}
+
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP>
@@ -1761,16 +1768,12 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
 
         bool pre_zeros = false;
 
-        for ( ; j != dv.end(); ++j ) {
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+		std::for_each(j, dv.end(), [&](const integer_type &k) { MDCLOSURE(k) });
+#else
+        for ( ; j != dv.end(); ++j ) { MDCLOSURE(*j) }
+#endif
 
-            out = op_plus() ( op_multiplies() ( out, base ), *j );
-
-            if ( !pre_zeros && *j == zero_ ) {
-                ++zeros;
-            } else {
-                pre_zeros = true;
-            }
-        }
     }
 
     return zeros;
