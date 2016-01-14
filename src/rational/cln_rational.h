@@ -104,7 +104,7 @@ template<> struct numeric_limits<cln::cl_I> {
 template<> struct divides<cln::cl_I> :
     public binary_function<cln::cl_I, cln::cl_I, cln::cl_I> {
     result_type operator() ( const first_argument_type &x,
-                                    const second_argument_type &y ) const {
+                             const second_argument_type &y ) const {
         return cln::truncate1 ( x, y );
     }
 };
@@ -112,7 +112,7 @@ template<> struct divides<cln::cl_I> :
 template<> struct modulus<cln::cl_I> :
     public binary_function<cln::cl_I, cln::cl_I, cln::cl_I> {
     result_type operator() ( const first_argument_type &x,
-                                    const second_argument_type &y ) const {
+                             const second_argument_type &y ) const {
         return cln::truncate2 ( x, y ).remainder;
     }
 };
@@ -425,4 +425,4 @@ inline cl_I pow10 ( const cl_I &i ) {
 
 #endif /* COMMONS_MATH_CLN_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

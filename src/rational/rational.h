@@ -278,7 +278,7 @@ template<typename T> struct EPSILON {
 template<typename R> struct SQRT_HERON_ITERATE {
 
     bool operator() ( const R &, const typename R::integer_type &x,
-                             const typename R::integer_type &y ) const {
+                      const typename R::integer_type &y ) const {
         return ! ( x > std::numeric_limits<typename R::integer_type>::max() / y );
     }
 
@@ -696,7 +696,7 @@ public:
     typedef struct _rf_info {
 
         _rf_info ( const integer_type &r, std::size_t lz = 0u,
-                          const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
+                   const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
             reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ),
             pre_digits(), reptend_digits() {}
 
@@ -2437,7 +2437,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
 struct _approxFract<T, GCD, CHKOP, NumberType, false, EPSILON, CONV> {
     void operator() ( const Rational<T, GCD, CHKOP> &,
-                             const NumberType & ) const RATIONAL_NOEXCEPT {}
+                      const NumberType & ) const RATIONAL_NOEXCEPT {}
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -2538,7 +2538,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 struct _pow<T, GCD, CHKOP, true> {
 
     Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r,
-            const T &exp ) const {
+                                         const T &exp ) const {
 
 #ifdef __EXCEPTIONS
         if ( exp >= Rational<T, GCD, CHKOP>::zero_ ) {
@@ -2792,7 +2792,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
 struct _psq {
 
     Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &x,
-            const Rational<T, GCD, CHKOP> &y ) const {
+                                         const Rational<T, GCD, CHKOP> &y ) const {
 
         typename tmp::_ifThenElse<tmp::_isClassT<typename Rational<T, GCD,
                  CHKOP>::mod_type::first_type>::Yes,
@@ -3141,4 +3141,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
