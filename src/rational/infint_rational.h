@@ -79,7 +79,7 @@ namespace Math {
 
 template<> struct TYPE_CONVERT<InfInt> {
 
-    inline explicit TYPE_CONVERT ( const InfInt &v ) : val ( v ) {}
+    explicit TYPE_CONVERT ( const InfInt &v ) : val ( v ) {}
 
     template<typename U> U convert() const;
 
@@ -164,4 +164,4 @@ template<> struct CFRationalTraits<InfInt> {
 
 #endif /* COMMONS_MATH_INFINT_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

@@ -159,7 +159,7 @@ template<> struct ExpressionEvalTraits<mpz_class> {
 };
 
 template<> struct _type_round_helper<mpz_class> {
-    inline mpz_class operator() ( const mpz_class &tr ) const {
+    mpz_class operator() ( const mpz_class &tr ) const {
         return tr;
     }
 };
@@ -168,7 +168,7 @@ template<> inline mpz_class TYPE_CONVERT<long double>::convert<mpz_class>() cons
     std::ostringstream os;
     os.precision ( std::numeric_limits<double>::digits );
     os << static_cast<double> ( val );
-    // Note: gmp can handle only doubles, so we need to lessen it to double
+    // Note: gmp can handle only doubles, so we need to narrow it to double
     return mpz_class ( os.str() );
 }
 
@@ -192,7 +192,7 @@ template<> inline mpfr::mpreal TYPE_CONVERT<const char *>::convert<mpfr::mpreal>
 
 template<> struct TYPE_CONVERT<mpz_class> {
 
-    inline explicit TYPE_CONVERT ( const mpz_class &v ) : val ( v ) {}
+    explicit TYPE_CONVERT ( const mpz_class &v ) : val ( v ) {}
 
     template<typename U> U convert() const;
 
@@ -231,7 +231,7 @@ template<> inline mpfr::mpreal TYPE_CONVERT<mpz_class>::convert<mpfr::mpreal>() 
 
 template<> struct TYPE_CONVERT<mpfr::mpreal> {
 
-    inline explicit TYPE_CONVERT ( const mpfr::mpreal &v ) : val ( v ) {}
+    explicit TYPE_CONVERT ( const mpfr::mpreal &v ) : val ( v ) {}
 
     template<typename U> U convert() const {
 
@@ -264,7 +264,7 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
 template<template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_gmp<mpz_class, false, CHKOP, CONV> {
 
-    inline mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
+    mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
         return GCD_gmp<mpz_class, true, CHKOP, CONV>() ( a, b );
     }
 
@@ -273,7 +273,7 @@ struct GCD_gmp<mpz_class, false, CHKOP, CONV> {
 template<template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_gmp<mpz_class, true, CHKOP, CONV> {
 
-    inline mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
+    mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
 
         mpz_class rop;
 
@@ -288,7 +288,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _abs<mpz_class, GCD, CHKOP, true> {
 
-    inline Rational<mpz_class, GCD, CHKOP> operator()
+    Rational<mpz_class, GCD, CHKOP> operator()
     ( const Rational<mpz_class, GCD, CHKOP> &r ) const {
 
         mpz_class rop;
@@ -303,7 +303,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _abs<mpz_class, GCD, CHKOP, false> {
 
-    inline Rational<mpz_class, GCD, CHKOP> operator()
+    Rational<mpz_class, GCD, CHKOP> operator()
     ( const Rational<mpz_class, GCD, CHKOP> &r ) const {
         return _abs<mpz_class, GCD, CHKOP, true>() ( r );
     }
@@ -322,7 +322,7 @@ template<> inline const mpfr::mpreal EPSILON<mpfr::mpreal>::value() {
 
 template<template<typename> class EPSILON> struct _approxUtils<mpfr::mpreal, EPSILON> {
 
-    inline static bool approximated ( const mpfr::mpreal &af, const mpfr::mpreal &nt ) {
+    static bool approximated ( const mpfr::mpreal &af, const mpfr::mpreal &nt ) {
         return !mpfr_cmp ( af.mpfr_ptr(), nt.mpfr_ptr() );
     }
 
@@ -330,7 +330,7 @@ template<template<typename> class EPSILON> struct _approxUtils<mpfr::mpreal, EPS
 
 private:
 
-    inline static mpfr::mpreal abs ( const mpfr::mpreal &nt ) {
+    static mpfr::mpreal abs ( const mpfr::mpreal &nt ) {
         return mpfr::abs ( nt );
     }
 };
@@ -341,7 +341,7 @@ const mpfr::mpreal _approxUtils<mpfr::mpreal, EPSILON>::eps_ ( EPSILON<mpfr::mpr
 
 template<template<typename> class EPSILON> struct _approxUtils<mpf_class, EPSILON> {
 
-    inline static bool approximated ( const mpf_class &af, const mpf_class &nt ) {
+    static bool approximated ( const mpf_class &af, const mpf_class &nt ) {
         return mpf_eq ( af.get_mpf_t(), nt.get_mpf_t(), std::min ( af.get_prec(), nt.get_prec() ) );
     }
 
@@ -349,7 +349,7 @@ template<template<typename> class EPSILON> struct _approxUtils<mpf_class, EPSILO
 
 private:
 
-    inline static mpf_class abs ( const mpf_class &nt ) {
+    static mpf_class abs ( const mpf_class &nt ) {
         return ::abs ( nt );
     }
 };
@@ -361,7 +361,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _swapSign<mpz_class, GCD, CHKOP, true> {
 
-    inline Rational<mpz_class, GCD, CHKOP> &
+    Rational<mpz_class, GCD, CHKOP> &
     operator() ( Rational<mpz_class, GCD, CHKOP> &r ) const {
 
         if ( mpz_sgn ( r.m_denom.get_mpz_t() ) == -1 ) {
@@ -378,7 +378,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _lcm<mpz_class, GCD, CHKOP, true> {
 
-    inline mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
+    mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
 
         mpz_class rop;
 
@@ -393,7 +393,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _psq<mpz_class, GCD, CHKOP> {
 
-    inline Rational<mpz_class, GCD, CHKOP> operator() ( const Rational<mpz_class, GCD, CHKOP> &x,
+    Rational<mpz_class, GCD, CHKOP> operator() ( const Rational<mpz_class, GCD, CHKOP> &x,
             const Rational<mpz_class, GCD, CHKOP> &y ) const {
 
         const typename Rational<mpz_class, GCD, CHKOP>::mod_type::first_type &m ( y.mod().first );
@@ -448,7 +448,7 @@ template<> struct CFRationalTraits<mpz_class> {
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> struct _remquo<mpz_class, GCD, CHKOP> {
-    inline mpz_class operator() ( const mpz_class &x, const mpz_class &y, mpz_class &quo ) const {
+    mpz_class operator() ( const mpz_class &x, const mpz_class &y, mpz_class &quo ) const {
         mpz_class r;
         mpz_fdiv_qr ( quo.get_mpz_t(), r.get_mpz_t(), x.get_mpz_t(), y.get_mpz_t() );
         return r;
@@ -516,4 +516,4 @@ inline mpz_class floor ( const mpz_class &z ) {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

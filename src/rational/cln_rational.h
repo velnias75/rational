@@ -103,7 +103,7 @@ template<> struct numeric_limits<cln::cl_I> {
 #pragma GCC diagnostic push
 template<> struct divides<cln::cl_I> :
     public binary_function<cln::cl_I, cln::cl_I, cln::cl_I> {
-    inline result_type operator() ( const first_argument_type &x,
+    result_type operator() ( const first_argument_type &x,
                                     const second_argument_type &y ) const {
         return cln::truncate1 ( x, y );
     }
@@ -111,7 +111,7 @@ template<> struct divides<cln::cl_I> :
 
 template<> struct modulus<cln::cl_I> :
     public binary_function<cln::cl_I, cln::cl_I, cln::cl_I> {
-    inline result_type operator() ( const first_argument_type &x,
+    result_type operator() ( const first_argument_type &x,
                                     const second_argument_type &y ) const {
         return cln::truncate2 ( x, y ).remainder;
     }
@@ -129,7 +129,7 @@ template<> struct ExpressionEvalTraits<cln::cl_I> {
 };
 
 template<> struct _type_round_helper<cln::cl_I> {
-    inline cln::cl_I operator() ( const cln::cl_I &tr ) const {
+    cln::cl_I operator() ( const cln::cl_I &tr ) const {
         return tr;
     }
 };
@@ -152,11 +152,11 @@ template<> inline cln::cl_F TYPE_CONVERT<const char *>::convert<cln::cl_F>() con
 
 template<> struct TYPE_CONVERT<cln::cl_F> {
 
-    inline explicit TYPE_CONVERT ( const cln::cl_F &v ) : val ( v ) {}
+    explicit TYPE_CONVERT ( const cln::cl_F &v ) : val ( v ) {}
 
-    inline explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( cln::double_approx ( v ) ) {}
+    explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( cln::double_approx ( v ) ) {}
 
-    template<class U> inline U convert() const {
+    template<class U> U convert() const {
         return cln::floor1 ( val );
     }
 
@@ -170,7 +170,7 @@ template<> inline cln::cl_F TYPE_CONVERT<cln::cl_F>::convert<cln::cl_F>() const 
 
 template<> struct TYPE_CONVERT<cln::cl_I> {
 
-    inline explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( v ) {}
+    explicit TYPE_CONVERT ( const cln::cl_I &v ) : val ( v ) {}
 
     template<class U> U convert() const;
 
@@ -210,7 +210,7 @@ template<> inline cln::cl_I TYPE_CONVERT<double>::convert<cln::cl_I>() const {
 }
 
 template<> struct EPSILON<cln::cl_F> {
-    inline static const cln::cl_F value() {
+    static const cln::cl_F value() {
         return CLN_EPSILON;
     }
 };
@@ -234,7 +234,7 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
 template<template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_cln<cln::cl_I, false, CHKOP, CONV> {
 
-    inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
+    cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
         return GCD_cln<cln::cl_I, true, CHKOP, CONV>() ( a, b );
     }
 
@@ -243,7 +243,7 @@ struct GCD_cln<cln::cl_I, false, CHKOP, CONV> {
 template<template<class, typename, bool> class CHKOP, template<typename> class CONV>
 struct GCD_cln<cln::cl_I, true, CHKOP, CONV> {
 
-    inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
+    cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
         return cln::gcd ( a, b );
     }
 
@@ -253,7 +253,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _lcm<cln::cl_I, GCD, CHKOP, true> {
 
-    inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
+    cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
         return cln::lcm ( a, b );
     }
 };
@@ -262,7 +262,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _lcm<cln::cl_I, GCD, CHKOP, false> {
 
-    inline cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
+    cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
         return _lcm<cln::cl_I, GCD, CHKOP, true>() ( a, b );
     }
 };
@@ -271,7 +271,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _abs<cln::cl_I, GCD, CHKOP, true> {
 
-    inline Rational<cln::cl_I, GCD, CHKOP> operator()
+    Rational<cln::cl_I, GCD, CHKOP> operator()
     ( const Rational<cln::cl_I, GCD, CHKOP> &r ) const {
         return Rational<cln::cl_I, GCD, CHKOP> ( cln::abs ( r.numerator() ), r.denominator() );
     }
@@ -281,7 +281,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _abs<cln::cl_I, GCD, CHKOP, false> {
 
-    inline Rational<cln::cl_I, GCD, CHKOP> operator()
+    Rational<cln::cl_I, GCD, CHKOP> operator()
     ( const Rational<cln::cl_I, GCD, CHKOP> &r ) const {
         return _abs<cln::cl_I, GCD, CHKOP, true>() ( r );
     }
@@ -289,7 +289,7 @@ struct _abs<cln::cl_I, GCD, CHKOP, false> {
 
 template<template<typename> class EPSILON> struct _approxUtils<cln::cl_F, EPSILON> {
 
-    inline static bool approximated ( const cln::cl_F &af, const cln::cl_F &nt ) {
+    static bool approximated ( const cln::cl_F &af, const cln::cl_F &nt ) {
         return abs ( af - nt ) < eps_;
     }
 
@@ -297,7 +297,7 @@ template<template<typename> class EPSILON> struct _approxUtils<cln::cl_F, EPSILO
 
 private:
 
-    inline static cln::cl_F abs ( const cln::cl_F &nt ) {
+    static cln::cl_F abs ( const cln::cl_F &nt ) {
         return cln::abs ( nt );
     }
 };
@@ -309,7 +309,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _swapSign<cln::cl_I, GCD, CHKOP, true> {
 
-    inline Rational<cln::cl_I, GCD, CHKOP> &
+    Rational<cln::cl_I, GCD, CHKOP> &
     operator() ( Rational<cln::cl_I, GCD, CHKOP> &r ) const {
 
         if ( cln::signum ( r.m_denom ) < zero_ ) {
@@ -332,7 +332,7 @@ template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 struct _psq<cln::cl_I, GCD, CHKOP> {
 
-    inline Rational<cln::cl_I, GCD, CHKOP> operator() ( const Rational<cln::cl_I, GCD, CHKOP> &x,
+    Rational<cln::cl_I, GCD, CHKOP> operator() ( const Rational<cln::cl_I, GCD, CHKOP> &x,
             const Rational<cln::cl_I, GCD, CHKOP> &y ) const {
 
         const typename Rational<cln::cl_I, GCD, CHKOP>::mod_type::first_type &m ( y.mod().first );
@@ -386,7 +386,7 @@ template<> struct CFRationalTraits<cln::cl_I> {
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> struct _remquo<cln::cl_I, GCD, CHKOP> {
-    inline cln::cl_I operator() ( const cln::cl_I &x, const cln::cl_I &y, cln::cl_I &quo ) const {
+    cln::cl_I operator() ( const cln::cl_I &x, const cln::cl_I &y, cln::cl_I &quo ) const {
 
         const cln::cl_I_div_t &d ( cln::floor2 ( x, y ) );
 
@@ -425,4 +425,4 @@ inline cl_I pow10 ( const cl_I &i ) {
 
 #endif /* COMMONS_MATH_CLN_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

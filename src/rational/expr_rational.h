@@ -298,7 +298,7 @@ struct RationalExpressionTraits<Rational<T, GCD, CHKOP> > {
  */
 template<class T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR inline RationalExpression<T, RationalConstant<T, GCD, CHKOP>, GCD, CHKOP>
+RATIONAL_CONSTEXPR RationalExpression<T, RationalConstant<T, GCD, CHKOP>, GCD, CHKOP>
 mk_rat_lit ( const Rational<T, GCD, CHKOP> &r ) {
     return RationalExpression<T, RationalConstant<T, GCD, CHKOP>, GCD, CHKOP>
            ( ( RationalConstant<T, GCD, CHKOP> ( r ) ) );
@@ -323,7 +323,7 @@ mk_rat_lit ( const Rational<T, GCD, CHKOP> &r ) {
  */
 template<class T, class E, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR inline RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
+RATIONAL_CONSTEXPR RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
 mk_rat_proto_var ( const RationalExpression<T, E, GCD, CHKOP> & ) {
     return RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
            ( ( RationalVariable<T, GCD, CHKOP>() ) );
@@ -335,7 +335,7 @@ mk_rat_proto_var ( const RationalExpression<T, E, GCD, CHKOP> & ) {
  */
 template<class T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR inline RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
+RATIONAL_CONSTEXPR RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
 mk_rat_proto_var ( const Rational<T, GCD, CHKOP> & ) {
     return RationalExpression<T, RationalVariable<T, GCD, CHKOP>, GCD, CHKOP>
            ( ( RationalVariable<T, GCD, CHKOP>() ) );
@@ -364,7 +364,7 @@ typename RationalExpressionTraits<ExprT>::expr_type::result_type eval_rat_expr (
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR inline Rational<T, GCD, CHKOP> eval_rat_expr ( const Rational<T, GCD, CHKOP> &r,
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP> eval_rat_expr ( const Rational<T, GCD, CHKOP> &r,
         const Rational<T, GCD, CHKOP> &val =Rational<T, GCD, CHKOP>() ) {
     return static_cast<typename RationalExpressionTraits<Rational<T, GCD, CHKOP> >::literal_type>
            ( r ).operator() ( val );
@@ -375,7 +375,7 @@ struct _unaryPlus {
 
     typedef T result_type;
 
-    RATIONAL_CONSTEXPR inline result_type operator() ( const T &d ) const RATIONAL_NOEXCEPT {
+    RATIONAL_CONSTEXPR result_type operator() ( const T &d ) const RATIONAL_NOEXCEPT {
         return d;
     }
 };
@@ -385,7 +385,7 @@ struct _unaryAbs {
 
     typedef T result_type;
 
-    RATIONAL_CONSTEXPR inline result_type operator() ( const T &d ) const {
+    RATIONAL_CONSTEXPR result_type operator() ( const T &d ) const {
         return d.abs();
     }
 };
@@ -395,7 +395,7 @@ struct _unaryInv {
 
     typedef T result_type;
 
-    RATIONAL_CONSTEXPR inline result_type operator() ( const T &d ) const {
+    RATIONAL_CONSTEXPR result_type operator() ( const T &d ) const {
         return d.inverse();
     }
 };
@@ -934,4 +934,4 @@ inv ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
 
 #endif /* COMMONS_MATH_EXPR_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
