@@ -1769,10 +1769,15 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
         bool pre_zeros = false;
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-		std::for_each(j, dv.end(), [&](typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
-				const integer_type &, const integer_type>::ResultT k) { MDCLOSURE(k) });
+        std::for_each ( j, dv.end(),
+                        [&] ( typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
+        const integer_type &, const integer_type>::ResultT k ) {
+            MDCLOSURE ( k )
+        } );
 #else
-        for ( ; j != dv.end(); ++j ) { MDCLOSURE(*j) }
+        for ( ; j != dv.end(); ++j ) {
+            MDCLOSURE ( *j )
+        }
 #endif
 
     }
@@ -3142,4 +3147,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
