@@ -836,16 +836,7 @@ public:
      *
      * @return a square root copy of %Rational
      */
-    Rational sqrt() const {
-
-        if ( m_numer == m_denom ) return *this;
-
-        Rational p, q;
-
-        return ( ( p = Rational ( m_numer, one_ )._sqrt() ).isInteger() &&
-                 ( q = Rational ( m_denom, one_ )._sqrt() ).isInteger() ) ?
-               Rational ( p.numerator(), q.numerator() ) : _sqrt();
-    }
+    Rational sqrt() const;
 
     /**
      * @brief inverts the %Rational
@@ -1757,6 +1748,20 @@ template<typename T, template<typename, bool,
          template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
 Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::inverse() const {
     return Rational ( *this ).invert();
+}
+
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::sqrt() const {
+
+    if ( m_numer == m_denom ) return *this;
+
+    Rational p, q;
+
+    return ( ( p = Rational ( m_numer, one_ )._sqrt() ).isInteger() &&
+             ( q = Rational ( m_denom, one_ )._sqrt() ).isInteger() ) ?
+           Rational ( p.numerator(), q.numerator() ) : _sqrt();
 }
 
 template<typename T, template<typename, bool,

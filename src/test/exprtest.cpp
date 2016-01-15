@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -79,6 +79,20 @@ void ExprTest::testExpression() {
     const RationalExpressionTraits<long_rational>::expr_type &g
 #endif
     ( mk_rat_lit ( long_rational ( 50.0 ) ) );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &h
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &h
+#endif
+    ( mk_rat_lit ( long_rational ( 85, -48 ) ) );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &i
+#else
+    const RationalExpressionTraits<long_rational>::expr_type &i
+#endif
+    ( mk_rat_lit ( long_rational ( 7, 3 ) ) );
 
     const long_rational &r_mod ( eval_rat_expr ( a % b ) );
 
@@ -227,6 +241,21 @@ void ExprTest::testExpression() {
 
     CPPUNIT_ASSERT_EQUAL ( -2920l, r11.numerator() );
     CPPUNIT_ASSERT_EQUAL ( 431l, r11.denominator() );
+
+    const long_rational &sqr1 ( eval_rat_expr ( sqrt ( h + i ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 3l, sqr1.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4l, sqr1.denominator() );
+
+    const long_rational &sqr2 ( eval_rat_expr ( sqrt ( i + h ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 3l, sqr2.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 4l, sqr2.denominator() );
+
+    const long_rational &sqr3 ( eval_rat_expr ( sqrt ( h + i ) * sqrt ( i + h ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 9l, sqr3.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 16l, sqr3.denominator() );
 }
 
 void ExprTest::testExpression_gmp() {
@@ -280,6 +309,20 @@ void ExprTest::testExpression_gmp() {
     const RationalExpressionTraits<gmp_rational>::expr_type &g
 #endif
     ( mk_rat_lit ( gmp_rational ( 50.0 ) ) );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &h
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &h
+#endif
+    ( mk_rat_lit ( gmp_rational ( 85, -48 ) ) );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &i
+#else
+    const RationalExpressionTraits<gmp_rational>::expr_type &i
+#endif
+    ( mk_rat_lit ( gmp_rational ( 7, 3 ) ) );
 
     const gmp_rational &r_mod ( eval_rat_expr ( a % b ) );
 
@@ -399,8 +442,22 @@ void ExprTest::testExpression_gmp() {
 
     CPPUNIT_ASSERT_EQUAL ( -2920l, r11.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 431l, r11.denominator().get_si() );
-
 #endif
+
+    const gmp_rational &sqr1 ( eval_rat_expr ( sqrt ( h + i ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 3l, sqr1.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 4l, sqr1.denominator().get_si() );
+
+    const gmp_rational &sqr2 ( eval_rat_expr ( sqrt ( i + h ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 3l, sqr2.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 4l, sqr2.denominator().get_si() );
+
+    const gmp_rational &sqr3 ( eval_rat_expr ( sqrt ( h + i ) * sqrt ( i + h ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 9l, sqr3.numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 16l, sqr3.denominator().get_si() );
 }
 
 void ExprTest::testIntegrate() {

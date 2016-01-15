@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -79,6 +79,20 @@ void ExprTestCLN::testExpression() {
     const RationalExpressionTraits<cln_rational>::expr_type &g
 #endif
     ( mk_rat_lit ( cln_rational ( 50.0 ) ) );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &h
+#else
+    const RationalExpressionTraits<cln_rational>::expr_type &h
+#endif
+    ( mk_rat_lit ( cln_rational ( 85, -48 ) ) );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    const auto &i
+#else
+    const RationalExpressionTraits<cln_rational>::expr_type &i
+#endif
+    ( mk_rat_lit ( cln_rational ( 7, 3 ) ) );
 
     const cln_rational &r_mod ( eval_rat_expr ( a % b ) );
 
@@ -199,6 +213,20 @@ void ExprTestCLN::testExpression() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( -2920l ), r11.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 431l ), r11.denominator() );
 
+    const cln_rational &sqr1 ( eval_rat_expr ( sqrt ( h + i ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), sqr1.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4 ), sqr1.denominator() );
+
+    const cln_rational &sqr2 ( eval_rat_expr ( sqrt ( i + h ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), sqr2.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 4 ), sqr2.denominator() );
+
+    const cln_rational &sqr3 ( eval_rat_expr ( sqrt ( h + i ) * sqrt ( i + h ) ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 9 ), sqr3.numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 16 ), sqr3.denominator() );
 }
 
 void ExprTestCLN::testIntegrate() {

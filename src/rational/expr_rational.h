@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -397,6 +397,15 @@ template<class T> struct _unaryInv {
     }
 };
 
+template<class T> struct _unarySqrt {
+
+    typedef T result_type;
+
+    RATIONAL_CONSTEXPR result_type operator() ( const T &d ) const {
+        return d.sqrt();
+    }
+};
+
 }
 
 }
@@ -556,7 +565,8 @@ template<typename> class> class GCD, template<class, typename, bool> class CHKOP
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
                    Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
                    Commons::Math::RationalConstant<B, GCD, CHKOP>,
-                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD,
+                   CHKOP>
                    operator* ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
 const Commons::Math::Rational<B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
@@ -572,7 +582,8 @@ template<typename> class> class GCD, template<class, typename, bool> class CHKOP
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
                    Commons::Math::RationalConstant<A, GCD, CHKOP>,
                    Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
-                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD,
+                   CHKOP>
                    operator* ( const Commons::Math::Rational<A, GCD, CHKOP> &a,
 const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
@@ -588,7 +599,8 @@ template<typename> class> class GCD, template<class, typename, bool> class CHKOP
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
                    Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
                    Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
-                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD,
+                   CHKOP>
                    operator* ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a,
 const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
@@ -603,7 +615,8 @@ template<typename> class> class GCD, template<class, typename, bool> class CHKOP
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
                    Commons::Math::Rational<T, GCD, CHKOP>,
                    Commons::Math::RationalExpression<T, B, GCD, CHKOP>,
-                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD,
+                   CHKOP>
 operator* ( const A &a, const Commons::Math::RationalExpression<T, B, GCD, CHKOP> &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
             Commons::Math::Rational<T, GCD, CHKOP>,
@@ -617,7 +630,8 @@ template<typename> class> class GCD, template<class, typename, bool> class CHKOP
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalBinaryExpression<T,
                    Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
                    Commons::Math::Rational<T, GCD, CHKOP>,
-                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+                   std::multiplies<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD,
+                   CHKOP>
 operator* ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a, const B &b ) {
     typedef Commons::Math::RationalBinaryExpression<T,
             Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
@@ -805,7 +819,8 @@ template<class T, class A, template<typename, bool, template<class, typename, bo
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
                    Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
-                   Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+                   Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>,
+                   GCD, CHKOP>
 operator+ ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
     typedef Commons::Math::RationalUnaryExpression<T,
             Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
@@ -817,8 +832,8 @@ template<class T, class A, template<typename, bool, template<class, typename, bo
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
                    Commons::Math::RationalConstant<A, GCD, CHKOP>,
-                   Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
-operator+ ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
+                   Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>,
+GCD, CHKOP> operator+ ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
     typedef Commons::Math::RationalUnaryExpression<T,
             Commons::Math::RationalConstant<A, GCD, CHKOP>,
             Commons::Math::_unaryPlus<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
@@ -836,7 +851,8 @@ template<class T, class A, template<typename, bool, template<class, typename, bo
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
                    Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
-                   Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+                   Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>,
+                   GCD, CHKOP>
 abs ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
     typedef Commons::Math::RationalUnaryExpression<T,
             Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
@@ -852,8 +868,8 @@ template<class T, class A, template<typename, bool, template<class, typename, bo
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
                    Commons::Math::RationalConstant<A, GCD, CHKOP>,
-                   Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
-abs ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
+                   Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>,
+GCD, CHKOP> abs ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
     typedef Commons::Math::RationalUnaryExpression<T,
             Commons::Math::RationalConstant<A, GCD, CHKOP>,
             Commons::Math::_unaryAbs<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
@@ -871,7 +887,8 @@ template<class T, class A, template<typename, bool, template<class, typename, bo
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
                    Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
-                   Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
+                   Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>,
+                   GCD, CHKOP>
 inv ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
     typedef Commons::Math::RationalUnaryExpression<T,
             Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
@@ -887,8 +904,8 @@ template<class T, class A, template<typename, bool, template<class, typename, bo
 template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
 RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
                    Commons::Math::RationalConstant<A, GCD, CHKOP>,
-                   Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>, GCD, CHKOP>
-inv ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
+                   Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>,
+GCD, CHKOP> inv ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
     typedef Commons::Math::RationalUnaryExpression<T,
             Commons::Math::RationalConstant<A, GCD, CHKOP>,
             Commons::Math::_unaryInv<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
@@ -896,6 +913,43 @@ inv ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
                 Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
 }
 
+/**
+ * @ingroup expr
+ * @brief gets the square root
+ *
+ * @see Commons::Math::Rational::sqrt()
+ */
+template<class T, class A, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
+                   Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+                   Commons::Math::_unarySqrt<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>,
+                   GCD, CHKOP>
+sqrt ( const Commons::Math::RationalExpression<T, A, GCD, CHKOP> &a ) {
+    typedef Commons::Math::RationalUnaryExpression<T,
+            Commons::Math::RationalExpression<T, A, GCD, CHKOP>,
+            Commons::Math::_unarySqrt<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT ( a ) );
+}
+
+/**
+ * @ingroup expr
+ * @overload
+ */
+template<class T, class A, template<typename, bool, template<class, typename, bool> class,
+template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+RATIONAL_CONSTEXPR Commons::Math::RationalExpression<T, Commons::Math::RationalUnaryExpression<T,
+                   Commons::Math::RationalConstant<A, GCD, CHKOP>,
+                   Commons::Math::_unarySqrt<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP>,
+GCD, CHKOP> sqrt ( const Commons::Math::Rational<A, GCD, CHKOP> &a ) {
+    typedef Commons::Math::RationalUnaryExpression<T,
+            Commons::Math::RationalConstant<A, GCD, CHKOP>,
+            Commons::Math::_unarySqrt<Commons::Math::Rational<T, GCD, CHKOP> >, GCD, CHKOP> ExprT;
+    return Commons::Math::RationalExpression<T, ExprT, GCD, CHKOP> ( ExprT (
+                Commons::Math::RationalConstant<A, GCD, CHKOP> ( a ) ) );
+}
+
 #endif /* COMMONS_MATH_EXPR_RATIONAL_H */
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+
