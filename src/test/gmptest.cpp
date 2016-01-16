@@ -596,22 +596,23 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 9l, j.denominator().get_si() );
 
     gmp_rational::rf_info dc;
+    std::vector<gmp_rational::rf_info::digit_type> pre, rep;
 
     const gmp_rational k ( 7, 13 );
 
-    CPPUNIT_ASSERT_EQUAL ( 0l, k.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 0l, k.decompose ( dc, pre, rep ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 7l, gmp_rational ( dc ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 13l, gmp_rational ( dc ).denominator().get_si() );
 
     const gmp_rational l ( 88, 100 );
 
-    CPPUNIT_ASSERT_EQUAL ( 0l, l.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 0l, l.decompose ( dc, pre, rep ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 22l, gmp_rational ( dc ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 25l, gmp_rational ( dc ).denominator().get_si() );
 
     const gmp_rational m ( 8, 3 );
 
-    CPPUNIT_ASSERT_EQUAL ( 2l, m.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 2l, m.decompose ( dc, pre, rep ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 2l, gmp_rational ( dc ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 3l, gmp_rational ( dc ).denominator().get_si() );
 
@@ -619,16 +620,16 @@ void GMPTest::testStdMath() {
 
     const gmp_rational::integer_type n_digits[] = { 0, 1, 8, 8, 6, 7, 9, 2, 4, 5, 2, 8, 3 };
 
-    CPPUNIT_ASSERT_EQUAL ( 8l, n.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 8l, n.decompose ( dc, pre, rep ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, gmp_rational ( dc ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 53l, gmp_rational ( dc ).denominator().get_si() );
 
     CPPUNIT_ASSERT_EQUAL ( std::string ( "188679245283" ), dc.reptend.get_str() );
-    CPPUNIT_ASSERT ( std::equal ( dc.reptend_digits.begin(), dc.reptend_digits.end(), n_digits ) );
+    CPPUNIT_ASSERT ( std::equal ( rep.begin(), rep.end(), n_digits ) );
 
     const gmp_rational o ( 1, 31 );
 
-    CPPUNIT_ASSERT_EQUAL ( 0l, o.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 0l, o.decompose ( dc, pre, rep ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 1l, gmp_rational ( dc ).numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 31l, gmp_rational ( dc ).denominator().get_si() );
 
@@ -636,7 +637,7 @@ void GMPTest::testStdMath() {
 
     const gmp_rational p ( "(70/2) - (1741832/249975)" );
 
-    CPPUNIT_ASSERT_EQUAL ( 28l, p.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 28l, p.decompose ( dc, pre, rep ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 3l, dc.pre.get_si() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( 1975l, dc.reptend.get_si() );
@@ -647,7 +648,7 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 228142l, q.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 62265l, q.denominator().get_si() );
 
-    CPPUNIT_ASSERT_EQUAL ( 3l, q.decompose ( dc ).get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 3l, q.decompose ( dc, pre, rep ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 6l, dc.pre.get_si() );
     CPPUNIT_ASSERT_EQUAL ( std::string ( "64048823576648197221553039428250220830322010760459327" \
                                          "06978238175540030514735405123263470649642656388018951" \
@@ -684,7 +685,7 @@ void GMPTest::testStdMath() {
                                          "87729864289729382478117722637115554484863085200353328" \
                                          "515217216734923311651810808" ), dc.reptend.get_str() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
-    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), dc.reptend_digits.size() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), rep.size() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
 
     const gmp_rational s ( 3, 4 );

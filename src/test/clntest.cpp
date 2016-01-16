@@ -625,28 +625,29 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 9 ), j.denominator() );
 
     cln_rational::rf_info dc;
+    std::vector<cln_rational::rf_info::digit_type> pre, rep;
 
     const cln_rational k ( 7, 13 );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 0 ), k.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 0 ), k.decompose ( dc, pre, rep ) );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 7 ), cln_rational ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 13 ), cln_rational ( dc ).denominator() );
 
     const cln_rational l ( 88, 100 );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 0 ), l.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 0 ), l.decompose ( dc, pre, rep ) );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 22 ), cln_rational ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 25 ), cln_rational ( dc ).denominator() );
 
     const cln_rational m ( 8, 3 );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), m.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), m.decompose ( dc, pre, rep ) );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), cln_rational ( dc ).numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), cln_rational ( dc ).denominator() );
 
     const cln_rational n ( "(70/2) - (1741832/249975)" );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 28 ), n.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 28 ), n.decompose ( dc, pre, rep ) );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), dc.pre );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1975 ), dc.reptend );
@@ -657,7 +658,7 @@ void CLNTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 228142 ), q.numerator() );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 62265 ), q.denominator() );
 
-    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), q.decompose ( dc ) );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 3 ), q.decompose ( dc, pre, rep ) );
     CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 6 ), dc.pre );
 
     std::ostringstream os;
@@ -699,7 +700,7 @@ void CLNTest::testStdMath() {
                                          "87729864289729382478117722637115554484863085200353328" \
                                          "515217216734923311651810808" ), os.str() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
-    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), dc.reptend_digits.size() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), rep.size() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
 
     const cln_rational s ( 3, 4 );

@@ -715,23 +715,20 @@ public:
      */
     typedef struct _rf_info {
 
+        typedef integer_type digit_type;
+
         RATIONAL_NOCOPYASSIGN ( _rf_info );
 
         _rf_info ( const integer_type &r, std::size_t lz = 0u,
                    const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
-            reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ),
-            pre_digits(), reptend_digits() {}
+            reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ) {}
 
-        _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ),
-            pre_digits(), reptend_digits() {}
+        _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ) {}
 
         integer_type reptend; ///< the repeating part as integer_type
         std::size_t leading_zeros; ///< the amount of zeros at the beginning of @c reptend
         integer_type pre; ///< the digits before @c reptend as integer_type
         std::size_t pre_leading_zeros; ///< the amount of zeros at the beginning of @c pre
-
-        std::vector<integer_type> pre_digits; ///< the part before the reptent as digit sequence
-        std::vector<integer_type> reptend_digits; ///< the repeating part as digit sequence
 
     } rf_info;
 
@@ -771,12 +768,17 @@ public:
     /**
      * @brief Splits a fraction in its whole and repetitive part
      *
+     * @tparam Container container type to store digit sequences
+     *
      * @param[out] rf_info rf_info structure to store the result
+     * @param[out] pre_digits Container to store the pre-digits
+     * @param[out] reptend_digits Container to store the reptend-digits
      * @param[in] base the base, defaults to integer_type (10) as a decimal base
      *
      * @return the whole part of the fraction
      */
-    integer_type decompose ( rf_info &rf_info,
+    template<class Container>
+    integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
                              const integer_type &base = integer_type ( 10 ) ) const;
     /**
      * @brief extract the integral and fractional part
@@ -1268,8 +1270,8 @@ private:
 
     Rational _sqrt() const;
 
-    static std::size_t md ( integer_type &out, const typename std::vector<integer_type> &dv,
-                            const integer_type &base );
+    template<class Container>
+    static std::size_t md ( integer_type &out, const Container &dv, const integer_type &base );
 
     RATIONAL_CONSTEXPR static bool isLeftAssoc ( const char op ) {
         return op > 2;
@@ -1781,15 +1783,15 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out,
-        const typename std::vector<integer_type> &dv, const integer_type &base ) {
+         template<class, typename, bool> class CHKOP> template<class Container>
+std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out, const Container &dv,
+        const integer_type &base ) {
 
     std::size_t zeros = 0u;
 
     if ( !dv.empty() ) {
 
-        typename std::vector<integer_type>::const_iterator j ( dv.begin() );
+        typename Container::const_iterator j ( dv.begin() );
 
         if ( ( out = *j++ ) == zero_ ) ++zeros;
 
@@ -1875,9 +1877,10 @@ struct _remquo<long long, GCD, CHKOP> {
 #pragma GCC diagnostic push
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
+         template<class, typename, bool> class CHKOP> template<class Container>
 typename Rational<T, GCD, CHKOP>::integer_type
-Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base ) const {
+Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
+                                     Container &reptend_digits, const integer_type &base ) const {
 
     using namespace std;
 
@@ -1899,8 +1902,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
-    rf_info.reptend_digits.clear();
-    rf_info.pre_digits.clear();
+    pre_digits.clear();
+    reptend_digits.clear();
 
     const bool hasPer = rd.back() != zero_;
     const bool hasPre = !hasPer || rd.back() != rd.front();
@@ -1909,29 +1912,25 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, const integer_type &base 
             std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) : 0 ) + 1 );
 
     if ( hasPre ) {
-        rf_info.pre_digits.reserve ( static_cast<typename std::vector<integer_type>::size_type>
-                                     ( std::distance ( dg.begin() + 1, pivot ) ) );
-        rf_info.pre_digits.insert ( rf_info.pre_digits.end(), dg.begin() + 1, pivot );
-        rf_info.pre_leading_zeros = md ( rf_info.pre, rf_info.pre_digits, base );
+        std::copy ( dg.begin() + 1, pivot, std::back_inserter ( pre_digits ) );
+        rf_info.pre_leading_zeros = md ( rf_info.pre, pre_digits, base );
     }
 
     if ( hasPer ) {
-        rf_info.reptend_digits.reserve ( static_cast<typename std::vector<integer_type>::size_type>
-                                         ( std::distance ( pivot, dg.end() ) ) );
-        rf_info.reptend_digits.insert ( rf_info.reptend_digits.end(), pivot, dg.end() );
-        rf_info.leading_zeros = md ( rf_info.reptend, rf_info.reptend_digits, base );
+        std::copy ( pivot, dg.end(), std::back_inserter ( reptend_digits ) );
+        rf_info.leading_zeros = md ( rf_info.reptend, reptend_digits, base );
     }
 
     const bool isNegative = m_numer < zero_;
 
     if ( isNegative ) {
 
-        if ( !rf_info.pre_digits.empty() ) {
-            rf_info.pre_digits.front() = integer_type ( -rf_info.pre_digits.front() );
+        if ( !pre_digits.empty() ) {
+            pre_digits.front() = integer_type ( -pre_digits.front() );
         }
 
-        if ( !rf_info.reptend_digits.empty() ) {
-            rf_info.reptend_digits.front() = integer_type ( -rf_info.reptend_digits.front() );
+        if ( !reptend_digits.empty() ) {
+            reptend_digits.front() = integer_type ( -reptend_digits.front() );
         }
     }
 
