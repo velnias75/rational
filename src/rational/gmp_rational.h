@@ -507,17 +507,12 @@ inline mpz_class pow10 ( const mpf_class &f ) {
 inline mpz_class floor ( const mpz_class &z ) {
     mpf_class r, f ( z );
     mpf_floor ( r.get_mpf_t(), f.get_mpf_t() );
-#if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE <= 50103) || \
-    (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE <= 60000)
     mpz_class aux;
     mpz_set_f ( aux.get_mpz_t(), r.get_mpf_t() );
     return aux;
-#else
-    return r;
-#endif
 }
 #endif
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
