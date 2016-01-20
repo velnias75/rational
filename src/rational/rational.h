@@ -1273,6 +1273,14 @@ private:
     template<class Container>
     static std::size_t md ( integer_type &out, const Container &dv, const integer_type &base );
 
+    RATIONAL_CONSTEXPR static bool isOperator ( const char op ) {
+		return op == '/' || op == '*' || op == '+' || op == '-' || op == '%' || op == 1 || op == 2;
+	}
+
+	RATIONAL_CONSTEXPR static bool isDelimiter ( const char d ) {
+		return isOperator(d) || d == '(' || d == ')' || d == '\n' || d == ' ' || d == '\t';
+	}
+
     RATIONAL_CONSTEXPR static bool isLeftAssoc ( const char op ) {
         return op > 2;
     }
@@ -1367,9 +1375,6 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
     if ( expr && *expr ) {
 
-        static const char td_op[12] = { '\t', '\n', ' ', '(', ')', 1, 2, '%', '-', '/', '*', '+' };
-        static const char *td_op_end = td_op + 12, *op_start = td_op + 5;
-
         std::stack<char, std::vector<char> > syard;
         std::ptrdiff_t tok_start = 0, tok_len = 0;
         evalStack rpn;
@@ -1379,7 +1384,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
         while ( *ptr ) {
 
-            if ( std::find ( td_op, td_op_end, *ptr ) == td_op_end ) {
+            if ( !isDelimiter(*ptr) ) {
 
                 if ( ( *ptr >= '0' && *ptr <= '9' ) || *ptr == '.' ) {
                     if ( !tok_len++ ) tok_start = ptr - expr;
@@ -1434,12 +1439,11 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 #endif
                 }
 
-            } else if ( std::find ( op_start, td_op_end, *ptr ) != td_op_end ) {
+            } else if ( isOperator(*ptr) ) {
 
                 char cop = *ptr;
 
-                const bool isUnary = ( ptr == expr ) || ( prev == '(' ||
-                                     std::find ( op_start, td_op_end, prev ) != td_op_end );
+                const bool isUnary = ( ptr == expr ) || ( prev == '(' || isOperator(prev) );
 
                 if ( *ptr == '-' && isUnary ) {
                     cop = 1;
@@ -1447,8 +1451,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
                     cop = 2;
                 } else {
 
-                    while ( !syard.empty() &&
-                            std::find ( op_start, td_op_end, top = syard.top() ) != td_op_end &&
+                    while ( !syard.empty() && isOperator ( top = syard.top() ) &&
                             ( ( isLeftAssoc ( cop ) && getPrec ( cop ) <= getPrec ( top ) ) ||
                               ( !isLeftAssoc ( cop ) && getPrec ( cop ) < getPrec ( top ) ) ) ) {
 
@@ -1470,8 +1473,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
             ++ptr;
         }
 
-        while ( !syard.empty() &&
-                std::find ( op_start, td_op_end, top = syard.top() ) != td_op_end ) {
+        while ( !syard.empty() && isOperator ( top = syard.top() ) ) {
 
             if ( !eval ( top, rpn, expr ) ) {
 #ifdef __EXCEPTIONS
