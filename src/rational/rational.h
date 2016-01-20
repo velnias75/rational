@@ -2436,13 +2436,21 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
             r.m_numer = typename rat::op_plus ()
                         ( m[0][0], typename rat::op_multiplies () ( n, m[0][1] ) );
 
-            m[0][0] = m[0][1];
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+            m[0][0] = std::move(m[0][1]);
+#else
+			m[0][0] = m[0][1];
+#endif
             m[0][1] = r.m_numer;
 
             r.m_denom = typename rat::op_plus ()
                         ( m[1][0], typename rat::op_multiplies () ( n, m[1][1] ) );
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+			m[1][0] = std::move(m[1][1]);
+#else
             m[1][0] = m[1][1];
+#endif
             m[1][1] = r.m_denom;
 
             typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
@@ -3055,20 +3063,28 @@ cf ( IIter first, IIter last ) {
         { value_type ( 1 ), value_type() }
     };
 
-    value_type n = m[0][0], d = m[0][1];
+    value_type n(m[0][0]), d(m[0][1]);
 
     while ( first != last ) {
 
         n = typename rat::op_plus() (
                 typename rat::op_multiplies() ( *first, m[0][1] ), m[0][0] );
 
-        m[0][0] = m[0][1];
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+        m[0][0] = std::move(m[0][1]);
+#else
+		m[0][0] = m[0][1];
+#endif
         m[0][1] = n;
 
         d = typename rat::op_plus() (
                 typename rat::op_multiplies() ( *first++, m[1][1] ), m[1][0] );
 
-        m[1][0] = m[1][1];
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+        m[1][0] = std::move(m[1][1]);
+#else
+		m[1][0] = m[1][1];
+#endif
         m[1][1] = d;
     }
 
