@@ -43,6 +43,10 @@
 #define HAVE_MPREAL_H 1
 #endif
 
+#if (_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700) || _GNU_SOURCE
+#include <cstring>
+#endif
+
 #include <gmpxx.h>
 
 #ifdef HAVE_MPREAL_H
@@ -175,8 +179,33 @@ template<> inline mpf_class TYPE_CONVERT<std::string>::convert<mpf_class>() cons
     return mpf_class ( val.c_str() );
 }
 
+#if (_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700) || _GNU_SOURCE
+class _gmp_charptr_convert_helper {
+public:
+	_gmp_charptr_convert_helper(const char *val, const char *len)
+		: val_(len ? strndup ( val, static_cast<std::size_t>(len - val) ) :
+			const_cast<char *>(val)), len_(len) {}
+
+	~_gmp_charptr_convert_helper() {
+			if(len_) std::free(val_);
+	}
+
+	char *c_str() const {
+		return val_;
+	}
+
+private:
+	char *val_;
+	const char *len_;
+};
+#endif
+
 template<> inline mpf_class TYPE_CONVERT<const char *>::convert<mpf_class>() const {
+#if (_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700) || _GNU_SOURCE
+	return mpf_class ( _gmp_charptr_convert_helper(val, len).c_str() );
+#else
     return mpf_class ( len ? std::string ( val, len ).c_str() : val );
+#endif
 }
 
 #ifdef HAVE_MPREAL_H
