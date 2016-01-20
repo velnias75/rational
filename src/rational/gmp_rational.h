@@ -183,11 +183,10 @@ template<> inline mpf_class TYPE_CONVERT<std::string>::convert<mpf_class>() cons
 class _gmp_charptr_convert_helper {
 public:
 	_gmp_charptr_convert_helper(const char *val, const char *len)
-		: val_(len ? strndup ( val, static_cast<std::size_t>(len - val) ) :
-			const_cast<char *>(val)), len_(len) {}
+		: val_(strndup ( val, static_cast<std::size_t>(len - val) ) ) {}
 
 	~_gmp_charptr_convert_helper() {
-			if(len_) std::free(val_);
+		std::free(val_);
 	}
 
 	char *c_str() const {
@@ -196,13 +195,12 @@ public:
 
 private:
 	char *val_;
-	const char *len_;
 };
 #endif
 
 template<> inline mpf_class TYPE_CONVERT<const char *>::convert<mpf_class>() const {
 #if (_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700) || _GNU_SOURCE
-	return mpf_class ( _gmp_charptr_convert_helper(val, len).c_str() );
+	return mpf_class ( len ? _gmp_charptr_convert_helper(val, len).c_str() : val );
 #else
     return mpf_class ( len ? std::string ( val, len ).c_str() : val );
 #endif
