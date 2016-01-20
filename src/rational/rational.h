@@ -2045,25 +2045,25 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
     std::ostringstream os;
 
-    if ( mixed && m_denom != one_ ) {
-
-        const mod_type &p ( mod() );
-
-        if ( p.first != zero_ ) os << p.first << ' ';
-
-        os << p.second.abs().str ( false );
-
-    } else if ( mixed && m_denom == one_ ) {
-
-        const mod_type &p ( mod() );
-
-        os << ( p.first + p.second.abs().numerator() );
-
-    } else {
+	if ( !mixed ) {
 
         os << m_numer;
 
         if ( m_denom != one_ ) os << '/' << m_denom;
+
+	} else {
+
+		const mod_type &p ( mod() );
+
+		if ( m_denom != one_ ) {
+
+			if ( p.first != zero_ ) os << p.first << ' ';
+
+			os << p.second.abs().str ( false );
+
+		} else {
+			os << ( p.first + p.second.abs().numerator() );
+		}
     }
 
     return os.str();
@@ -3170,4 +3170,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
