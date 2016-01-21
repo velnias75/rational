@@ -1274,12 +1274,12 @@ private:
     static std::size_t md ( integer_type &out, const Container &dv, const integer_type &base );
 
     RATIONAL_CONSTEXPR static bool isOperator ( const char op ) {
-		return op == '/' || op == '*' || op == '+' || op == '-' || op == '%' || op == 1 || op == 2;
-	}
+        return op == '/' || op == '*' || op == '+' || op == '-' || op == '%' || op == 1 || op == 2;
+    }
 
-	RATIONAL_CONSTEXPR static bool isDelimiter ( const char d ) {
-		return isOperator(d) || d == '(' || d == ')' || d == '\n' || d == ' ' || d == '\t';
-	}
+    RATIONAL_CONSTEXPR static bool isDelimiter ( const char d ) {
+        return isOperator ( d ) || d == '(' || d == ')' || d == '\n' || d == ' ' || d == '\t';
+    }
 
     RATIONAL_CONSTEXPR static bool isLeftAssoc ( const char op ) {
         return op > 2;
@@ -1384,7 +1384,7 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 
         while ( *ptr ) {
 
-            if ( !isDelimiter(*ptr) ) {
+            if ( !isDelimiter ( *ptr ) ) {
 
                 if ( ( *ptr >= '0' && *ptr <= '9' ) || *ptr == '.' ) {
                     if ( !tok_len++ ) tok_start = ptr - expr;
@@ -1439,11 +1439,11 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 #endif
                 }
 
-            } else if ( isOperator(*ptr) ) {
+            } else if ( isOperator ( *ptr ) ) {
 
                 char cop = *ptr;
 
-                const bool isUnary = ( ptr == expr ) || ( prev == '(' || isOperator(prev) );
+                const bool isUnary = ( ptr == expr ) || ( prev == '(' || isOperator ( prev ) );
 
                 if ( *ptr == '-' && isUnary ) {
                     cop = 1;
@@ -1776,11 +1776,11 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
-#define MDCLOSURE(k) out = op_plus() ( op_multiplies() ( out, base ), (k) );                       \
-	if ( !pre_zeros && (k) == zero_ ) {                                                            \
-		++zeros;                                                                                   \
-	} else {                                                                                       \
-		pre_zeros = true;                                                                          \
+#define MDCLOSURE(k) out = op_plus() ( op_multiplies() ( out, base ), (k) ); \
+	if ( !pre_zeros && (k) == zero_ ) { \
+		++zeros; \
+	} else { \
+		pre_zeros = true; \
 	}
 
 template<typename T, template<typename, bool,
@@ -2047,25 +2047,25 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 
     std::ostringstream os;
 
-	if ( !mixed ) {
+    if ( !mixed ) {
 
         os << m_numer;
 
         if ( m_denom != one_ ) os << '/' << m_denom;
 
-	} else {
+    } else {
 
-		const mod_type &p ( mod() );
+        const mod_type &p ( mod() );
 
-		if ( m_denom != one_ ) {
+        if ( m_denom != one_ ) {
 
-			if ( p.first != zero_ ) os << p.first << ' ';
+            if ( p.first != zero_ ) os << p.first << ' ';
 
-			os << p.second.abs().str ( false );
+            os << p.second.abs().str ( false );
 
-		} else {
-			os << ( p.first + p.second.abs().numerator() );
-		}
+        } else {
+            os << ( p.first + p.second.abs().numerator() );
+        }
     }
 
     return os.str();
@@ -2439,9 +2439,9 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
                         ( m[0][0], typename rat::op_multiplies () ( n, m[0][1] ) );
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-            m[0][0] = std::move(m[0][1]);
+            m[0][0] = std::move ( m[0][1] );
 #else
-			m[0][0] = m[0][1];
+            m[0][0] = m[0][1];
 #endif
             m[0][1] = r.m_numer;
 
@@ -2449,7 +2449,7 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
                         ( m[1][0], typename rat::op_multiplies () ( n, m[1][1] ) );
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-			m[1][0] = std::move(m[1][1]);
+            m[1][0] = std::move ( m[1][1] );
 #else
             m[1][0] = m[1][1];
 #endif
@@ -3065,7 +3065,7 @@ cf ( IIter first, IIter last ) {
         { value_type ( 1 ), value_type() }
     };
 
-    value_type n(m[0][0]), d(m[0][1]);
+    value_type n ( m[0][0] ), d ( m[0][1] );
 
     while ( first != last ) {
 
@@ -3073,9 +3073,9 @@ cf ( IIter first, IIter last ) {
                 typename rat::op_multiplies() ( *first, m[0][1] ), m[0][0] );
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-        m[0][0] = std::move(m[0][1]);
+        m[0][0] = std::move ( m[0][1] );
 #else
-		m[0][0] = m[0][1];
+        m[0][0] = m[0][1];
 #endif
         m[0][1] = n;
 
@@ -3083,9 +3083,9 @@ cf ( IIter first, IIter last ) {
                 typename rat::op_multiplies() ( *first++, m[1][1] ), m[1][0] );
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-        m[1][0] = std::move(m[1][1]);
+        m[1][0] = std::move ( m[1][1] );
 #else
-		m[1][0] = m[1][1];
+        m[1][0] = m[1][1];
 #endif
         m[1][1] = d;
     }
@@ -3188,4 +3188,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

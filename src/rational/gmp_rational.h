@@ -181,35 +181,37 @@ template<> inline mpf_class TYPE_CONVERT<std::string>::convert<mpf_class>() cons
 
 #if (_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700) || _GNU_SOURCE
 class _gmp_charptr_convert_helper {
+
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 public:
-	_gmp_charptr_convert_helper(const _gmp_charptr_convert_helper &) = delete;
-	_gmp_charptr_convert_helper &operator=(const _gmp_charptr_convert_helper &) = delete;
+    _gmp_charptr_convert_helper ( const _gmp_charptr_convert_helper & ) = delete;
+    _gmp_charptr_convert_helper &operator= ( const _gmp_charptr_convert_helper & ) = delete;
 #else
-	_gmp_charptr_convert_helper(const _gmp_charptr_convert_helper &);
-        _gmp_charptr_convert_helper &operator=(const _gmp_charptr_convert_helper &);
+    _gmp_charptr_convert_helper ( const _gmp_charptr_convert_helper & );
+    _gmp_charptr_convert_helper &operator= ( const _gmp_charptr_convert_helper & );
+
 public:
 #endif
 
-	_gmp_charptr_convert_helper(const char *val, const char *len)
-		: val_(strndup ( val, static_cast<std::size_t>(len - val) ) ) {}
+    _gmp_charptr_convert_helper ( const char *val, const char *len )
+        : val_ ( strndup ( val, static_cast<std::size_t> ( len - val ) ) ) {}
 
-	~_gmp_charptr_convert_helper() {
-		std::free(val_);
-	}
+    ~_gmp_charptr_convert_helper() {
+        std::free ( val_ );
+    }
 
-	char *c_str() const {
-		return val_;
-	}
+    char *c_str() const {
+        return val_;
+    }
 
 private:
-	char *val_;
+    char *val_;
 };
 #endif
 
 template<> inline mpf_class TYPE_CONVERT<const char *>::convert<mpf_class>() const {
 #if (_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700) || _GNU_SOURCE
-	return mpf_class ( len ? _gmp_charptr_convert_helper(val, len).c_str() : val );
+    return mpf_class ( len ? _gmp_charptr_convert_helper ( val, len ).c_str() : val );
 #else
     return mpf_class ( len ? std::string ( val, len ).c_str() : val );
 #endif
@@ -551,4 +553,4 @@ inline mpz_class floor ( const mpz_class &z ) {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
