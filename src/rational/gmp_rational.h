@@ -181,7 +181,16 @@ template<> inline mpf_class TYPE_CONVERT<std::string>::convert<mpf_class>() cons
 
 #if (_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700) || _GNU_SOURCE
 class _gmp_charptr_convert_helper {
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 public:
+	_gmp_charptr_convert_helper(const _gmp_charptr_convert_helper &) = delete;
+	_gmp_charptr_convert_helper &operator=(const _gmp_charptr_convert_helper &) = delete;
+#else
+	_gmp_charptr_convert_helper(const _gmp_charptr_convert_helper &);
+        _gmp_charptr_convert_helper &operator=(const _gmp_charptr_convert_helper &);
+public:
+#endif
+
 	_gmp_charptr_convert_helper(const char *val, const char *len)
 		: val_(strndup ( val, static_cast<std::size_t>(len - val) ) ) {}
 
