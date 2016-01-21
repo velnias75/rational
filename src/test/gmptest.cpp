@@ -25,6 +25,26 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( GMPTest );
 
 using namespace Commons::Math;
 
+#if HAVE_MPREAL_H
+class _mpfr_prec_helper {
+
+    _mpfr_prec_helper ( const _mpfr_prec_helper& );
+    _mpfr_prec_helper &operator= ( const _mpfr_prec_helper& );
+
+public:
+    _mpfr_prec_helper ( mp_prec_t p = 512 ) : prec_ ( mpfr::mpreal::get_default_prec() ) {
+        mpfr::mpreal::set_default_prec ( p );
+    }
+
+    ~_mpfr_prec_helper() {
+        mpfr::mpreal::set_default_prec ( prec_ );
+    }
+
+private:
+    const mp_prec_t prec_;
+};
+#endif
+
 GMPTest::GMPTest() : CppUnit::TestFixture(), m_sqrt2(), m_twosqrt(), m_onethird(),
     m_oneseventh() {}
 
@@ -650,6 +670,7 @@ void GMPTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( 3l, q.decompose ( dc, pre, rep ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( 6l, dc.pre.get_si() );
+
     CPPUNIT_ASSERT_EQUAL ( std::string ( "64048823576648197221553039428250220830322010760459327" \
                                          "06978238175540030514735405123263470649642656388018951" \
                                          "25672528707941861398859712519071709628202039669156026" \
@@ -687,6 +708,18 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1776 ), rep.size() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+#if HAVE_MPREAL_H
+    {
+        const _mpfr_prec_helper mph;
+        const mpfr::mpreal r = q;
+
+        CPPUNIT_ASSERT_EQUAL ( std::string ( "3.6640488235766481972215530394282502208303220" \
+                                             "107604593270697823817554003051473540512326347" \
+                                             "064964265638801895125672528707941861398859712" \
+                                             "51907170962820203967" ), r.toString() );
+    }
+#endif
 
     const gmp_rational s ( 3, 4 );
 
