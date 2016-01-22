@@ -335,7 +335,7 @@ struct _abs<mpz_class, GCD, CHKOP, true> {
 
     Rational<mpz_class, GCD, CHKOP> operator()
     ( const Rational<mpz_class, GCD, CHKOP> &r ) const {
-        return Rational<mpz_class, GCD, CHKOP> ( abs( r.numerator() ), r.denominator() );
+        return Rational<mpz_class, GCD, CHKOP> ( abs ( r.numerator() ), r.denominator() );
     }
 };
 
@@ -556,4 +556,4 @@ inline mpz_class floor ( const mpz_class &z ) {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
