@@ -315,12 +315,7 @@ template<template<class, typename, bool> class CHKOP, template<typename> class C
 struct GCD_gmp<mpz_class, true, CHKOP, CONV> {
 
     mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
-
-        mpz_class rop;
-
-        mpz_gcd ( rop.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t() );
-
-        return rop;
+        return gcd ( a, b );
     }
 
 };
@@ -331,12 +326,7 @@ struct _abs<mpz_class, GCD, CHKOP, true> {
 
     Rational<mpz_class, GCD, CHKOP> operator()
     ( const Rational<mpz_class, GCD, CHKOP> &r ) const {
-
-        mpz_class rop;
-
-        mpz_abs ( rop.get_mpz_t(), r.numerator().get_mpz_t() );
-
-        return Rational<mpz_class, GCD, CHKOP> ( rop, r.denominator() );
+        return Rational<mpz_class, GCD, CHKOP> ( abs( r.numerator() ), r.denominator() );
     }
 };
 
@@ -405,7 +395,7 @@ struct _swapSign<mpz_class, GCD, CHKOP, true> {
     Rational<mpz_class, GCD, CHKOP> &
     operator() ( Rational<mpz_class, GCD, CHKOP> &r ) const {
 
-        if ( mpz_sgn ( r.m_denom.get_mpz_t() ) == -1 ) {
+        if ( sgn ( r.m_denom ) == -1 ) {
             r.m_numer = -r.m_numer;
             r.m_denom = -r.m_denom;
         }
@@ -420,12 +410,7 @@ template<template<typename, bool, template<class, typename, bool> class,
 struct _lcm<mpz_class, GCD, CHKOP, true> {
 
     mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
-
-        mpz_class rop;
-
-        mpz_lcm ( rop.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t() );
-
-        return rop;
+        return lcm ( a, b );
     }
 
 };
@@ -553,4 +538,4 @@ inline mpz_class floor ( const mpz_class &z ) {
 
 #endif /* COMMONS_MATH_GMP_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
