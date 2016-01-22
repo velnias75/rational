@@ -80,7 +80,7 @@ template<> inline void swap<mpz_class> ( mpz_class &x, mpz_class &y ) {
 }
 
 #if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE < 50103) || \
-    (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE < 50103)
+     (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE < 50103)
 template<> struct numeric_limits<mpz_class> {
 
     static const bool is_specialized = true;
@@ -315,7 +315,16 @@ template<template<class, typename, bool> class CHKOP, template<typename> class C
 struct GCD_gmp<mpz_class, true, CHKOP, CONV> {
 
     mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
+#if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE < 60100) || \
+     (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE < 60100)
+        mpz_class rop;
+
+        mpz_gcd ( rop.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t() );
+
+        return rop;
+#else
         return gcd ( a, b );
+#endif
     }
 
 };
@@ -410,7 +419,16 @@ template<template<typename, bool, template<class, typename, bool> class,
 struct _lcm<mpz_class, GCD, CHKOP, true> {
 
     mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
+#if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE < 60100) || \
+     (defined(__GNU_MP_RELEASE) && __GNU_MP_RELEASE < 60100)
+        mpz_class rop;
+
+        mpz_lcm ( rop.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t() );
+
+        return rop;
+#else
         return lcm ( a, b );
+#endif
     }
 
 };
