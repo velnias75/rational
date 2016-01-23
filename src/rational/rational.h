@@ -2086,16 +2086,19 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *ex
         if ( op > 2 && s.empty() ) return false;
 
         switch ( op ) {
-        case 1:
-            s.push ( -operand[0] );
-            return true;
-        case 2:
-            s.push ( operand[0] );
-            return true;
-        case '%':
+        case '/':
+            if ( operand[0] == Rational() ) {
+                throw std::domain_error ( std::string ( "division by zero in expression: " ).
+                                          append ( expr ) );
+            }
             operand[1] = s.top();
             s.pop();
-            s.push ( operand[1] %= operand[0] );
+            s.push ( operand[1] /= operand[0] );
+            return true;
+        case '*':
+            operand[1] = s.top();
+            s.pop();
+            s.push ( operand[1] *= operand[0] );
             return true;
         case '+':
             operand[1] = s.top();
@@ -2107,19 +2110,16 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *ex
             s.pop();
             s.push ( operand[1] -= operand[0] );
             return true;
-        case '*':
+        case '%':
             operand[1] = s.top();
             s.pop();
-            s.push ( operand[1] *= operand[0] );
+            s.push ( operand[1] %= operand[0] );
             return true;
-        case '/':
-            if ( operand[0] == Rational() ) {
-                throw std::domain_error ( std::string ( "division by zero in expression: " ).
-                                          append ( expr ) );
-            }
-            operand[1] = s.top();
-            s.pop();
-            s.push ( operand[1] /= operand[0] );
+        case 1:
+            s.push ( -operand[0] );
+            return true;
+        case 2:
+            s.push ( operand[0] );
             return true;
         }
     }
@@ -2127,6 +2127,7 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *ex
     return false;
 }
 #pragma GCC diagnostic pop
+
 
 /**
  * @relates Rational
