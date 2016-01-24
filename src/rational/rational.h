@@ -1874,8 +1874,8 @@ struct _remquo<long long, GCD, CHKOP> {
 };
 #endif
 
-template<typename T, class F>
-std::size_t _floyd_cycle_detect ( const F &f, const T &x, std::size_t &lam ) {
+template<typename T, class F, class RetType>
+RetType _floyd_cycle_detect ( const F &f, const T &x, RetType &lam ) {
 
     T tortoise ( f ( x ) );
     T hare ( f ( f ( x ) ) );
@@ -1886,7 +1886,7 @@ std::size_t _floyd_cycle_detect ( const F &f, const T &x, std::size_t &lam ) {
         hare = f ( f ( hare ) );
     }
 
-    std::size_t mu = 0u;
+    RetType mu(0);
 
     tortoise = x;
 
@@ -1898,7 +1898,7 @@ std::size_t _floyd_cycle_detect ( const F &f, const T &x, std::size_t &lam ) {
         ++mu;
     }
 
-    lam = 1u;
+    lam = 1;
 
     hare = f ( tortoise );
 
@@ -1940,11 +1940,11 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
     std::vector<integer_type> dg;
     integer_type w, r, n ( m_numer );
 
-    std::size_t period;
+    typename std::vector<integer_type>::difference_type period;
 
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
 
-    const std::size_t first_repeat =
+    const typename std::vector<integer_type>::difference_type first_repeat =
         _floyd_cycle_detect ( _floyd_lambda<Rational<T, GCD, CHKOP> > ( base, m_denom ),
                               _remquo<T, GCD, CHKOP> () ( n, m_denom, w ) , period ),
         dlen = period + first_repeat;
@@ -1960,7 +1960,7 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
 
         n = op_multiplies() ( base, r );
 
-    } while ( dg.size() != dlen );
+    } while ( dg.size() != static_cast<typename std::vector<integer_type>::size_type>(dlen) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
@@ -3250,4 +3250,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
