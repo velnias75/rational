@@ -724,8 +724,8 @@ void GMPTest::testStdMath() {
     const gmp_rational r1 ( 1083448249u, 12172166u );
 
     CPPUNIT_ASSERT_EQUAL ( 89l, r1.decompose ( dc, pre, rep ).get_si() );
-    CPPUNIT_ASSERT_EQUAL ( 1u, pre.size() );
-    CPPUNIT_ASSERT_EQUAL ( 82792u, rep.size() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), pre.size() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 82792 ), rep.size() );
 
     const gmp_rational s ( 3, 4 );
 
