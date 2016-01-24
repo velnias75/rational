@@ -1892,13 +1892,13 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
 
         integer_type q, aux;
 
-        rd.push_back ( ( aux = _remquo<T, GCD, CHKOP> () ( d, m_denom, q ) ) < zero_ ?
-                       integer_type ( -aux ) : aux );
+        rd.push_back ( r = ( aux = _remquo<T, GCD, CHKOP> () ( d, m_denom, q ) ) < zero_ ?
+                           integer_type ( -aux ) : aux );
         dg.push_back ( q < zero_ ? integer_type ( -q ) : q );
 
-        d = op_multiplies() ( base, ( r = rd.back() ) ); //if(rd.size() > 10000u) break;
+        d = op_multiplies() ( base, r );
 
-    } while ( !( r == zero_ || std::find ( rd.rbegin() + 1, rd.rend(), r ) != rd.rend() ) );
+    } while ( ! ( r == zero_ || std::find ( rd.rbegin() + 1, rd.rend(), r ) != rd.rend() ) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
@@ -3188,4 +3188,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
