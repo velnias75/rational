@@ -1883,11 +1883,10 @@ template<typename T, template<typename, bool,
 typename Rational<T, GCD, CHKOP>::integer_type
 Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
                                      Container &reptend_digits, const integer_type &base ) const {
-
     using namespace std;
 
     std::vector<integer_type> rd, dg;
-    integer_type d ( m_numer );
+    integer_type d ( m_numer ), r;
 
     do {
 
@@ -1897,9 +1896,9 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
                        integer_type ( -aux ) : aux );
         dg.push_back ( q < zero_ ? integer_type ( -q ) : q );
 
-        d = op_multiplies() ( base, rd.back() );
+        d = op_multiplies() ( base, ( r = rd.back() ) ); //if(rd.size() > 10000u) break;
 
-    } while ( rd.back() != zero_ && !std::count ( rd.rbegin() + 1, rd.rend(), rd.back() ) );
+    } while ( !( r == zero_ || std::find ( rd.rbegin() + 1, rd.rend(), r ) != rd.rend() ) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
@@ -1907,11 +1906,11 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
     pre_digits.clear();
     reptend_digits.clear();
 
-    const bool hasPer = rd.back() != zero_;
-    const bool hasPre = !hasPer || rd.back() != rd.front();
+    const bool hasPer = r != zero_;
+    const bool hasPre = !hasPer || r != rd.front();
 
     const typename std::vector<integer_type>::iterator &pivot ( dg.begin() + ( hasPre ?
-            std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), rd.back() ) ) : 0 ) + 1 );
+            std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), r ) ) : 0 ) + 1 );
 
     if ( hasPre ) {
         std::copy ( dg.begin() + 1, pivot, std::back_inserter ( pre_digits ) );
@@ -3189,4 +3188,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
