@@ -1874,6 +1874,59 @@ struct _remquo<long long, GCD, CHKOP> {
 };
 #endif
 
+template<typename T, class F>
+std::size_t _floyd_cycle_detect ( const F &f, const T &x, std::size_t &lam ) {
+
+    T tortoise ( f ( x ) );
+    T hare ( f ( f ( x ) ) );
+
+    while ( tortoise != hare ) {
+
+        tortoise = f ( tortoise );
+        hare = f ( f ( hare ) );
+    }
+
+    std::size_t mu = 0u;
+
+    tortoise = x;
+
+    while ( tortoise != hare ) {
+
+        tortoise = f ( tortoise );
+        hare = f ( hare );
+
+        ++mu;
+    }
+
+    lam = 1u;
+
+    hare = f ( tortoise );
+
+    while ( tortoise != hare ) {
+
+        hare = f ( hare );
+
+        ++lam;
+    }
+
+    return mu;
+}
+
+template<typename R>
+struct _floyd_lambda {
+
+    _floyd_lambda ( const typename R::integer_type &b, const typename R::integer_type &d )
+        : b_ ( b ), d_ ( d ) {}
+
+    typename R::integer_type operator() ( const typename R::integer_type &r ) const {
+        return typename R::op_multiplies() ( b_, typename R::op_modulus() ( r, d_ ) );
+    }
+
+private:
+    const typename R::integer_type &b_;
+    const typename R::integer_type &d_;
+};
+
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
@@ -1883,22 +1936,31 @@ template<typename T, template<typename, bool,
 typename Rational<T, GCD, CHKOP>::integer_type
 Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
                                      Container &reptend_digits, const integer_type &base ) const {
-    using namespace std;
 
-    std::vector<integer_type> rd, dg;
-    integer_type d ( m_numer ), r;
+    std::vector<integer_type> dg;
+    integer_type w, r, n ( m_numer );
+
+    std::size_t period;
+
+    // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
+
+    const std::size_t first_repeat =
+        _floyd_cycle_detect ( _floyd_lambda<Rational<T, GCD, CHKOP> > ( base, m_denom ),
+                              _remquo<T, GCD, CHKOP> () ( n, m_denom, w ) , period ),
+        dlen = period + first_repeat;
 
     do {
 
         integer_type q, aux;
 
-        rd.push_back ( r = ( aux = _remquo<T, GCD, CHKOP> () ( d, m_denom, q ) ) < zero_ ?
-                           integer_type ( -aux ) : aux );
+        r = ( aux = _remquo<T, GCD, CHKOP> () ( n, m_denom, q ) ) < zero_
+            ? integer_type ( -aux ) : aux;
+
         dg.push_back ( q < zero_ ? integer_type ( -q ) : q );
 
-        d = op_multiplies() ( base, r );
+        n = op_multiplies() ( base, r );
 
-    } while ( ! ( r == zero_ || std::find ( rd.rbegin() + 1, rd.rend(), r ) != rd.rend() ) );
+    } while ( dg.size() != dlen );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
@@ -1907,10 +1969,10 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
     reptend_digits.clear();
 
     const bool hasPer = r != zero_;
-    const bool hasPre = !hasPer || r != rd.front();
+    const bool hasPre = !hasPer || r != w;
 
-    const typename std::vector<integer_type>::iterator &pivot ( dg.begin() + ( hasPre ?
-            std::distance ( rd.begin(), std::find ( rd.begin(), rd.end(), r ) ) : 0 ) + 1 );
+    const typename std::vector<integer_type>::iterator &pivot ( dg.begin() +
+            ( hasPre ? ( first_repeat - 1 ) : 0 ) + 1 );
 
     if ( hasPre ) {
         std::copy ( dg.begin() + 1, pivot, std::back_inserter ( pre_digits ) );

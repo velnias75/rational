@@ -1384,16 +1384,6 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( 6l, spre.front() );
     CPPUNIT_ASSERT ( srep.empty() );
 
-#if 0
-    const Rational<uint64_t> r1 ( 1214303811510455u, 13642282944091u );
-
-    Rational<uint64_t>::rf_info udc;
-    std::list<Rational<uint64_t>::rf_info::digit_type> upre, urep;
-
-    CPPUNIT_ASSERT_EQUAL ( static_cast<uint64_t>(89u), r1.decompose ( udc, upre, urep ) );
-	CPPUNIT_ASSERT_EQUAL ( 0u, upre.size() );
-#endif
-
     const Rational<unsigned long> s ( 3, 4 );
 
     CPPUNIT_ASSERT_EQUAL ( 81ul, s.pow ( 4 ).numerator() );
@@ -1472,4 +1462,4 @@ void RationalTest::testGoldenRatio() {
     CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.inverse().denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
