@@ -1304,6 +1304,22 @@ private:
         *tok_len = 0;
     }
 
+    struct floyd_cd_lambda {
+
+        floyd_cd_lambda ( const integer_type &b, const integer_type &d ) : b_ ( b ), d_ ( d ) {}
+
+        integer_type operator() ( const integer_type &r ) const {
+            return op_multiplies() ( b_, op_modulus() ( r, d_ ) );
+        }
+
+    private:
+        const integer_type &b_;
+        const integer_type &d_;
+    };
+
+    template<class F, class RetType>
+    static RetType floyd_cycle_detect ( const F &f, const integer_type &x, RetType &lam );
+
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
 
@@ -1874,11 +1890,14 @@ struct _remquo<long long, GCD, CHKOP> {
 };
 #endif
 
-template<typename T, class F, class RetType>
-RetType _floyd_cycle_detect ( const F &f, const T &x, RetType &lam ) {
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> template<class F, class RetType>
+RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_type &x,
+        RetType &lam ) {
 
-    T tortoise ( f ( x ) );
-    T hare ( f ( f ( x ) ) );
+    integer_type tortoise ( f ( x ) );
+    integer_type hare ( f ( tortoise ) );
 
     while ( tortoise != hare ) {
 
@@ -1886,7 +1905,7 @@ RetType _floyd_cycle_detect ( const F &f, const T &x, RetType &lam ) {
         hare = f ( f ( hare ) );
     }
 
-    RetType mu(0);
+    RetType mu ( 0 );
 
     tortoise = x;
 
@@ -1912,21 +1931,6 @@ RetType _floyd_cycle_detect ( const F &f, const T &x, RetType &lam ) {
     return mu;
 }
 
-template<typename R>
-struct _floyd_lambda {
-
-    _floyd_lambda ( const typename R::integer_type &b, const typename R::integer_type &d )
-        : b_ ( b ), d_ ( d ) {}
-
-    typename R::integer_type operator() ( const typename R::integer_type &r ) const {
-        return typename R::op_multiplies() ( b_, typename R::op_modulus() ( r, d_ ) );
-    }
-
-private:
-    const typename R::integer_type &b_;
-    const typename R::integer_type &d_;
-};
-
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic push
@@ -1940,14 +1944,14 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
     std::vector<integer_type> dg;
     integer_type w, r, n ( m_numer );
 
-    typename std::vector<integer_type>::difference_type period;
-
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-
+    typename std::vector<integer_type>::difference_type period;
     const typename std::vector<integer_type>::difference_type first_repeat =
-        _floyd_cycle_detect ( _floyd_lambda<Rational<T, GCD, CHKOP> > ( base, m_denom ),
-                              _remquo<T, GCD, CHKOP> () ( n, m_denom, w ) , period ),
+        floyd_cycle_detect ( floyd_cd_lambda ( base, m_denom ),
+                             _remquo<T, GCD, CHKOP> () ( n, m_denom, w ) , period ),
         dlen = period + first_repeat;
+
+    dg.reserve ( static_cast<typename std::vector<integer_type>::size_type> ( dlen ) );
 
     do {
 
@@ -1960,7 +1964,7 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
 
         n = op_multiplies() ( base, r );
 
-    } while ( dg.size() != static_cast<typename std::vector<integer_type>::size_type>(dlen) );
+    } while ( dg.size() != static_cast<typename std::vector<integer_type>::size_type> ( dlen ) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
@@ -3250,4 +3254,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
