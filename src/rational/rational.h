@@ -1822,7 +1822,7 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out, const Container &dv
             MDCLOSURE ( k )
         } );
 #else
-        for ( ; j != dv.end(); ++j ) {
+        for ( const typename Container::const_iterator &e ( dv.end() ) ; j != e; ++j ) {
             MDCLOSURE ( *j )
         }
 #endif
