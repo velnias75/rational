@@ -1948,10 +1948,25 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
     typename std::vector<integer_type>::difference_type period;
     const typename std::vector<integer_type>::difference_type first_repeat =
         floyd_cycle_detect ( floyd_cd_lambda ( base, m_denom ),
-                             _remquo<T, GCD, CHKOP> () ( n, m_denom, w ) , period ),
+                             _remquo<T, GCD, CHKOP> () ( n, m_denom, w ), period ),
         dlen = period + first_repeat;
 
-    dg.reserve ( static_cast<typename std::vector<integer_type>::size_type> ( dlen ) );
+#ifdef __EXCEPTIONS
+	try {
+#endif
+		dg.reserve ( static_cast<typename std::vector<integer_type>::size_type> ( dlen ) );
+#ifdef __EXCEPTIONS
+	} catch(const std::bad_alloc &) {
+
+		std::ostringstream os;
+
+		os << "Out of memory in allocation for " << dlen << "digits";
+
+		if(period) os << " of repeating decimal with period size " << period;
+
+		throw std::runtime_error(os.str());
+	}
+#endif
 
     do {
 
@@ -3254,4 +3269,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
