@@ -780,6 +780,7 @@ public:
     template<class Container>
     integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
                              const integer_type &base = integer_type ( 10 ) ) const;
+
     /**
      * @brief extract the integral and fractional part
      *
@@ -1304,9 +1305,9 @@ private:
         *tok_len = 0;
     }
 
-    struct floyd_cd_lambda {
+    struct cd_lambda {
 
-        floyd_cd_lambda ( const integer_type &b, const integer_type &d ) : b_ ( b ), d_ ( d ) {}
+        cd_lambda ( const integer_type &b, const integer_type &d ) : b_ ( b ), d_ ( d ) {}
 
         integer_type operator() ( const integer_type &r ) const {
             return op_multiplies() ( b_, op_modulus() ( r, d_ ) );
@@ -1316,6 +1317,9 @@ private:
         const integer_type &b_;
         const integer_type &d_;
     };
+
+    template<class F, class RetType>
+    static RetType brent_cycle_detect ( const F &f, const integer_type &x, RetType &lam );
 
     template<class F, class RetType>
     static RetType floyd_cycle_detect ( const F &f, const integer_type &x, RetType &lam );
@@ -1893,6 +1897,52 @@ struct _remquo<long long, GCD, CHKOP> {
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> template<class F, class RetType>
+RetType Rational<T, GCD, CHKOP>::brent_cycle_detect ( const F &f, const integer_type &x,
+        RetType &lam ) {
+
+    RetType power ( 1 );
+
+    integer_type tortoise ( x );
+    integer_type hare ( f ( x ) );
+
+    lam = 1;
+
+    while ( tortoise != hare ) {
+
+        if ( power == lam ) {
+
+            tortoise = hare;
+
+            power <<= 1;
+
+            lam = 0;
+        }
+
+        hare = f ( hare );
+
+        ++lam;
+    }
+
+    RetType mu ( 0 );
+
+    tortoise = hare = x;
+
+    for ( RetType i ( 0 ); i < lam; ++i ) hare = f ( hare );
+
+    while ( tortoise != hare ) {
+
+        tortoise = f ( tortoise );
+        hare = f ( hare );
+
+        ++mu;
+    }
+
+    return mu;
+}
+
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> template<class F, class RetType>
 RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_type &x,
         RetType &lam ) {
 
@@ -1941,32 +1991,19 @@ typename Rational<T, GCD, CHKOP>::integer_type
 Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
                                      Container &reptend_digits, const integer_type &base ) const {
 
-    std::vector<integer_type> dg;
     integer_type w, r, n ( m_numer );
 
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-    typename std::vector<integer_type>::difference_type period;
+    typename std::vector<integer_type>::difference_type period, pred = 0;
     const typename std::vector<integer_type>::difference_type first_repeat =
-        floyd_cycle_detect ( floyd_cd_lambda ( base, m_denom ),
-                             _remquo<T, GCD, CHKOP> () ( n, m_denom, w ), period ),
+        brent_cycle_detect ( cd_lambda ( base, m_denom ),
+                             _remquo<T, GCD, CHKOP> () ( n, m_denom, w ), period ) - 1,
         dlen = period + first_repeat;
 
-#ifdef __EXCEPTIONS
-	try {
-#endif
-		dg.reserve ( static_cast<typename std::vector<integer_type>::size_type> ( dlen ) );
-#ifdef __EXCEPTIONS
-	} catch(const std::bad_alloc &) {
+    bool first = true;
 
-		std::ostringstream os;
-
-		os << "Out of memory in allocation for " << dlen << "digits";
-
-		if(period) os << " of repeating decimal with period size " << period;
-
-		throw std::runtime_error(os.str());
-	}
-#endif
+    pre_digits.clear();
+    reptend_digits.clear();
 
     do {
 
@@ -1975,37 +2012,36 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
         r = ( aux = _remquo<T, GCD, CHKOP> () ( n, m_denom, q ) ) < zero_
             ? integer_type ( -aux ) : aux;
 
-        dg.push_back ( q < zero_ ? integer_type ( -q ) : q );
+        if ( !first ) {
+            * ( std::back_inserter ( pred++ < first_repeat ? pre_digits :
+                                     reptend_digits ) ++ ) = q < zero_ ? integer_type ( -q ) : q;
+        } else {
+            first = false;
+        }
 
         n = op_multiplies() ( base, r );
 
-    } while ( dg.size() != static_cast<typename std::vector<integer_type>::size_type> ( dlen ) );
+    } while ( ( pre_digits.size() + reptend_digits.size() ) <
+              static_cast<typename std::vector<integer_type>::size_type> ( dlen ) );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
-    pre_digits.clear();
-    reptend_digits.clear();
-
     const bool hasPer = r != zero_;
-    const bool hasPre = !hasPer || r != w;
 
-    const typename std::vector<integer_type>::iterator &pivot ( dg.begin() +
-            ( hasPre ? ( first_repeat - 1 ) : 0 ) + 1 );
-
-    if ( hasPre ) {
-        std::copy ( dg.begin() + 1, pivot, std::back_inserter ( pre_digits ) );
+    if ( !hasPer || r != w ) {
         rf_info.pre_leading_zeros = md ( rf_info.pre, pre_digits, base );
+    } else {
+        pre_digits.clear();
     }
 
     if ( hasPer ) {
-        std::copy ( pivot, dg.end(), std::back_inserter ( reptend_digits ) );
         rf_info.leading_zeros = md ( rf_info.reptend, reptend_digits, base );
+    }  else {
+        reptend_digits.clear();
     }
 
-    const bool isNegative = m_numer < zero_;
-
-    if ( isNegative ) {
+    if ( m_numer < zero_ ) {
 
         if ( !pre_digits.empty() ) {
             pre_digits.front() = integer_type ( -pre_digits.front() );
@@ -2016,7 +2052,7 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
         }
     }
 
-    return isNegative ? integer_type ( -dg.front() ) : dg.front();
+    return w;
 }
 #pragma GCC diagnostic pop
 
@@ -3269,4 +3305,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
