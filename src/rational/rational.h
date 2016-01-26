@@ -428,6 +428,68 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
 template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigned> class CHKOP,
          template<typename> class CONV = TYPE_CONVERT> struct GCD_euclid_fast;
 
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+class Rational;
+
+template<typename T, template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> struct _remquo {
+    T operator() ( const T &x, const T &y, T &quo ) const {
+        return typename Rational<T, GCD, CHKOP>::op_minus() ( x,
+                typename Rational<T, GCD, CHKOP>::op_multiplies() ( y,
+                        ( quo = typename Rational<T, GCD, CHKOP>::op_divides() ( x, y ) ) ) );
+    }
+};
+
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> struct _remquo<int, GCD, CHKOP> {
+
+    int operator() ( int x, int y, int &quo ) const {
+
+        using namespace std;
+
+        const div_t &d ( div ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP> struct _remquo<long, GCD, CHKOP> {
+
+    long operator() ( long x, long y, long &quo ) const {
+
+        using namespace std;
+
+        const ldiv_t &d ( ldiv ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+
+#if (_XOPEN_SOURCE >= 600 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L)
+template<template<typename, bool,
+         template<class, typename, bool> class, template<typename> class> class GCD,
+         template<class, typename, bool> class CHKOP>
+struct _remquo<long long, GCD, CHKOP> {
+
+    long long operator() ( long long x, long long y, long long &quo ) const {
+
+        using namespace std;
+
+        const lldiv_t &d ( lldiv ( x, y ) );
+
+        quo = d.quot;
+        return d.rem;
+    }
+};
+#endif
+
 /**
  * @ingroup main
  * @brief Traits struct to choose NumberType for expression evaluation
@@ -1305,21 +1367,39 @@ private:
         *tok_len = 0;
     }
 
+    template<typename OIter>
     struct cd_lambda {
 
-        cd_lambda ( const integer_type &b, const integer_type &d ) : b_ ( b ), d_ ( d ) {}
+        typedef enum { NONE, PRE, REP } PUSH;
+
+        cd_lambda ( const integer_type &b, const integer_type &d, OIter pre, OIter rep )
+            : b_ ( b ), d_ ( d ), pre_ ( pre ), rep_ ( rep ) {}
 
         integer_type operator() ( const integer_type &r ) const {
-            return op_multiplies() ( b_, op_modulus() ( r, d_ ) );
+            return ( op_multiplies() ( b_, op_modulus() ( r, d_ ) ) );
         }
+
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic push
+        integer_type operator() ( const integer_type &r, PUSH p ) const {
+
+            integer_type q;
+
+            const integer_type &ret ( op_multiplies() ( b_, _remquo<integer_type, GCD, CHKOP>()
+                                      ( r, d_, q ) ) );
+
+            if ( p != NONE ) * ( p == PRE ? pre_++ : rep_++ ) = q < zero_ ? integer_type ( -q ) : q;
+
+            return ret;
+        }
+#pragma GCC diagnostic pop
 
     private:
         const integer_type &b_;
         const integer_type &d_;
+        mutable OIter pre_;
+        mutable OIter rep_;
     };
-
-    template<class F, class RetType>
-    static RetType brent_cycle_detect ( const F &f, const integer_type &x, RetType &lam );
 
     template<class F, class RetType>
     static RetType floyd_cycle_detect ( const F &f, const integer_type &x, RetType &lam );
@@ -1838,110 +1918,6 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out, const Container &dv
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _remquo {
-    T operator() ( const T &x, const T &y, T &quo ) const {
-        return typename Rational<T, GCD, CHKOP>::op_minus() ( x,
-                typename Rational<T, GCD, CHKOP>::op_multiplies() ( y,
-                        ( quo = typename Rational<T, GCD, CHKOP>::op_divides() ( x, y ) ) ) );
-    }
-};
-
-template<template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _remquo<int, GCD, CHKOP> {
-
-    int operator() ( int x, int y, int &quo ) const {
-
-        using namespace std;
-
-        const div_t &d ( div ( x, y ) );
-
-        quo = d.quot;
-        return d.rem;
-    }
-};
-
-template<template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _remquo<long, GCD, CHKOP> {
-
-    long operator() ( long x, long y, long &quo ) const {
-
-        using namespace std;
-
-        const ldiv_t &d ( ldiv ( x, y ) );
-
-        quo = d.quot;
-        return d.rem;
-    }
-};
-
-#if (_XOPEN_SOURCE >= 600 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L)
-template<template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-struct _remquo<long long, GCD, CHKOP> {
-
-    long long operator() ( long long x, long long y, long long &quo ) const {
-
-        using namespace std;
-
-        const lldiv_t &d ( lldiv ( x, y ) );
-
-        quo = d.quot;
-        return d.rem;
-    }
-};
-#endif
-
-template<typename T, template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> template<class F, class RetType>
-RetType Rational<T, GCD, CHKOP>::brent_cycle_detect ( const F &f, const integer_type &x,
-        RetType &lam ) {
-
-    RetType power ( 1 );
-
-    integer_type tortoise ( x );
-    integer_type hare ( f ( x ) );
-
-    lam = 1;
-
-    while ( tortoise != hare ) {
-
-        if ( power == lam ) {
-
-            tortoise = hare;
-
-            power <<= 1;
-
-            lam = 0;
-        }
-
-        hare = f ( hare );
-
-        ++lam;
-    }
-
-    RetType mu ( 0 );
-
-    tortoise = hare = x;
-
-    for ( RetType i ( 0 ); i < lam; ++i ) hare = f ( hare );
-
-    while ( tortoise != hare ) {
-
-        tortoise = f ( tortoise );
-        hare = f ( hare );
-
-        ++mu;
-    }
-
-    return mu;
-}
-
-template<typename T, template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> template<class F, class RetType>
 RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_type &x,
         RetType &lam ) {
@@ -1961,7 +1937,7 @@ RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_
 
     while ( tortoise != hare ) {
 
-        tortoise = f ( tortoise );
+        tortoise = f ( tortoise, tortoise != x ? F::PRE : F::NONE );
         hare = f ( hare );
 
         ++mu;
@@ -1969,11 +1945,11 @@ RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_
 
     lam = 1;
 
-    hare = f ( tortoise );
+    hare = f ( tortoise, tortoise != zero_ ? F::REP : F::NONE );
 
     while ( tortoise != hare ) {
 
-        hare = f ( hare );
+        hare = f ( hare, F::REP );
 
         ++lam;
     }
@@ -1988,57 +1964,33 @@ template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> template<class Container>
 typename Rational<T, GCD, CHKOP>::integer_type
-Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
-                                     Container &reptend_digits, const integer_type &base ) const {
-
-    integer_type w, r, n ( m_numer );
-
-    // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-    typename std::vector<integer_type>::difference_type period, pred = 0;
-    const typename std::vector<integer_type>::difference_type first_repeat =
-        brent_cycle_detect ( cd_lambda ( base, m_denom ),
-                             _remquo<T, GCD, CHKOP> () ( n, m_denom, w ), period ) - 1,
-        dlen = period + first_repeat;
-
-    bool first = true;
+Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Container &rep_digits,
+                                     const integer_type &base ) const {
+    integer_type w;
 
     pre_digits.clear();
-    reptend_digits.clear();
+    rep_digits.clear();
 
-    do {
-
-        integer_type q, aux;
-
-        r = ( aux = _remquo<T, GCD, CHKOP> () ( n, m_denom, q ) ) < zero_
-            ? integer_type ( -aux ) : aux;
-
-        if ( !first ) {
-            * ( std::back_inserter ( pred++ < first_repeat ? pre_digits :
-                                     reptend_digits ) ++ ) = q < zero_ ? integer_type ( -q ) : q;
-        } else {
-            first = false;
-        }
-
-        n = op_multiplies() ( base, r );
-
-    } while ( ( pre_digits.size() + reptend_digits.size() ) <
-              static_cast<typename std::vector<integer_type>::size_type> ( dlen ) );
+    // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
+    typename std::vector<integer_type>::difference_type period;
+    const typename std::vector<integer_type>::difference_type first_repeat (
+        floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( base, m_denom,
+                             std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ) ),
+                             _remquo<T, GCD, CHKOP> () ( m_numer, m_denom, w ), period ) - 1 );
 
     rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
-    const bool hasPer = r != zero_;
-
-    if ( !hasPer || r != w ) {
+    if ( first_repeat ) {
         rf_info.pre_leading_zeros = md ( rf_info.pre, pre_digits, base );
     } else {
         pre_digits.clear();
     }
 
-    if ( hasPer ) {
-        rf_info.leading_zeros = md ( rf_info.reptend, reptend_digits, base );
+    if ( period ) {
+        rf_info.leading_zeros = md ( rf_info.reptend, rep_digits, base );
     }  else {
-        reptend_digits.clear();
+        rep_digits.clear();
     }
 
     if ( m_numer < zero_ ) {
@@ -2047,8 +1999,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits,
             pre_digits.front() = integer_type ( -pre_digits.front() );
         }
 
-        if ( !reptend_digits.empty() ) {
-            reptend_digits.front() = integer_type ( -reptend_digits.front() );
+        if ( !rep_digits.empty() ) {
+            rep_digits.front() = integer_type ( -rep_digits.front() );
         }
     }
 
