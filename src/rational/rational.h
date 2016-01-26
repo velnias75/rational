@@ -841,7 +841,14 @@ public:
      */
     template<class Container>
     integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
-                             const integer_type &base = integer_type ( 10 ) ) const;
+                             const integer_type &base = integer_type ( 10 ) ) const {
+		return decompose(rf_info, pre_digits, reptend_digits, false, base);
+    }
+
+    template<class Container>
+    integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
+                             bool digitsOnly, const integer_type &base =
+								integer_type ( 10 ) ) const;
 
     /**
      * @brief extract the integral and fractional part
@@ -1373,8 +1380,8 @@ private:
         typedef enum { NOP, PRE, REP } PUSH;
 
         cd_lambda ( const integer_type &b, const integer_type &d, OIter pre, OIter rep,
-                    rf_info &rf_info ) : b_ ( b ), d_ ( d ), pre_ ( pre ), rep_ ( rep ),
-            rfi_ ( rf_info ), q() {
+                    rf_info &rf_info, bool horner ) : b_ ( b ), d_ ( d ), pre_ ( pre ),
+            rep_ ( rep ), rfi_ ( rf_info ), q(), horner_(horner) {
             rfi_.reptend = rfi_.pre = zero_;
         }
 
@@ -1390,10 +1397,10 @@ private:
 
                 if ( p == REP ) {
                     * ( rep_++ ) = q;
-                    rfi_.reptend = op_plus() ( op_multiplies() ( rfi_.reptend, b_ ), q );
+                    if(horner_) rfi_.reptend = op_plus() ( op_multiplies() ( rfi_.reptend, b_ ), q );
                 } else {
                     * ( pre_++ ) = q;
-                    rfi_.pre = op_plus() ( op_multiplies() ( rfi_.pre, b_ ), q );
+                    if(horner_) rfi_.pre = op_plus() ( op_multiplies() ( rfi_.pre, b_ ), q );
                 }
             }
 
@@ -1407,6 +1414,7 @@ private:
         mutable OIter rep_;
         rf_info &rfi_;
         mutable integer_type q;
+        bool horner_;
     };
 
     template<class F, class RetType>
@@ -1955,7 +1963,7 @@ template<typename T, template<typename, bool,
          template<class, typename, bool> class CHKOP> template<class Container>
 typename Rational<T, GCD, CHKOP>::integer_type
 Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Container &rep_digits,
-                                     const integer_type &base ) const {
+                                     bool digitsOnly, const integer_type &base ) const {
     integer_type w;
 
     pre_digits.clear();
@@ -1966,8 +1974,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
     const typename std::vector<integer_type>::difference_type first_repeat (
         floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( base, m_denom,
                              std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
-                             rf_info ), _remquo<T, GCD, CHKOP> () ( m_numer, m_denom, w ),
-                             period ) - 1 );
+                             rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP> () ( m_numer, m_denom,
+                             w ), period ) - 1 );
 
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
@@ -3245,4 +3253,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
