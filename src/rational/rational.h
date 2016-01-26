@@ -1370,7 +1370,7 @@ private:
     template<typename OIter>
     struct cd_lambda {
 
-        typedef enum { NONE, PRE, REP } PUSH;
+        typedef enum { NOP, PRE, REP } PUSH;
 
         cd_lambda ( const integer_type &b, const integer_type &d, OIter pre, OIter rep )
             : b_ ( b ), d_ ( d ), pre_ ( pre ), rep_ ( rep ) {}
@@ -1379,20 +1379,15 @@ private:
             return ( op_multiplies() ( b_, op_modulus() ( r, d_ ) ) );
         }
 
-#pragma GCC diagnostic ignored "-Wtype-limits"
-#pragma GCC diagnostic push
         integer_type operator() ( const integer_type &r, PUSH p ) const {
 
-            integer_type q;
+            integer_type q, ret ( op_multiplies() ( b_, _remquo<integer_type, GCD, CHKOP>()
+                                                    ( r, d_, q ) ) );
 
-            const integer_type &ret ( op_multiplies() ( b_, _remquo<integer_type, GCD, CHKOP>()
-                                      ( r, d_, q ) ) );
-
-            if ( p != NONE ) * ( p == PRE ? pre_++ : rep_++ ) = q < zero_ ? integer_type ( -q ) : q;
+            if ( p != NOP ) * ( p == PRE ? pre_++ : rep_++ ) = q;
 
             return ret;
         }
-#pragma GCC diagnostic pop
 
     private:
         const integer_type &b_;
@@ -1876,13 +1871,6 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
-#define MDCLOSURE(k) out = op_plus() ( op_multiplies() ( out, base ), (k) ); \
-	if ( !pre_zeros && (k) == zero_ ) { \
-		++zeros; \
-	} else { \
-		pre_zeros = true; \
-	}
-
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> template<class Container>
@@ -1899,18 +1887,18 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out, const Container &dv
 
         bool pre_zeros = false;
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-        std::for_each ( j, dv.end(),
-                        [&] ( typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
-        const integer_type &, const integer_type>::ResultT k ) {
-            MDCLOSURE ( k )
-        } );
-#else
         for ( const typename Container::const_iterator &e ( dv.end() ) ; j != e; ++j ) {
-            MDCLOSURE ( *j )
-        }
-#endif
 
+            typename Container::const_reference &r ( *j );
+
+            out = op_plus() ( op_multiplies() ( out, base ), r );
+
+            if ( !pre_zeros && r == zero_ ) {
+                ++zeros;
+            } else {
+                pre_zeros = true;
+            }
+        }
     }
 
     return zeros;
@@ -1937,15 +1925,13 @@ RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_
 
     while ( tortoise != hare ) {
 
-        tortoise = f ( tortoise, tortoise != x ? F::PRE : F::NONE );
+        tortoise = f ( tortoise, mu++ ? F::PRE : F::NOP );
         hare = f ( hare );
-
-        ++mu;
     }
 
     lam = 1;
 
-    hare = f ( tortoise, tortoise != zero_ ? F::REP : F::NONE );
+    hare = f ( tortoise, tortoise != zero_ ? F::REP : F::NOP );
 
     while ( tortoise != hare ) {
 
@@ -1995,13 +1981,11 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
 
     if ( m_numer < zero_ ) {
 
-        if ( !pre_digits.empty() ) {
-            pre_digits.front() = integer_type ( -pre_digits.front() );
-        }
+        if ( !pre_digits.empty() ) std::transform ( ++pre_digits.begin(), pre_digits.end(),
+                    ++pre_digits.begin(), op_negate() );
 
-        if ( !rep_digits.empty() ) {
-            rep_digits.front() = integer_type ( -rep_digits.front() );
-        }
+        if ( !rep_digits.empty() ) std::transform ( ++rep_digits.begin(), rep_digits.end(),
+                    ++rep_digits.begin(), op_negate() );
     }
 
     return w;
