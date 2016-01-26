@@ -1895,16 +1895,12 @@ std::size_t Rational<T, GCD, CHKOP>::clz ( const Container &dv ) {
 
         typename Container::const_iterator j ( dv.begin() );
 
-        if ( *j++ == zero_ ) ++zeros;
-
-        bool pre_zeros = false;
-
         for ( const typename Container::const_iterator &e ( dv.end() ) ; j != e; ++j ) {
 
-            if ( !pre_zeros && *j == zero_ ) {
+            if ( *j == zero_ ) {
                 ++zeros;
             } else {
-                pre_zeros = true;
+                break;
             }
         }
     }
