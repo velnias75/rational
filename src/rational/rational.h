@@ -835,20 +835,23 @@ public:
      * @param[out] rf_info rf_info structure to store the result
      * @param[out] pre_digits Container to store the pre-digits
      * @param[out] reptend_digits Container to store the reptend-digits
+     * @param[in] digitsOnly omit calculation of @c rf_info.pre and @c rf_info.reptend
      * @param[in] base the base, defaults to integer_type (10) as a decimal base
      *
      * @return the whole part of the fraction
      */
     template<class Container>
     integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
-                             const integer_type &base = integer_type ( 10 ) ) const {
-		return decompose(rf_info, pre_digits, reptend_digits, false, base);
-    }
-
+                             bool digitsOnly, const integer_type &base =
+                                 integer_type ( 10 ) ) const;
+    /**
+     * @overload
+     */
     template<class Container>
     integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
-                             bool digitsOnly, const integer_type &base =
-								integer_type ( 10 ) ) const;
+                             const integer_type &base = integer_type ( 10 ) ) const {
+        return decompose ( rf_info, pre_digits, reptend_digits, false, base );
+    }
 
     /**
      * @brief extract the integral and fractional part
@@ -1381,8 +1384,9 @@ private:
 
         cd_lambda ( const integer_type &b, const integer_type &d, OIter pre, OIter rep,
                     rf_info &rf_info, bool horner ) : b_ ( b ), d_ ( d ), pre_ ( pre ),
-            rep_ ( rep ), rfi_ ( rf_info ), q(), horner_(horner) {
-            rfi_.reptend = rfi_.pre = zero_;
+            rep_ ( rep ), rfi_ ( rf_info ), q_(), horner_ ( horner ) {
+
+            if ( horner ) rfi_.reptend = rfi_.pre = zero_;
         }
 
         integer_type operator() ( const integer_type &r ) const {
@@ -1392,15 +1396,16 @@ private:
         integer_type operator() ( const integer_type &r, PUSH p ) const {
 
             const integer_type ret ( op_multiplies() ( _remquo<integer_type, GCD, CHKOP>()
-                                     ( r, d_, q ), b_ ) );
+                                     ( r, d_, q_ ), b_ ) );
             if ( p != NOP ) {
 
                 if ( p == REP ) {
-                    * ( rep_++ ) = q;
-                    if(horner_) rfi_.reptend = op_plus() ( op_multiplies() ( rfi_.reptend, b_ ), q );
+                    * ( rep_++ ) = q_;
+                    if ( horner_ ) rfi_.reptend = op_plus() ( op_multiplies() ( rfi_.reptend, b_ ),
+                                                      q_ );
                 } else {
-                    * ( pre_++ ) = q;
-                    if(horner_) rfi_.pre = op_plus() ( op_multiplies() ( rfi_.pre, b_ ), q );
+                    * ( pre_++ ) = q_;
+                    if ( horner_ ) rfi_.pre = op_plus() ( op_multiplies() ( rfi_.pre, b_ ), q_ );
                 }
             }
 
@@ -1413,7 +1418,7 @@ private:
         mutable OIter pre_;
         mutable OIter rep_;
         rf_info &rfi_;
-        mutable integer_type q;
+        mutable integer_type q_;
         bool horner_;
     };
 
@@ -1975,7 +1980,7 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
         floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( base, m_denom,
                              std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
                              rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP> () ( m_numer, m_denom,
-                             w ), period ) - 1 );
+                                     w ), period ) - 1 );
 
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
@@ -3253,4 +3258,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
