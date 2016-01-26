@@ -1334,7 +1334,7 @@ private:
     Rational _sqrt() const;
 
     template<class Container>
-    static std::size_t md ( integer_type &out, const Container &dv, const integer_type &base );
+    static std::size_t clz ( const Container &dv );
 
     RATIONAL_CONSTEXPR static bool isOperator ( const char op ) {
         return op == '/' || op == '*' || op == '+' || op == '-' || op == '%' || op == 1 || op == 2;
@@ -1372,19 +1372,30 @@ private:
 
         typedef enum { NOP, PRE, REP } PUSH;
 
-        cd_lambda ( const integer_type &b, const integer_type &d, OIter pre, OIter rep )
-            : b_ ( b ), d_ ( d ), pre_ ( pre ), rep_ ( rep ) {}
+        cd_lambda ( const integer_type &b, const integer_type &d, OIter pre, OIter rep,
+                    rf_info &rf_info ) : b_ ( b ), d_ ( d ), pre_ ( pre ), rep_ ( rep ),
+            rfi_ ( rf_info ), q() {
+            rfi_.reptend = rfi_.pre = zero_;
+        }
 
         integer_type operator() ( const integer_type &r ) const {
-            return ( op_multiplies() ( b_, op_modulus() ( r, d_ ) ) );
+            return ( op_multiplies() ( op_modulus() ( r, d_ ), b_ ) );
         }
 
         integer_type operator() ( const integer_type &r, PUSH p ) const {
 
-            integer_type q, ret ( op_multiplies() ( b_, _remquo<integer_type, GCD, CHKOP>()
-                                                    ( r, d_, q ) ) );
+            const integer_type ret ( op_multiplies() ( _remquo<integer_type, GCD, CHKOP>()
+                                     ( r, d_, q ), b_ ) );
+            if ( p != NOP ) {
 
-            if ( p != NOP ) * ( p == PRE ? pre_++ : rep_++ ) = q;
+                if ( p == REP ) {
+                    * ( rep_++ ) = q;
+                    rfi_.reptend = op_plus() ( op_multiplies() ( rfi_.reptend, b_ ), q );
+                } else {
+                    * ( pre_++ ) = q;
+                    rfi_.pre = op_plus() ( op_multiplies() ( rfi_.pre, b_ ), q );
+                }
+            }
 
             return ret;
         }
@@ -1394,6 +1405,8 @@ private:
         const integer_type &d_;
         mutable OIter pre_;
         mutable OIter rep_;
+        rf_info &rfi_;
+        mutable integer_type q;
     };
 
     template<class F, class RetType>
@@ -1874,8 +1887,7 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> template<class Container>
-std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out, const Container &dv,
-        const integer_type &base ) {
+std::size_t Rational<T, GCD, CHKOP>::clz ( const Container &dv ) {
 
     std::size_t zeros = 0u;
 
@@ -1883,17 +1895,13 @@ std::size_t Rational<T, GCD, CHKOP>::md ( integer_type &out, const Container &dv
 
         typename Container::const_iterator j ( dv.begin() );
 
-        if ( ( out = *j++ ) == zero_ ) ++zeros;
+        if ( *j++ == zero_ ) ++zeros;
 
         bool pre_zeros = false;
 
         for ( const typename Container::const_iterator &e ( dv.end() ) ; j != e; ++j ) {
 
-            typename Container::const_reference &r ( *j );
-
-            out = op_plus() ( op_multiplies() ( out, base ), r );
-
-            if ( !pre_zeros && r == zero_ ) {
+            if ( !pre_zeros && *j == zero_ ) {
                 ++zeros;
             } else {
                 pre_zeros = true;
@@ -1961,20 +1969,20 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
     typename std::vector<integer_type>::difference_type period;
     const typename std::vector<integer_type>::difference_type first_repeat (
         floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( base, m_denom,
-                             std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ) ),
-                             _remquo<T, GCD, CHKOP> () ( m_numer, m_denom, w ), period ) - 1 );
+                             std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
+                             rf_info ), _remquo<T, GCD, CHKOP> () ( m_numer, m_denom, w ),
+                             period ) - 1 );
 
-    rf_info.reptend = rf_info.pre = zero_;
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
     if ( first_repeat ) {
-        rf_info.pre_leading_zeros = md ( rf_info.pre, pre_digits, base );
+        rf_info.pre_leading_zeros = clz ( pre_digits );
     } else {
         pre_digits.clear();
     }
 
     if ( period ) {
-        rf_info.leading_zeros = md ( rf_info.reptend, rep_digits, base );
+        rf_info.leading_zeros = clz ( rep_digits );
     }  else {
         rep_digits.clear();
     }
