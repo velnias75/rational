@@ -1998,11 +1998,15 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
 
     if ( m_numer < zero_ ) {
 
-        if ( !pre_digits.empty() ) std::transform ( ++pre_digits.begin(), pre_digits.end(),
-                    ++pre_digits.begin(), op_negate() );
+        if ( !pre_digits.empty() ) {
+            typename Container::iterator i ( ++pre_digits.begin() );
+            std::transform ( i, pre_digits.end(), i, op_negate() );
+        }
 
-        if ( !rep_digits.empty() ) std::transform ( ++rep_digits.begin(), rep_digits.end(),
-                    ++rep_digits.begin(), op_negate() );
+        if ( !rep_digits.empty() ) {
+            typename Container::iterator i ( ++rep_digits.begin() );
+            std::transform ( i, rep_digits.end(), i, op_negate() );
+        }
     }
 
     return w;
