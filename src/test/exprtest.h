@@ -24,6 +24,12 @@
 #include "config.h"
 #endif
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+#define RATIONAL_OVERRIDE override
+#else
+#define RATIONAL_OVERRIDE
+#endif
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "expr_rational.h"
@@ -48,8 +54,8 @@ public:
 
     ExprTest();
 
-    void setUp();
-    void tearDown();
+    void setUp() RATIONAL_OVERRIDE;
+    void tearDown() RATIONAL_OVERRIDE;
 
     void testExpression();
     void testExpression_gmp();
@@ -78,4 +84,4 @@ private:
 
 #endif /* EXPRTESTCASE_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

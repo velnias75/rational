@@ -24,6 +24,12 @@
 
 #include "infint_rational.h"
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+#define RATIONAL_OVERRIDE override
+#else
+#define RATIONAL_OVERRIDE
+#endif
+
 #pragma GCC diagnostic ignored "-Winline"
 #pragma GCC diagnostic ignored "-Weffc++"
 #pragma GCC diagnostic push
@@ -51,8 +57,8 @@ public:
 
     InfIntTest();
 
-    void setUp();
-    void tearDown();
+    void setUp() RATIONAL_OVERRIDE;
+    void tearDown() RATIONAL_OVERRIDE;
 
     void testConstruct();
     void testConstructFromDouble();
@@ -84,4 +90,4 @@ private:
 
 #endif /* INFINTTESTCASE_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

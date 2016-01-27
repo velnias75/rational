@@ -24,6 +24,12 @@
 
 #include "cln_rational.h"
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+#define RATIONAL_OVERRIDE override
+#else
+#define RATIONAL_OVERRIDE
+#endif
+
 CPPUNIT_NS_BEGIN
 
 template<> struct assertion_traits<cln::cl_I> {
@@ -69,8 +75,8 @@ public:
 
     CLNTest();
 
-    void setUp();
-    void tearDown();
+    void setUp() RATIONAL_OVERRIDE;
+    void tearDown() RATIONAL_OVERRIDE;
 
     void testConstruct();
     void testConstructFromDouble();
@@ -103,4 +109,4 @@ private:
 
 #endif /* CLNTESTCASE_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
