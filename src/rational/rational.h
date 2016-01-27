@@ -1383,8 +1383,8 @@ private:
         typedef enum { NOP, PRE, REP } PUSH;
 
         cd_lambda ( const integer_type &b, const integer_type &d, OIter pre, OIter rep,
-                    rf_info &rf_info, bool horner ) : b_ ( b ), d_ ( d ), pre_ ( pre ),
-            rep_ ( rep ), rfi_ ( rf_info ), q_(), horner_ ( horner ) {
+                    rf_info &rf_info, bool horner ) : rfi_ ( rf_info ), b_ ( b ), d_ ( d ), q_(),
+            pre_ ( pre ), rep_ ( rep ), horner_ ( horner ) {
 
             if ( horner ) rfi_.reptend = rfi_.pre = zero_;
         }
@@ -1413,12 +1413,12 @@ private:
         }
 
     private:
+        rf_info &rfi_;
         const integer_type &b_;
         const integer_type &d_;
+        mutable integer_type q_;
         mutable OIter pre_;
         mutable OIter rep_;
-        rf_info &rfi_;
-        mutable integer_type q_;
         bool horner_;
     };
 
