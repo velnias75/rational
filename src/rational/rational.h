@@ -1343,9 +1343,6 @@ private:
 
     Rational _sqrt() const;
 
-    template<class Container>
-    static std::size_t clz ( const Container &dv );
-
     RATIONAL_CONSTEXPR static bool isOperator ( const char op ) {
         return op == '/' || op == '*' || op == '+' || op == '-' || op == '%' || op == 1 || op == 2;
     }
@@ -1899,30 +1896,6 @@ typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const 
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> template<class Container>
-std::size_t Rational<T, GCD, CHKOP>::clz ( const Container &dv ) {
-
-    std::size_t zeros = 0u;
-
-    if ( !dv.empty() ) {
-
-        typename Container::const_iterator j ( dv.begin() );
-
-        for ( const typename Container::const_iterator &e ( dv.end() ) ; j != e; ++j ) {
-
-            if ( *j == zero_ ) {
-                ++zeros;
-            } else {
-                break;
-            }
-        }
-    }
-
-    return zeros;
-}
-
-template<typename T, template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP> template<class F, class RetType>
 RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_type &x,
         RetType &lam ) {
@@ -1985,13 +1958,21 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
     if ( first_repeat ) {
-        rf_info.pre_leading_zeros = clz ( pre_digits );
+        rf_info.pre_leading_zeros =
+            std::distance ( pre_digits.begin(), std::find_if ( pre_digits.begin(),
+                            pre_digits.end(), std::not1 ( std::bind2nd
+                                    ( std::equal_to<typename Container::value_type>(),
+                                      typename Container::value_type() ) ) ) );
     } else {
         pre_digits.clear();
     }
 
     if ( period ) {
-        rf_info.leading_zeros = clz ( rep_digits );
+        rf_info.leading_zeros =
+            std::distance ( rep_digits.begin(), std::find_if ( rep_digits.begin(),
+                            rep_digits.end(), std::not1 ( std::bind2nd
+                                    ( std::equal_to<typename Container::value_type>(),
+                                      typename Container::value_type() ) ) ) );
     }  else {
         rep_digits.clear();
     }
