@@ -647,6 +647,9 @@ void GMPTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::string ( "188679245283" ), dc.reptend.get_str() );
     CPPUNIT_ASSERT ( std::equal ( rep.begin(), rep.end(), n_digits ) );
 
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), dc.leading_zeros );
+
     const gmp_rational o ( 1, 31 );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, o.decompose ( dc, pre, rep ).get_si() );
@@ -725,9 +728,15 @@ void GMPTest::testStdMath() {
 
     rep.reserve ( 82792 );
 
-    CPPUNIT_ASSERT_EQUAL ( 89l, r1.decompose ( dc, pre, rep ).get_si() );
+    dc.pre = 47;
+    dc.reptend = 11;
+
+    CPPUNIT_ASSERT_EQUAL ( 89l, r1.decompose ( dc, pre, rep, true ).get_si() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 1 ), pre.size() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 82792 ), rep.size() );
+
+    CPPUNIT_ASSERT_EQUAL ( 47l, dc.pre.get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 11l, dc.reptend.get_si() );
 
     const gmp_rational s ( 3, 4 );
 
@@ -804,4 +813,4 @@ void GMPTest::testGoldenRatio() {
                                          "138525" ), phi.inverse().denominator().get_str() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
