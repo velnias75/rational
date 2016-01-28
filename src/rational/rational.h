@@ -1958,21 +1958,21 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
     if ( first_repeat ) {
-        rf_info.pre_leading_zeros =
+        rf_info.pre_leading_zeros = static_cast<std::size_t> (
             std::distance ( pre_digits.begin(), std::find_if ( pre_digits.begin(),
                             pre_digits.end(), std::not1 ( std::bind2nd
                                     ( std::equal_to<typename Container::value_type>(),
-                                      typename Container::value_type() ) ) ) );
+                                      typename Container::value_type() ) ) ) ) );
     } else {
         pre_digits.clear();
     }
 
     if ( period ) {
-        rf_info.leading_zeros =
+        rf_info.leading_zeros = static_cast<std::size_t> (
             std::distance ( rep_digits.begin(), std::find_if ( rep_digits.begin(),
                             rep_digits.end(), std::not1 ( std::bind2nd
                                     ( std::equal_to<typename Container::value_type>(),
-                                      typename Container::value_type() ) ) ) );
+                                      typename Container::value_type() ) ) ) ) );
     }  else {
         rep_digits.clear();
     }
@@ -3243,4 +3243,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
