@@ -1419,6 +1419,17 @@ private:
         bool horner_;
     };
 
+    template<class IIter>
+    static std::size_t countLeading ( IIter first, IIter last,
+                                      const typename std::iterator_traits<IIter>::value_type &v =
+                                          typename std::iterator_traits<IIter>::value_type() ) {
+
+        return static_cast<std::size_t> ( std::distance ( first, std::find_if ( first, last,
+                                          std::not1 ( std::bind2nd ( std::equal_to
+                                                  <typename std::iterator_traits
+                                                  <IIter>::value_type>(), v ) ) ) ) );
+    }
+
     template<class F, class RetType>
     static RetType floyd_cycle_detect ( const F &f, const integer_type &x, RetType &lam );
 
@@ -1958,21 +1969,13 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
     if ( first_repeat ) {
-        rf_info.pre_leading_zeros = static_cast<std::size_t> (
-            std::distance ( pre_digits.begin(), std::find_if ( pre_digits.begin(),
-                            pre_digits.end(), std::not1 ( std::bind2nd
-                                    ( std::equal_to<typename Container::value_type>(),
-                                      typename Container::value_type() ) ) ) ) );
+        rf_info.pre_leading_zeros = countLeading ( pre_digits.begin(), pre_digits.end() );
     } else {
         pre_digits.clear();
     }
 
     if ( period ) {
-        rf_info.leading_zeros = static_cast<std::size_t> (
-            std::distance ( rep_digits.begin(), std::find_if ( rep_digits.begin(),
-                            rep_digits.end(), std::not1 ( std::bind2nd
-                                    ( std::equal_to<typename Container::value_type>(),
-                                      typename Container::value_type() ) ) ) ) );
+        rf_info.leading_zeros = countLeading ( rep_digits.begin(), rep_digits.end() );
     }  else {
         rep_digits.clear();
     }
@@ -3243,4 +3246,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

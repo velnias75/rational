@@ -1501,4 +1501,4 @@ void RationalTest::testGoldenRatio() {
     CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.inverse().denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
