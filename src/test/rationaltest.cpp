@@ -1232,6 +1232,23 @@ void RationalTest::testAlgorithm() {
     CPPUNIT_ASSERT_EQUAL ( b, std::max ( a, b ) );
     CPPUNIT_ASSERT_EQUAL ( b, std::max ( b, a ) );
 
+    CPPUNIT_ASSERT_EQUAL ( 0, cf ( static_cast<rational_type *> ( 0L ),
+                                   static_cast<rational_type *> ( 0L ) ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, cf ( static_cast<rational_type *> ( 0L ),
+                                   static_cast<rational_type *> ( 0L ) ).denominator() );
+
+    const rational_type cf_null[5] = { 0, 0, 0, 0, 0 };
+
+    CPPUNIT_ASSERT_EQUAL ( 0, cf ( cf_null, cf_null + 5 ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 1, cf ( cf_null, cf_null + 5 ).denominator() );
+
+    std::vector<rational_type> o_null;
+    seq ( cf ( cf_null, cf_null + 5 ), std::back_inserter ( o_null ) );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<rational_type>::size_type> ( 1u ),
+                           o_null.size() );
+    CPPUNIT_ASSERT_EQUAL ( 0, o_null.front() );
+
     const rational_type cf_pi[5] = { 3, 7, 15, 1, 292 };
 
     CPPUNIT_ASSERT_EQUAL ( 103993, cf ( cf_pi, cf_pi + 5 ).numerator() );
