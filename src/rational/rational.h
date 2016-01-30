@@ -128,23 +128,28 @@ struct _ifThenElse<false, Ta, Tb> {
 namespace Math {
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class, template<class, typename, bool> class, bool> struct _pow;
+         template<typename> class> class, template<class, typename, bool> class,
+         template<typename> class, bool> struct _pow;
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class, template<class, typename, bool> class, bool> struct _mod;
+         template<typename> class> class, template<class, typename, bool> class,
+         template<typename> class, bool> struct _mod;
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class, template<class, typename, bool> class, bool> struct _abs;
+         template<typename> class> class, template<class, typename, bool> class,
+         template<typename> class, bool> struct _abs;
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class, template<class, typename, bool> class, bool> struct _lcm;
+         template<typename> class> class, template<class, typename, bool> class,
+         template<typename> class, bool> struct _lcm;
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class, template<class, typename, bool> class, bool>
-struct _swapSign;
+         template<typename> class> class, template<class, typename, bool> class,
+         template<typename> class, bool> struct _swapSign;
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class, template<class, typename, bool> class> struct _psq;
+         template<typename> class> class, template<class, typename, bool> class,
+         template<typename> class> struct _psq;
 
 /**
  * @ingroup main
@@ -324,8 +329,8 @@ private:
 template<typename R> typename R::integer_type SQRT_HERON_ITERATE<R>::two_ ( R::one_ + R::one_ );
 
 template<typename, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class, template<class, typename, bool> class, typename, bool,
-         template<typename> class = EPSILON,
+         template<typename> class> class, template<class, typename, bool> class,
+         template<typename> class, typename, bool, template<typename> class = EPSILON,
          template<typename> class = TYPE_CONVERT> struct _approxFract;
 /**
  * @ingroup main
@@ -429,22 +434,26 @@ template<typename T, bool IsSigned, template<class, typename = T, bool = IsSigne
          template<typename> class CONV = TYPE_CONVERT> struct GCD_euclid_fast;
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
 class Rational;
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _remquo {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+struct _remquo {
     T operator() ( const T &x, const T &y, T &quo ) const {
-        return typename Rational<T, GCD, CHKOP>::op_minus() ( x,
-                typename Rational<T, GCD, CHKOP>::op_multiplies() ( y,
-                        ( quo = typename Rational<T, GCD, CHKOP>::op_divides() ( x, y ) ) ) );
+        return typename Rational<T, GCD, CHKOP, Alloc>::op_minus() ( x,
+                typename Rational<T, GCD, CHKOP, Alloc>::op_multiplies() ( y,
+                        ( quo = typename Rational<T, GCD, CHKOP, Alloc>::op_divides()
+                          ( x, y ) ) ) );
     }
 };
 
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _remquo<int, GCD, CHKOP> {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+struct _remquo<int, GCD, CHKOP, Alloc> {
 
     int operator() ( int x, int y, int &quo ) const {
 
@@ -459,7 +468,8 @@ template<template<typename, bool,
 
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _remquo<long, GCD, CHKOP> {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+struct _remquo<long, GCD, CHKOP, Alloc> {
 
     long operator() ( long x, long y, long &quo ) const {
 
@@ -475,8 +485,8 @@ template<template<typename, bool,
 #if (_XOPEN_SOURCE >= 600 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L)
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-struct _remquo<long long, GCD, CHKOP> {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+struct _remquo<long long, GCD, CHKOP, Alloc> {
 
     long long operator() ( long long x, long long y, long long &quo ) const {
 
@@ -523,7 +533,7 @@ template<typename T> struct _type_round_helper {
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD = GCD_euclid_fast,
          template<class, typename = T, bool = std::numeric_limits<T>::is_signed>
-         class CHKOP = NO_OPERATOR_CHECK>
+         class CHKOP = NO_OPERATOR_CHECK, template<typename> class Alloc = std::allocator>
 class Rational {
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
@@ -531,11 +541,12 @@ class Rational {
                     "only integer types are allowed as storage type" );
 #endif
 
-    friend struct _swapSign<T, GCD, CHKOP, std::numeric_limits<T>::is_signed>;
-    friend struct _mod<T, GCD, CHKOP, std::numeric_limits<T>::is_signed>;
+    friend struct _swapSign<T, GCD, CHKOP, Alloc, std::numeric_limits<T>::is_signed>;
+    friend struct _mod<T, GCD, CHKOP, Alloc, std::numeric_limits<T>::is_signed>;
     template<typename, template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class, template<class, typename, bool> class, typename, bool,
-             template<typename> class, template<typename> class> friend struct _approxFract;
+             template<typename> class> class, template<class, typename, bool> class,
+             template<typename> class, typename, bool, template<typename> class,
+             template<typename> class> friend struct _approxFract;
 public:
     /**
      * @brief storage type
@@ -548,7 +559,7 @@ public:
      * This type is based on @c std::pair, where @c first is the integral value and @c second the
      * fractional part
      */
-    typedef typename _mod<integer_type, GCD, CHKOP,
+    typedef typename _mod<integer_type, GCD, CHKOP, Alloc,
             std::numeric_limits<integer_type>::is_signed>::pair_type mod_type;
 
     /**
@@ -609,12 +620,12 @@ public:
      */
     template<template<typename, bool, template<class, typename, bool> class,
              template<typename> class> class U1,
-             template<class, typename, bool> class V1,
+             template<class, typename, bool> class V1, template<typename> class Alloc1,
              template<typename, bool, template<class, typename, bool> class,
              template<typename> class> class U2,
-             template<class, typename, bool> class V2>
-    Rational ( const Rational<integer_type, U1, V1> &numer,
-               const Rational<integer_type, U2, V2> &denom ) :
+             template<class, typename, bool> class V2, template<typename> class Alloc2>
+    Rational ( const Rational<integer_type, U1, V1, Alloc1> &numer,
+               const Rational<integer_type, U2, V2, Alloc2> &denom ) :
         m_numer ( numer.numerator() ), m_denom ( numer.denominator() ) {
         *this *= denom.inverse();
     }
@@ -874,7 +885,7 @@ public:
      * @return a copy of the absolute %Rational
      */
     RATIONAL_CONSTEXPR Rational abs() const {
-        return _abs<integer_type, GCD, CHKOP,
+        return _abs<integer_type, GCD, CHKOP, Alloc,
                std::numeric_limits<integer_type>::is_signed>() ( *this );
     }
 
@@ -902,7 +913,7 @@ public:
      * @return a copy of the absolute %Rational raised to the power of @c exp
      */
     Rational pow ( const integer_type &exp ) const {
-        return _pow<integer_type, GCD, CHKOP,
+        return _pow<integer_type, GCD, CHKOP, Alloc,
                std::numeric_limits<integer_type>::is_signed>() ( *this, exp );
     }
 
@@ -943,9 +954,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational &operator+= ( Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x += Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -959,9 +971,10 @@ public:
     RATIONAL_CONSTEXPR Rational operator+ ( const Rational& other ) const;
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational operator+ ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( Rational ( x ) += Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1012,9 +1025,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational &operator-= ( Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x -= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1030,9 +1044,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational operator- ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( Rational ( x ) -= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1083,9 +1098,10 @@ public:
     Rational& operator*= ( const Rational& other );
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational &operator*= ( Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x *= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1099,9 +1115,10 @@ public:
     RATIONAL_CONSTEXPR Rational operator* ( const Rational& other ) const;
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational operator* ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( Rational ( x ) *= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1117,9 +1134,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational &operator/= ( Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x /= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1135,9 +1153,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational operator/ ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( Rational ( x ) /= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1151,9 +1170,10 @@ public:
     Rational& operator%= ( const Rational& other );
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational &operator%= ( Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x %= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1169,9 +1189,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend Rational operator% ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( Rational ( x ) %= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1187,9 +1208,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend bool operator== ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x == Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1205,9 +1227,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend bool operator!= ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x != Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1221,9 +1244,10 @@ public:
     RATIONAL_CONSTEXPR bool operator< ( const Rational &other ) const;
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend bool operator< ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x < Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1239,9 +1263,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend bool operator<= ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x <= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1257,9 +1282,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend bool operator> ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x > Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1275,9 +1301,10 @@ public:
     }
 
     template<template<typename, bool, template<class, typename, bool> class,
-             template<typename> class> class U, template<class, typename, bool> class V>
+             template<typename> class> class U, template<class, typename, bool> class V,
+             template<typename> class W>
     RATIONAL_CONSTEXPR friend bool operator>= ( const Rational& x,
-            const Rational<integer_type, U, V>& y ) {
+            const Rational<integer_type, U, V, W>& y ) {
         return ( x >= Rational ( y.numerator(), y.denominator() ) );
     }
 
@@ -1359,7 +1386,7 @@ private:
         return !isLeftAssoc ( op ) ? 2 : ( ( op == '*' || op == '/' || op == '%' ) ? 1 : 0 );
     }
 
-    typedef std::stack<Rational, std::vector<Rational> > evalStack;
+    typedef std::stack<Rational, std::vector<Rational, Alloc<Rational> > > evalStack;
 
     static bool eval ( const char op, evalStack &s, const char *expr );
 
@@ -1392,7 +1419,7 @@ private:
 
         integer_type operator() ( const integer_type &r, PUSH p ) const {
 
-            const integer_type ret ( op_multiplies() ( _remquo<integer_type, GCD, CHKOP>()
+            const integer_type ret ( op_multiplies() ( _remquo<integer_type, GCD, CHKOP, Alloc>()
                                      ( r, d_, q_ ), b_ ) );
             if ( p != NOP ) {
 
@@ -1446,19 +1473,22 @@ private:
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-const typename Rational<T, GCD, CHKOP>::integer_type Rational<T, GCD, CHKOP>::zero_
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+const typename Rational<T, GCD, CHKOP, Alloc>::integer_type Rational<T, GCD, CHKOP, Alloc>::zero_
     = integer_type();
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-const typename Rational<T, GCD, CHKOP>::integer_type Rational<T, GCD, CHKOP>::one_
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+const typename Rational<T, GCD, CHKOP, Alloc>::integer_type Rational<T, GCD, CHKOP, Alloc>::one_
     = integer_type ( 1 );
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP>::Rational ( const integer_type &n, const integer_type &d ) : m_numer ( n ),
-    m_denom ( d ) {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc>::Rational ( const integer_type &n, const integer_type &d )
+    : m_numer ( n ), m_denom ( d ) {
 
 #ifdef __EXCEPTIONS
     if ( m_denom == zero_ ) throw std::domain_error ( "denominator can't be null" );
@@ -1468,12 +1498,13 @@ Rational<T, GCD, CHKOP>::Rational ( const integer_type &n, const integer_type &d
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberType &nt ) :
-    m_numer ( TYPE_CONVERT<NumberType> ( nt ).template convert<integer_type> () ),
-    m_denom ( one_ ) {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+template<typename NumberType> Rational<T, GCD, CHKOP, Alloc>::Rational ( const NumberType &nt )
+    : m_numer ( TYPE_CONVERT<NumberType> ( nt ).template convert<integer_type> () ),
+      m_denom ( one_ ) {
 
-    _approxFract<integer_type, GCD, CHKOP, NumberType,
+    _approxFract<integer_type, GCD, CHKOP, Alloc, NumberType,
                  ! ( std::numeric_limits<NumberType>::is_integer ||
                      std::numeric_limits<NumberType>::is_exact ) >() ( *this, nt );
 }
@@ -1481,8 +1512,9 @@ template<typename NumberType> Rational<T, GCD, CHKOP>::Rational ( const NumberTy
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #pragma GCC diagnostic push
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP>::Rational ( const rf_info &info ) : m_numer (), m_denom () {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc>::Rational ( const rf_info &info ) : m_numer (), m_denom () {
 
     using namespace std;
 
@@ -1499,12 +1531,13 @@ Rational<T, GCD, CHKOP>::Rational ( const rf_info &info ) : m_numer (), m_denom 
 #pragma GCC diagnostic pop
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( one_ ) {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc>::Rational ( const char *expr ) : m_numer(), m_denom ( one_ ) {
 
     if ( expr && *expr ) {
 
-        std::stack<char, std::vector<char> > syard;
+        std::stack<char, std::vector<char, Alloc<char> > > syard;
         std::ptrdiff_t tok_start = 0, tok_len = 0;
         evalStack rpn;
 
@@ -1624,12 +1657,14 @@ Rational<T, GCD, CHKOP>::Rational ( const char *expr ) : m_numer(), m_denom ( on
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP>::~Rational() {}
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc>::~Rational() {}
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::reduce() {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc> &Rational<T, GCD, CHKOP, Alloc>::reduce() {
 
     typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
              const integer_type>::ResultT x ( m_numer != zero_ ?
@@ -1641,13 +1676,14 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::reduce() {
         m_denom = op_divides() ( m_denom, x );
     }
 
-    return _swapSign<integer_type, GCD, CHKOP,
+    return _swapSign<integer_type, GCD, CHKOP, Alloc,
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>:: _sqrt() const {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>:: _sqrt() const {
 
 #ifdef __EXCEPTIONS
     if ( std::numeric_limits<integer_type>::is_signed && m_numer < zero_ ) {
@@ -1672,13 +1708,14 @@ Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>:: _sqrt() const {
         x *= half;
     }
 
-    return _psq<integer_type, GCD, CHKOP>() ( x, *this );
+    return _psq<integer_type, GCD, CHKOP, Alloc>() ( x, *this );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-template<class Op> Rational<T, GCD, CHKOP> &
-Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+template<class Op> Rational<T, GCD, CHKOP, Alloc> &
+Rational<T, GCD, CHKOP, Alloc>::knuth_addSub ( const Rational<T, GCD, CHKOP, Alloc> &o ) {
 
     typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
              const integer_type>::ResultT d1 ( GCD<integer_type,
@@ -1712,9 +1749,10 @@ Rational<T, GCD, CHKOP>::knuth_addSub ( const Rational<T, GCD, CHKOP> &o ) {
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP>
-Rational<T, GCD, CHKOP>::operator+ ( const Rational& other ) const {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc>
+Rational<T, GCD, CHKOP, Alloc>::operator+ ( const Rational& other ) const {
     return ( Rational ( *this ) += other );
 }
 
@@ -1728,9 +1766,10 @@ Rational<T, GCD, CHKOP>::operator+ ( const Rational& other ) const {
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-NumberType &operator+= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( n = Rational<T, GCD, CHKOP> ( n ) += o );
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR NumberType&
+operator+= ( NumberType &n, const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( n = Rational<T, GCD, CHKOP, Alloc> ( n ) += o );
 }
 
 /**
@@ -1743,9 +1782,10 @@ NumberType &operator+= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator+ ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ( o + Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+Rational<T, GCD, CHKOP, Alloc> operator+ ( const Rational<T, GCD, CHKOP, Alloc>& o,
+        const NumberType &n ) {
+    return ( o + Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 /**
@@ -1758,9 +1798,10 @@ Rational<T, GCD, CHKOP> operator+ ( const Rational<T, GCD, CHKOP>& o, const Numb
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator+ ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( Rational<T, GCD, CHKOP> ( n ) + o );
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc> operator+ ( const NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( Rational<T, GCD, CHKOP, Alloc> ( n ) + o );
 }
 
 /**
@@ -1773,9 +1814,10 @@ Rational<T, GCD, CHKOP> operator+ ( const NumberType &n, const Rational<T, GCD, 
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-NumberType &operator-= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( n = Rational<T, GCD, CHKOP> ( n ) -= o );
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR NumberType &operator-= ( NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( n = Rational<T, GCD, CHKOP, Alloc> ( n ) -= o );
 }
 
 /**
@@ -1788,9 +1830,10 @@ NumberType &operator-= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator- ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return o - Rational<T, GCD, CHKOP> ( n );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+Rational<T, GCD, CHKOP, Alloc> operator- ( const Rational<T, GCD, CHKOP, Alloc>& o,
+        const NumberType &n ) {
+    return o - Rational<T, GCD, CHKOP, Alloc> ( n );
 }
 
 /**
@@ -1803,15 +1846,17 @@ Rational<T, GCD, CHKOP> operator- ( const Rational<T, GCD, CHKOP>& o, const Numb
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator- ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( Rational<T, GCD, CHKOP> ( n ) - o );
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc> operator- ( const NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( Rational<T, GCD, CHKOP, Alloc> ( n ) - o );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP>
-Rational<T, GCD, CHKOP>::operator* ( const Rational& other ) const {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc>
+Rational<T, GCD, CHKOP, Alloc>::operator* ( const Rational& other ) const {
     return ( Rational ( *this ) *= other );
 }
 
@@ -1825,9 +1870,10 @@ Rational<T, GCD, CHKOP>::operator* ( const Rational& other ) const {
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-NumberType &operator*= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( n = Rational<T, GCD, CHKOP> ( n ) *= o );
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR NumberType &operator*= ( NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( n = Rational<T, GCD, CHKOP, Alloc> ( n ) *= o );
 }
 
 /**
@@ -1840,9 +1886,10 @@ NumberType &operator*= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator* ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ( o * Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+Rational<T, GCD, CHKOP, Alloc> operator* ( const Rational<T, GCD, CHKOP, Alloc>& o,
+        const NumberType &n ) {
+    return ( o * Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 /**
@@ -1855,15 +1902,16 @@ Rational<T, GCD, CHKOP> operator* ( const Rational<T, GCD, CHKOP>& o, const Numb
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator* ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( Rational<T, GCD, CHKOP> ( n ) * o );
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc> operator* ( const NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( Rational<T, GCD, CHKOP, Alloc> ( n ) * o );
 }
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::invert() {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc> &Rational<T, GCD, CHKOP, Alloc>::invert() {
 
     using namespace std;
     swap ( m_numer, m_denom );
@@ -1872,21 +1920,21 @@ Rational<T, GCD, CHKOP> &Rational<T, GCD, CHKOP>::invert() {
     if ( m_denom == zero_ ) throw std::domain_error ( "division by zero" );
 #endif
 
-    return _swapSign<integer_type, GCD, CHKOP,
+    return _swapSign<integer_type, GCD, CHKOP, Alloc,
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::inverse() const {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::inverse() const {
     return Rational ( *this ).invert();
 }
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::sqrt() const {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::sqrt() const {
 
     if ( m_numer == m_denom ) return *this;
 
@@ -1899,16 +1947,18 @@ Rational<T, GCD, CHKOP> Rational<T, GCD, CHKOP>::sqrt() const {
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-typename Rational<T, GCD, CHKOP>::mod_type Rational<T, GCD, CHKOP>::mod() const {
-    return _mod<integer_type, GCD, CHKOP,
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR typename Rational<T, GCD, CHKOP, Alloc>::mod_type
+Rational<T, GCD, CHKOP, Alloc>::mod() const {
+    return _mod<integer_type, GCD, CHKOP, Alloc,
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> template<class F, class RetType>
-RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_type &x,
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+template<class F, class RetType>
+RetType Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect ( const F &f, const integer_type &x,
         RetType &lam ) {
 
     integer_type tortoise ( f ( x ) );
@@ -1949,10 +1999,11 @@ RetType Rational<T, GCD, CHKOP>::floyd_cycle_detect ( const F &f, const integer_
 #pragma GCC diagnostic push
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> template<class Container>
-typename Rational<T, GCD, CHKOP>::integer_type
-Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Container &rep_digits,
-                                     bool digitsOnly, const integer_type &base ) const {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+template<class Container> typename Rational<T, GCD, CHKOP, Alloc>::integer_type
+Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_digits,
+        Container &rep_digits, bool digitsOnly, const integer_type &base ) const {
+
     integer_type w;
 
     pre_digits.clear();
@@ -1963,8 +2014,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
     const typename Container::difference_type first_repeat (
         floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( base, m_denom,
                              std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
-                             rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP> () ( m_numer, m_denom,
-                                     w ), period ) - 1 );
+                             rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
+                             ( m_numer, m_denom, w ), period ) - 1 );
 
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
 
@@ -2007,9 +2058,10 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-NumberType &operator/= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( n = Rational<T, GCD, CHKOP> ( n ) /= o );
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR NumberType &operator/= ( NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( n = Rational<T, GCD, CHKOP, Alloc> ( n ) /= o );
 }
 
 /**
@@ -2022,9 +2074,10 @@ NumberType &operator/= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator/ ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ( o / Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+Rational<T, GCD, CHKOP, Alloc> operator/ ( const Rational<T, GCD, CHKOP, Alloc>& o,
+        const NumberType &n ) {
+    return ( o / Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 /**
@@ -2037,14 +2090,16 @@ Rational<T, GCD, CHKOP> operator/ ( const Rational<T, GCD, CHKOP>& o, const Numb
  */
 template<typename NumberType, typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator/ ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( Rational<T, GCD, CHKOP> ( n ) / o );
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc> operator/ ( const NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( Rational<T, GCD, CHKOP, Alloc> ( n ) / o );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator*= ( const Rational& other ) {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> Rational<T, GCD, CHKOP, Alloc>&
+Rational<T, GCD, CHKOP, Alloc>::operator*= ( const Rational& other ) {
 
     typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
              const integer_type>::ResultT d2 ( GCD<integer_type,
@@ -2072,13 +2127,14 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator*= ( const Rational& o
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator%= ( const Rational& o ) {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> Rational<T, GCD, CHKOP, Alloc>&
+Rational<T, GCD, CHKOP, Alloc>::operator%= ( const Rational& o ) {
 
     if ( m_denom != o.m_denom ) {
 
         typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
-                 const integer_type>::ResultT l ( _lcm<integer_type, GCD, CHKOP,
+                 const integer_type>::ResultT l ( _lcm<integer_type, GCD, CHKOP, Alloc,
                          std::numeric_limits<integer_type>::is_signed>()
                          ( m_denom, o.m_denom ) );
 
@@ -2099,8 +2155,9 @@ Rational<T, GCD, CHKOP>& Rational<T, GCD, CHKOP>::operator%= ( const Rational& o
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+std::string Rational<T, GCD, CHKOP, Alloc>::str ( bool mixed ) const {
 
     std::ostringstream os;
 
@@ -2131,8 +2188,9 @@ std::string Rational<T, GCD, CHKOP>::str ( bool mixed ) const {
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #pragma GCC diagnostic push
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *expr ) {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+bool Rational<T, GCD, CHKOP, Alloc>::eval ( const char op, evalStack &s, const char *expr ) {
 
     if ( !s.empty() ) {
 
@@ -2196,9 +2254,11 @@ bool Rational<T, GCD, CHKOP>::eval ( const char op, evalStack &s, const char *ex
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR NumberType &operator%= ( NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( n = Rational<T, GCD, CHKOP> ( n ) %= o );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR NumberType &operator%= ( NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( n = Rational<T, GCD, CHKOP, Alloc> ( n ) %= o );
 }
 
 /**
@@ -2211,9 +2271,10 @@ RATIONAL_CONSTEXPR NumberType &operator%= ( NumberType &n, const Rational<T, GCD
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-Rational<T, GCD, CHKOP> operator% ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ( o % Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+Rational<T, GCD, CHKOP, Alloc> operator% ( const Rational<T, GCD, CHKOP, Alloc>& o,
+        const NumberType &n ) {
+    return ( o % Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 /**
@@ -2226,10 +2287,11 @@ Rational<T, GCD, CHKOP> operator% ( const Rational<T, GCD, CHKOP>& o, const Numb
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP> operator% ( const NumberType &n,
-        const Rational<T, GCD, CHKOP>& o ) {
-    return ( Rational<T, GCD, CHKOP> ( n ) % o );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc> operator% ( const NumberType &n,
+        const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( Rational<T, GCD, CHKOP, Alloc> ( n ) % o );
 }
 
 /**
@@ -2242,9 +2304,11 @@ RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP> operator% ( const NumberType &n,
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR bool operator== ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( Rational<T, GCD, CHKOP> ( n ) == o );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR bool operator== ( const NumberType &n,
+                                     const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( Rational<T, GCD, CHKOP, Alloc> ( n ) == o );
 }
 
 /**
@@ -2257,9 +2321,9 @@ RATIONAL_CONSTEXPR bool operator== ( const NumberType &n, const Rational<T, GCD,
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-bool operator== ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ( o == Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+bool operator== ( const Rational<T, GCD, CHKOP, Alloc>& o, const NumberType &n ) {
+    return ( o == Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 /**
@@ -2272,9 +2336,11 @@ bool operator== ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR bool operator!= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ! ( Rational<T, GCD, CHKOP> ( n ) == o );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR bool operator!= ( const NumberType &n,
+                                     const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ! ( Rational<T, GCD, CHKOP, Alloc> ( n ) == o );
 }
 
 /**
@@ -2287,14 +2353,15 @@ RATIONAL_CONSTEXPR bool operator!= ( const NumberType &n, const Rational<T, GCD,
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-bool operator!= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ! ( o == Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+bool operator!= ( const Rational<T, GCD, CHKOP, Alloc>& o, const NumberType &n ) {
+    return ! ( o == Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR bool Rational<T, GCD, CHKOP>::operator< ( const Rational &other ) const {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR bool Rational<T, GCD, CHKOP, Alloc>::operator< ( const Rational &other ) const {
     return ( m_numer * other.m_denom ) < ( other.m_numer * m_denom );
 }
 
@@ -2308,9 +2375,11 @@ RATIONAL_CONSTEXPR bool Rational<T, GCD, CHKOP>::operator< ( const Rational &oth
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR bool operator< ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ( Rational<T, GCD, CHKOP> ( n ) < o );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR bool operator< ( const NumberType &n,
+                                    const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ( Rational<T, GCD, CHKOP, Alloc> ( n ) < o );
 }
 
 /**
@@ -2323,9 +2392,9 @@ RATIONAL_CONSTEXPR bool operator< ( const NumberType &n, const Rational<T, GCD, 
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType>
-RATIONAL_CONSTEXPR bool operator< ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ( o < Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class Alloc, typename NumberType>
+RATIONAL_CONSTEXPR bool operator< ( const Rational<T, GCD, CHKOP, Alloc>& o, const NumberType &n ) {
+    return ( o < Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 /**
@@ -2338,9 +2407,11 @@ RATIONAL_CONSTEXPR bool operator< ( const Rational<T, GCD, CHKOP>& o, const Numb
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR bool operator<= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ! ( o < Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR bool operator<= ( const NumberType &n,
+                                     const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ! ( o < Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 /**
@@ -2353,9 +2424,9 @@ RATIONAL_CONSTEXPR bool operator<= ( const NumberType &n, const Rational<T, GCD,
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-bool operator<= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ! ( Rational<T, GCD, CHKOP> ( n ) < o );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+bool operator<= ( const Rational<T, GCD, CHKOP, Alloc>& o, const NumberType &n ) {
+    return ! ( Rational<T, GCD, CHKOP, Alloc> ( n ) < o );
 }
 
 /**
@@ -2368,9 +2439,10 @@ bool operator<= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR bool operator> ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return o < Rational<T, GCD, CHKOP> ( n );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR bool operator> ( const NumberType &n, const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return o < Rational<T, GCD, CHKOP, Alloc> ( n );
 }
 
 /**
@@ -2384,9 +2456,9 @@ RATIONAL_CONSTEXPR bool operator> ( const NumberType &n, const Rational<T, GCD, 
 template<typename T,
          template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-bool operator> ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return Rational<T, GCD, CHKOP> ( n ) < o;
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+bool operator> ( const Rational<T, GCD, CHKOP, Alloc>& o, const NumberType &n ) {
+    return Rational<T, GCD, CHKOP, Alloc> ( n ) < o;
 }
 
 /**
@@ -2399,9 +2471,11 @@ bool operator> ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
  */
 template<typename NumberType, typename T,
          template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-RATIONAL_CONSTEXPR bool operator>= ( const NumberType &n, const Rational<T, GCD, CHKOP>& o ) {
-    return ! ( Rational<T, GCD, CHKOP> ( n ) < o );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+RATIONAL_CONSTEXPR bool operator>= ( const NumberType &n,
+                                     const Rational<T, GCD, CHKOP, Alloc>& o ) {
+    return ! ( Rational<T, GCD, CHKOP, Alloc> ( n ) < o );
 }
 
 /**
@@ -2414,9 +2488,9 @@ RATIONAL_CONSTEXPR bool operator>= ( const NumberType &n, const Rational<T, GCD,
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType> RATIONAL_CONSTEXPR
-bool operator>= ( const Rational<T, GCD, CHKOP>& o, const NumberType &n ) {
-    return ! ( o < Rational<T, GCD, CHKOP> ( n ) );
+         template<typename> class Alloc, typename NumberType> RATIONAL_CONSTEXPR
+bool operator>= ( const Rational<T, GCD, CHKOP, Alloc>& o, const NumberType &n ) {
+    return ! ( o < Rational<T, GCD, CHKOP, Alloc> ( n ) );
 }
 
 template<typename NumberType, template<typename> class EPSILON>
@@ -2441,10 +2515,11 @@ const NumberType _approxUtils<NumberType, EPSILON>::eps_ ( EPSILON<NumberType>::
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
-struct _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV> {
+         template<typename> class Alloc, typename NumberType, template<typename> class EPSILON,
+         template<typename> class CONV>
+struct _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV> {
 private:
-    typedef Rational<T, GCD, CHKOP> rat;
+    typedef Rational<T, GCD, CHKOP, Alloc> rat;
 
 public:
     void operator() ( rat &r, const NumberType &nt ) const;
@@ -2456,20 +2531,23 @@ private:
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
-const T _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::zero_ = T();
+         template<typename> class Alloc, typename NumberType, template<typename> class EPSILON,
+         template<typename> class CONV>
+const T _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV>::zero_ = T();
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
-const T _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::one_ = T ( 1 );
+         template<typename> class Alloc, typename NumberType, template<typename> class EPSILON,
+         template<typename> class CONV>
+const T _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV>::one_ = T ( 1 );
 
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #pragma GCC diagnostic push
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
-void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( rat &r,
+         template<typename> class Alloc, typename NumberType, template<typename> class EPSILON,
+         template<typename> class CONV>
+void _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV>::operator() ( rat &r,
         const NumberType &nt ) const {
 
 #ifdef __EXCEPTIONS
@@ -2531,95 +2609,104 @@ void _approxFract<T, GCD, CHKOP, NumberType, true, EPSILON, CONV>::operator() ( 
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename NumberType, template<typename> class EPSILON, template<typename> class CONV>
-struct _approxFract<T, GCD, CHKOP, NumberType, false, EPSILON, CONV> {
-    void operator() ( const Rational<T, GCD, CHKOP> &,
+         template<typename> class Alloc, typename NumberType, template<typename> class EPSILON,
+         template<typename> class CONV>
+struct _approxFract<T, GCD, CHKOP, Alloc, NumberType, false, EPSILON, CONV> {
+    void operator() ( const Rational<T, GCD, CHKOP, Alloc> &,
                       const NumberType & ) const RATIONAL_NOEXCEPT {}
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _abs<T, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _abs<T, GCD, CHKOP, Alloc, true> {
 
-    RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP>
-    operator() ( const Rational<T, GCD, CHKOP> &r ) const {
-        return r.numerator() < Rational<T, GCD, CHKOP>::zero_ ? -r : r;
+    RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc>
+    operator() ( const Rational<T, GCD, CHKOP, Alloc> &r ) const {
+        return r.numerator() < Rational<T, GCD, CHKOP, Alloc>::zero_ ? -r : r;
     }
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _abs<T, GCD, CHKOP, false> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _abs<T, GCD, CHKOP, Alloc, false> {
 
-    RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP>
-    operator() ( const Rational<T, GCD, CHKOP> &r ) const {
+    RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc>
+    operator() ( const Rational<T, GCD, CHKOP, Alloc> &r ) const {
         return r;
     }
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _mod<T, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _mod<T, GCD, CHKOP, Alloc, true> {
 
-    typedef std::pair<T, Rational<T, GCD, CHKOP> > pair_type;
+    typedef std::pair<T, Rational<T, GCD, CHKOP, Alloc> > pair_type;
 
-    pair_type operator() ( const Rational<T, GCD, CHKOP> &r ) const;
+    pair_type operator() ( const Rational<T, GCD, CHKOP, Alloc> &r ) const;
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-typename _mod<T, GCD, CHKOP, true>::pair_type
-_mod<T, GCD, CHKOP, true>::operator() ( const Rational<T, GCD, CHKOP> &r ) const {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+typename _mod<T, GCD, CHKOP, Alloc, true>::pair_type
+_mod<T, GCD, CHKOP, Alloc, true>::operator() ( const Rational<T, GCD, CHKOP, Alloc> &r ) const {
 
-    const Rational<T, GCD, CHKOP> &h ( Rational<T, GCD, CHKOP> (
-                                           ( typename Rational<T, GCD, CHKOP>::op_modulus()
-                                                   ( r.m_numer, r.m_denom ) ), r.m_denom ) );
+    const Rational<T, GCD, CHKOP, Alloc> &h ( Rational<T, GCD, CHKOP, Alloc> (
+                ( typename Rational<T, GCD, CHKOP, Alloc>::op_modulus()
+                  ( r.m_numer, r.m_denom ) ), r.m_denom ) );
 
-    return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
+    return std::make_pair ( typename Rational<T, GCD, CHKOP, Alloc>::op_divides() ( r.m_numer,
                             r.m_denom ), h );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _mod<T, GCD, CHKOP, false> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _mod<T, GCD, CHKOP, Alloc, false> {
 
-    typedef std::pair<T, Rational<T, GCD, CHKOP> > pair_type;
+    typedef std::pair<T, Rational<T, GCD, CHKOP, Alloc> > pair_type;
 
-    RATIONAL_CONSTEXPR pair_type operator() ( const Rational<T, GCD, CHKOP> &r ) const {
-        return std::make_pair ( typename Rational<T, GCD, CHKOP>::op_divides() ( r.m_numer,
-                                r.m_denom ), Rational<T, GCD, CHKOP> (
-                                    ( typename Rational<T, GCD, CHKOP>::op_modulus() ( r.m_numer,
-                                            r.m_denom ) ), r.m_denom ) );
+    RATIONAL_CONSTEXPR pair_type operator() ( const Rational<T, GCD, CHKOP, Alloc> &r ) const {
+        return std::make_pair ( typename Rational<T, GCD, CHKOP, Alloc>::op_divides() ( r.m_numer,
+                                r.m_denom ), Rational<T, GCD, CHKOP, Alloc> (
+                                    ( typename Rational<T, GCD, CHKOP, Alloc>::op_modulus()
+                                      ( r.m_numer, r.m_denom ) ), r.m_denom ) );
     }
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _pow<T, GCD, CHKOP, false> {
-    Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r, const T &exp ) const;
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _pow<T, GCD, CHKOP, Alloc, false> {
+    Rational<T, GCD, CHKOP, Alloc> operator() ( const Rational<T, GCD, CHKOP, Alloc> &r,
+            const T &exp ) const;
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Rational<T, GCD, CHKOP> _pow<T, GCD, CHKOP, false>::operator() ( const Rational<T, GCD, CHKOP> &r,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> Rational<T, GCD, CHKOP, Alloc>
+_pow<T, GCD, CHKOP, Alloc, false>::operator() ( const Rational<T, GCD, CHKOP, Alloc> &r,
         const T &exp ) const {
 #ifdef __EXCEPTIONS
-    if ( exp > Rational<T, GCD, CHKOP>::zero_ ) {
+    if ( exp > Rational<T, GCD, CHKOP, Alloc>::zero_ ) {
 #endif
 
-        Rational<T, GCD, CHKOP> b ( r );
-        Rational<T, GCD, CHKOP> result ( Rational<T, GCD, CHKOP>::one_,
-                                         Rational<T, GCD, CHKOP>::one_ );
+        Rational<T, GCD, CHKOP, Alloc> b ( r );
+        Rational<T, GCD, CHKOP, Alloc> result ( Rational<T, GCD, CHKOP, Alloc>::one_,
+                                                Rational<T, GCD, CHKOP, Alloc>::one_ );
         T e ( exp );
 
         do {
 
-            if ( ( e & 1 ) != Rational<T, GCD, CHKOP>::zero_ ) result *= b;
+            if ( ( e & 1 ) != Rational<T, GCD, CHKOP, Alloc>::zero_ ) result *= b;
 
             e >>= 1;
             b *= b;
 
-        } while ( e != Rational<T, GCD, CHKOP>::zero_ );
+        } while ( e != Rational<T, GCD, CHKOP, Alloc>::zero_ );
 
         return result;
 
@@ -2631,16 +2718,17 @@ Rational<T, GCD, CHKOP> _pow<T, GCD, CHKOP, false>::operator() ( const Rational<
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _pow<T, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _pow<T, GCD, CHKOP, Alloc, true> {
 
-    Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &r,
-                                         const T &exp ) const {
+    Rational<T, GCD, CHKOP, Alloc> operator() ( const Rational<T, GCD, CHKOP, Alloc> &r,
+            const T &exp ) const {
 
 #ifdef __EXCEPTIONS
-        if ( exp >= Rational<T, GCD, CHKOP>::zero_ ) {
+        if ( exp >= Rational<T, GCD, CHKOP, Alloc>::zero_ ) {
 #endif
-            return _pow<T, GCD, CHKOP, false>() ( r, exp );
+            return _pow<T, GCD, CHKOP, Alloc, false>() ( r, exp );
 
 #ifdef __EXCEPTIONS
         } else {
@@ -2822,41 +2910,45 @@ T GCD_stein<T, true, CHKOP, CONV>::operator() ( const T &a, const T &b ) const {
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _lcm<T, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _lcm<T, GCD, CHKOP, Alloc, true> {
     T operator() ( const T &a, const T &b ) const;
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-T _lcm<T, GCD, CHKOP, true>::operator() ( const T &a, const T &b ) const {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+T _lcm<T, GCD, CHKOP, Alloc, true>::operator() ( const T &a, const T &b ) const {
 
     typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const T &, const T>::ResultT
-    x ( a < Rational<T, GCD, CHKOP>::zero_ ? T ( -a ) : a ),
-      y ( b < Rational<T, GCD, CHKOP>::zero_ ? T ( -b ) : b );
+    x ( a < Rational<T, GCD, CHKOP, Alloc>::zero_ ? T ( -a ) : a ),
+      y ( b < Rational<T, GCD, CHKOP, Alloc>::zero_ ? T ( -b ) : b );
 
-    return typename Rational<T, GCD, CHKOP>::op_multiplies()
-           ( ( typename Rational<T, GCD, CHKOP>::op_divides() ( static_cast<T> ( x ),
-                   ( a != Rational<T, GCD, CHKOP>::zero_ ? GCD<T, false,
+    return typename Rational<T, GCD, CHKOP, Alloc>::op_multiplies()
+           ( ( typename Rational<T, GCD, CHKOP, Alloc>::op_divides() ( static_cast<T> ( x ),
+                   ( a != Rational<T, GCD, CHKOP, Alloc>::zero_ ? GCD<T, false,
                      CHKOP, TYPE_CONVERT>() ( x, y ) : b ) ) ), static_cast<T> ( y ) );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _lcm<T, GCD, CHKOP, false> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _lcm<T, GCD, CHKOP, Alloc, false> {
 
     RATIONAL_CONSTEXPR T operator() ( const T &a, const T &b ) const {
-        return typename Rational<T, GCD, CHKOP>::op_multiplies()
-               ( typename Rational<T, GCD, CHKOP>::op_divides()
+        return typename Rational<T, GCD, CHKOP, Alloc>::op_multiplies()
+               ( typename Rational<T, GCD, CHKOP, Alloc>::op_divides()
                  ( a, ( a ? GCD<T, false, CHKOP, TYPE_CONVERT>() ( a, b ) : b ) ), b );
     }
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _swapSign<T, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _swapSign<T, GCD, CHKOP, Alloc, true> {
 
-    Rational<T, GCD, CHKOP> &operator() ( Rational<T, GCD, CHKOP> &r ) const {
+    Rational<T, GCD, CHKOP, Alloc> &operator() ( Rational<T, GCD, CHKOP, Alloc> &r ) const {
 
         if ( r.m_denom < zero_ ) {
             r.m_numer = -r.m_numer;
@@ -2871,35 +2963,38 @@ private:
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-const T _swapSign<T, GCD, CHKOP, true>::zero_ = T();
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+const T _swapSign<T, GCD, CHKOP, Alloc, true>::zero_ = T();
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _swapSign<T, GCD, CHKOP, false> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+struct _swapSign<T, GCD, CHKOP, Alloc, false> {
 
-    RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP> &
-    operator() ( Rational<T, GCD, CHKOP> &r ) const RATIONAL_NOEXCEPT {
+    RATIONAL_CONSTEXPR Rational<T, GCD, CHKOP, Alloc> &
+    operator() ( Rational<T, GCD, CHKOP, Alloc> &r ) const RATIONAL_NOEXCEPT {
         return r;
     }
 };
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
 struct _psq {
 
-    Rational<T, GCD, CHKOP> operator() ( const Rational<T, GCD, CHKOP> &x,
-                                         const Rational<T, GCD, CHKOP> &y ) const {
+    Rational<T, GCD, CHKOP, Alloc> operator() ( const Rational<T, GCD, CHKOP, Alloc> &x,
+            const Rational<T, GCD, CHKOP, Alloc> &y ) const {
 
         typename tmp::_ifThenElse<tmp::_isClassT<typename Rational<T, GCD,
-                 CHKOP>::mod_type::first_type>::Yes,
-                 const typename Rational<T, GCD, CHKOP>::mod_type::first_type &,
-                 const typename Rational<T, GCD, CHKOP>::mod_type::first_type>::ResultT
+                 CHKOP, Alloc>::mod_type::first_type>::Yes,
+                 const typename Rational<T, GCD, CHKOP, Alloc>::mod_type::first_type &,
+                 const typename Rational<T, GCD, CHKOP, Alloc>::mod_type::first_type>::ResultT
                  m ( x.mod().first );
 
-        if ( m != typename Rational<T, GCD, CHKOP>::mod_type::first_type() ) {
+        if ( m != typename Rational<T, GCD, CHKOP, Alloc>::mod_type::first_type() ) {
 
-            const Rational<T, GCD, CHKOP> psq ( m );
+            const Rational<T, GCD, CHKOP, Alloc> psq ( m );
 
             return ( psq * psq ) == y ? psq : x;
         }
@@ -3166,9 +3261,10 @@ cf ( IIter first, IIter last ) {
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         typename OIter> OIter seq ( const Rational<T, GCD, CHKOP> &r, OIter out ) {
+         template<typename> class Alloc, typename OIter>
+OIter seq ( const Rational<T, GCD, CHKOP, Alloc> &r, OIter out ) {
 
-    typedef Rational<T, GCD, CHKOP> rat;
+    typedef Rational<T, GCD, CHKOP, Alloc> rat;
 
     rat h ( r );
 
@@ -3209,12 +3305,12 @@ namespace std {
  * @return the %Rational part of @c __x
  */
 template<typename T, template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-Commons::Math::Rational<T, GCD, CHKOP>
-modf ( const Commons::Math::Rational<T, GCD, CHKOP> &__x,
-       typename Commons::Math::Rational<T, GCD, CHKOP>::integer_type * __iptr ) {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> Commons::Math::Rational<T, GCD, CHKOP, Alloc>
+modf ( const Commons::Math::Rational<T, GCD, CHKOP, Alloc> &__x,
+       typename Commons::Math::Rational<T, GCD, CHKOP, Alloc>::integer_type * __iptr ) {
 
-    const typename Commons::Math::Rational<T, GCD, CHKOP>::mod_type &tmp ( __x.mod() );
+    const typename Commons::Math::Rational<T, GCD, CHKOP, Alloc>::mod_type &tmp ( __x.mod() );
 
     *__iptr = tmp.first;
 

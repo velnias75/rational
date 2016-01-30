@@ -330,22 +330,22 @@ struct GCD_gmp<mpz_class, true, CHKOP, CONV> {
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _abs<mpz_class, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _abs<mpz_class, GCD, CHKOP, Alloc, true> {
 
-    Rational<mpz_class, GCD, CHKOP> operator()
-    ( const Rational<mpz_class, GCD, CHKOP> &r ) const {
-        return Rational<mpz_class, GCD, CHKOP> ( abs ( r.numerator() ), r.denominator() );
+    Rational<mpz_class, GCD, CHKOP, Alloc> operator()
+    ( const Rational<mpz_class, GCD, CHKOP, Alloc> &r ) const {
+        return Rational<mpz_class, GCD, CHKOP, Alloc> ( abs ( r.numerator() ), r.denominator() );
     }
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _abs<mpz_class, GCD, CHKOP, false> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _abs<mpz_class, GCD, CHKOP, Alloc, false> {
 
-    Rational<mpz_class, GCD, CHKOP> operator()
-    ( const Rational<mpz_class, GCD, CHKOP> &r ) const {
-        return _abs<mpz_class, GCD, CHKOP, true>() ( r );
+    Rational<mpz_class, GCD, CHKOP, Alloc> operator()
+    ( const Rational<mpz_class, GCD, CHKOP, Alloc> &r ) const {
+        return _abs<mpz_class, GCD, CHKOP, Alloc, true>() ( r );
     }
 };
 
@@ -398,11 +398,11 @@ template<template<typename> class EPSILON>
 const mpf_class _approxUtils<mpf_class, EPSILON>::eps_ ( EPSILON<mpf_class>::value() );
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _swapSign<mpz_class, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _swapSign<mpz_class, GCD, CHKOP, Alloc, true> {
 
-    Rational<mpz_class, GCD, CHKOP> &
-    operator() ( Rational<mpz_class, GCD, CHKOP> &r ) const {
+    Rational<mpz_class, GCD, CHKOP, Alloc> &
+    operator() ( Rational<mpz_class, GCD, CHKOP, Alloc> &r ) const {
 
         if ( sgn ( r.m_denom ) == -1 ) {
             r.m_numer = -r.m_numer;
@@ -415,8 +415,8 @@ struct _swapSign<mpz_class, GCD, CHKOP, true> {
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _lcm<mpz_class, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _lcm<mpz_class, GCD, CHKOP, Alloc, true> {
 
     mpz_class operator() ( const mpz_class &a, const mpz_class &b ) const {
 #if (defined(__GMP_MP_RELEASE) && __GMP_MP_RELEASE < 60100) || \
@@ -434,20 +434,23 @@ struct _lcm<mpz_class, GCD, CHKOP, true> {
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _psq<mpz_class, GCD, CHKOP> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _psq<mpz_class, GCD, CHKOP, Alloc> {
 
-    Rational<mpz_class, GCD, CHKOP> operator() ( const Rational<mpz_class, GCD, CHKOP> &x,
-            const Rational<mpz_class, GCD, CHKOP> &y ) const {
+    Rational<mpz_class, GCD, CHKOP, Alloc> operator()
+    ( const Rational<mpz_class, GCD, CHKOP, Alloc> &x,
+      const Rational<mpz_class, GCD, CHKOP, Alloc> &y ) const {
 
-        const typename Rational<mpz_class, GCD, CHKOP>::mod_type::first_type &m ( y.mod().first );
+        const typename Rational<mpz_class, GCD, CHKOP, Alloc>::mod_type::first_type &
+        m ( y.mod().first );
 
-        if ( m != Rational<mpz_class, GCD, CHKOP>::zero_ &&
+        if ( m != Rational<mpz_class, GCD, CHKOP, Alloc>::zero_ &&
                 mpz_perfect_square_p ( m.get_mpz_t() ) ) {
 
-            typename Rational<mpz_class, GCD, CHKOP>::integer_type psq;
+            typename Rational<mpz_class, GCD, CHKOP, Alloc>::integer_type psq;
             mpz_sqrt ( psq.get_mpz_t(), m.get_mpz_t() );
-            return Rational<mpz_class, GCD, CHKOP> ( psq, Rational<mpz_class, GCD, CHKOP>::one_ );
+            return Rational<mpz_class, GCD, CHKOP, Alloc> ( psq, Rational<mpz_class, GCD, CHKOP,
+                    Alloc>::one_ );
         }
 
         return x;
@@ -491,7 +494,8 @@ template<> struct CFRationalTraits<mpz_class> {
 
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _remquo<mpz_class, GCD, CHKOP> {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+struct _remquo<mpz_class, GCD, CHKOP, Alloc> {
 
     mpz_class operator() ( const mpz_class &x, const mpz_class &y, mpz_class &quo ) const {
         mpz_class r;

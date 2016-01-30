@@ -257,8 +257,8 @@ struct GCD_cln<cln::cl_I, true, CHKOP, CONV> {
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _lcm<cln::cl_I, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _lcm<cln::cl_I, GCD, CHKOP, Alloc, true> {
 
     cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
         return cln::lcm ( a, b );
@@ -266,31 +266,32 @@ struct _lcm<cln::cl_I, GCD, CHKOP, true> {
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _lcm<cln::cl_I, GCD, CHKOP, false> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _lcm<cln::cl_I, GCD, CHKOP, Alloc, false> {
 
     cln::cl_I operator() ( const cln::cl_I &a, const cln::cl_I &b ) const {
-        return _lcm<cln::cl_I, GCD, CHKOP, true>() ( a, b );
+        return _lcm<cln::cl_I, GCD, CHKOP, Alloc, true>() ( a, b );
     }
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _abs<cln::cl_I, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _abs<cln::cl_I, GCD, CHKOP, Alloc, true> {
 
-    Rational<cln::cl_I, GCD, CHKOP> operator()
-    ( const Rational<cln::cl_I, GCD, CHKOP> &r ) const {
-        return Rational<cln::cl_I, GCD, CHKOP> ( cln::abs ( r.numerator() ), r.denominator() );
+    Rational<cln::cl_I, GCD, CHKOP, Alloc> operator()
+    ( const Rational<cln::cl_I, GCD, CHKOP, Alloc> &r ) const {
+        return Rational<cln::cl_I, GCD, CHKOP, Alloc> ( cln::abs ( r.numerator() ),
+                r.denominator() );
     }
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _abs<cln::cl_I, GCD, CHKOP, false> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _abs<cln::cl_I, GCD, CHKOP, Alloc, false> {
 
-    Rational<cln::cl_I, GCD, CHKOP> operator()
-    ( const Rational<cln::cl_I, GCD, CHKOP> &r ) const {
-        return _abs<cln::cl_I, GCD, CHKOP, true>() ( r );
+    Rational<cln::cl_I, GCD, CHKOP, Alloc> operator()
+    ( const Rational<cln::cl_I, GCD, CHKOP, Alloc> &r ) const {
+        return _abs<cln::cl_I, GCD, CHKOP, Alloc, true>() ( r );
     }
 };
 
@@ -313,11 +314,11 @@ template<template<typename> class EPSILON>
 const cln::cl_F _approxUtils<cln::cl_F, EPSILON>::eps_ ( EPSILON<cln::cl_F>::value() );
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _swapSign<cln::cl_I, GCD, CHKOP, true> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _swapSign<cln::cl_I, GCD, CHKOP, Alloc, true> {
 
-    Rational<cln::cl_I, GCD, CHKOP> &
-    operator() ( Rational<cln::cl_I, GCD, CHKOP> &r ) const {
+    Rational<cln::cl_I, GCD, CHKOP, Alloc> &
+    operator() ( Rational<cln::cl_I, GCD, CHKOP, Alloc> &r ) const {
 
         if ( cln::signum ( r.m_denom ) < zero_ ) {
             r.m_numer = -r.m_numer;
@@ -332,21 +333,26 @@ private:
 };
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-const cln::cl_I _swapSign<cln::cl_I, GCD, CHKOP, true>::zero_ ( 0 );
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+const cln::cl_I _swapSign<cln::cl_I, GCD, CHKOP, Alloc, true>::zero_ ( 0 );
 
 template<template<typename, bool, template<class, typename, bool> class,
-         template<typename> class> class GCD, template<class, typename, bool> class CHKOP>
-struct _psq<cln::cl_I, GCD, CHKOP> {
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> struct _psq<cln::cl_I, GCD, CHKOP, Alloc> {
 
-    Rational<cln::cl_I, GCD, CHKOP> operator() ( const Rational<cln::cl_I, GCD, CHKOP> &x,
-            const Rational<cln::cl_I, GCD, CHKOP> &y ) const {
+    Rational<cln::cl_I, GCD, CHKOP, Alloc> operator()
+    ( const Rational<cln::cl_I, GCD, CHKOP, Alloc> &x,
+      const Rational<cln::cl_I, GCD, CHKOP, Alloc> &y ) const {
 
-        const typename Rational<cln::cl_I, GCD, CHKOP>::mod_type::first_type &m ( y.mod().first );
-        typename Rational<cln::cl_I, GCD, CHKOP>::integer_type psq;
+        const typename Rational<cln::cl_I, GCD, CHKOP, Alloc>::mod_type::first_type &
+        m ( y.mod().first );
 
-        if ( m != Rational<cln::cl_I, GCD, CHKOP>::zero_ && cln::sqrtp ( m, &psq ) ) {
-            return Rational<cln::cl_I, GCD, CHKOP> ( psq, Rational<cln::cl_I, GCD, CHKOP>::one_ );
+        typename Rational<cln::cl_I, GCD, CHKOP, Alloc>::integer_type psq;
+
+        if ( m != Rational<cln::cl_I, GCD, CHKOP, Alloc>::zero_ && cln::sqrtp ( m, &psq ) ) {
+            return Rational<cln::cl_I, GCD, CHKOP, Alloc> ( psq, Rational<cln::cl_I, GCD, CHKOP,
+                    Alloc>::one_ );
         }
 
         return x;
@@ -392,7 +398,8 @@ template<> struct CFRationalTraits<cln::cl_I> {
 
 template<template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP> struct _remquo<cln::cl_I, GCD, CHKOP> {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
+struct _remquo<cln::cl_I, GCD, CHKOP, Alloc> {
 
     cln::cl_I operator() ( const cln::cl_I &x, const cln::cl_I &y, cln::cl_I &quo ) const {
 
