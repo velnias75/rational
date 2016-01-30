@@ -1959,8 +1959,8 @@ Rational<T, GCD, CHKOP>::decompose ( rf_info &rf_info, Container &pre_digits, Co
     rep_digits.clear();
 
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-    typename std::vector<integer_type>::difference_type period;
-    const typename std::vector<integer_type>::difference_type first_repeat (
+    typename Container::difference_type period;
+    const typename Container::difference_type first_repeat (
         floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( base, m_denom,
                              std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
                              rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP> () ( m_numer, m_denom,
