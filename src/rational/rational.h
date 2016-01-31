@@ -553,6 +553,15 @@ public:
      */
     typedef T integer_type;
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+    template<class Op, typename CT = T,
+             bool IS = std::numeric_limits<CT>::is_signed> using chkop = CHKOP<Op, CT, IS>;
+    template<typename GT = T, bool IS = std::numeric_limits<GT>::is_signed,
+             template<class, typename = GT, bool = IS> class CO = chkop,
+             template<typename> class CV = TYPE_CONVERT> using gcd = GCD<GT, IS, CO, CV>;
+    template<typename AT = T> using alloc = Alloc<AT>;
+#endif
+
     /**
      * @brief type of the return value of mod()
      *
