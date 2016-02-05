@@ -1433,8 +1433,11 @@ private:
 
         typedef enum { NOP, PRE, REP } PUSH;
 
-        cd_lambda ( const integer_type &d, OIter pre, OIter rep, rf_info &rf_info, bool horner )
-            : rfi_ ( rf_info ), d_ ( d ), q_(), pre_ ( pre ), rep_ ( rep ), horner_ ( horner ) {
+        cd_lambda ( typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
+                    const integer_type &, const integer_type>::ResultT d, OIter pre, OIter rep,
+                    rf_info &rf_info, bool horner ) : rfi_ ( rf_info ), d_ ( d ), q_(),
+            pre_ ( pre ), rep_ ( rep ), horner_ ( horner ) {
+
             if ( horner ) rfi_.reptend = rfi_.pre = zero_;
         }
 
@@ -1476,7 +1479,8 @@ private:
 
     private:
         rf_info &rfi_;
-        const integer_type &d_;
+        typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
+                 const integer_type>::ResultT d_;
         mutable typename DecomposeBaseTraits<integer_type,
                 std::numeric_limits<integer_type>::is_signed>::digit_type q_;
         mutable OIter pre_;
@@ -1496,7 +1500,10 @@ private:
     }
 
     template<class F, class RetType>
-    static RetType floyd_cycle_detect ( const F &f, const integer_type &x, RetType &lam );
+    static RetType floyd_cycle_detect ( const F &f,
+                                        typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
+                                        const integer_type &, const integer_type>::ResultT x,
+                                        RetType &lam );
 
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
@@ -1996,8 +2003,9 @@ template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP, template<typename> class Alloc>
 template<class F, class RetType>
-RetType Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect ( const F &f, const integer_type &x,
-        RetType &lam ) {
+RetType Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect ( const F &f,
+        typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
+        const integer_type>::ResultT x, RetType &lam ) {
 
     integer_type tortoise ( f ( x ) );
     integer_type hare ( f ( tortoise ) );
