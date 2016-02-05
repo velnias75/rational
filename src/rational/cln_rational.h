@@ -128,6 +128,11 @@ template<> struct ExpressionEvalTraits<cln::cl_I> {
     typedef cln::cl_F NumberType;
 };
 
+template<> struct DecomposeBaseTraits<cln::cl_I, true> {
+    typedef cln::cl_I digit_type;
+    enum { Base = 10 };
+};
+
 template<> struct _type_round_helper<cln::cl_I> {
     cln::cl_I operator() ( const cln::cl_I &tr ) const {
         return tr;

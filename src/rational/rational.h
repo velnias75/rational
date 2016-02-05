@@ -56,6 +56,8 @@
 #ifndef COMMONS_MATH_RATIONAL_H
 #define COMMONS_MATH_RATIONAL_H
 
+#include <stdint.h>
+
 #include <functional>
 #include <algorithm>
 #include <sstream>
@@ -440,13 +442,14 @@ class Rational;
 
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
-struct _remquo {
-    T operator() ( const T &x, const T &y, T &quo ) const {
+         template<class, typename, bool> class CHKOP, template<typename> class Alloc,
+         typename Q = T> struct _remquo {
+    T operator() ( const T &x, const T &y, Q &quo ) const {
         return typename Rational<T, GCD, CHKOP, Alloc>::op_minus() ( x,
                 typename Rational<T, GCD, CHKOP, Alloc>::op_multiplies() ( y,
-                        ( quo = typename Rational<T, GCD, CHKOP, Alloc>::op_divides()
-                          ( x, y ) ) ) );
+                        ( quo = TYPE_CONVERT<T>
+                                ( typename Rational<T, GCD, CHKOP, Alloc>::op_divides()
+                                  ( x, y ) ).template convert<Q>() ) ) );
     }
 };
 
@@ -511,6 +514,21 @@ struct _remquo<long long, GCD, CHKOP, Alloc> {
 template<typename T>
 struct ExpressionEvalTraits {
     typedef long double NumberType; ///< the corresponding @c NumberType
+};
+
+template<typename, bool>
+struct DecomposeBaseTraits;
+
+template<typename T>
+struct DecomposeBaseTraits<T, true> {
+    typedef int_fast8_t digit_type;
+    enum { Base = 10 };
+};
+
+template<typename T>
+struct DecomposeBaseTraits<T, false> {
+    typedef uint_fast8_t digit_type;
+    enum { Base = 10u };
 };
 
 template<typename T> struct _type_round_helper {
@@ -797,7 +815,8 @@ public:
      */
     typedef struct _rf_info {
 
-        typedef integer_type digit_type;
+        typedef typename DecomposeBaseTraits<integer_type,
+                std::numeric_limits<integer_type>::is_signed>::digit_type digit_type;
 
         RATIONAL_NOCOPYASSIGN ( _rf_info );
 
@@ -862,15 +881,14 @@ public:
      */
     template<class Container>
     integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
-                             bool digitsOnly, const integer_type &base =
-                                 integer_type ( 10 ) ) const;
+                             bool digitsOnly ) const;
     /**
      * @overload
      */
     template<class Container>
-    integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
-                             const integer_type &base = integer_type ( 10 ) ) const {
-        return decompose ( rf_info, pre_digits, reptend_digits, false, base );
+    integer_type decompose ( rf_info &rf_info, Container &pre_digits,
+                             Container &reptend_digits ) const {
+        return decompose ( rf_info, pre_digits, reptend_digits, false );
     }
 
     /**
@@ -1415,30 +1433,41 @@ private:
 
         typedef enum { NOP, PRE, REP } PUSH;
 
-        cd_lambda ( const integer_type &b, const integer_type &d, OIter pre, OIter rep,
-                    rf_info &rf_info, bool horner ) : rfi_ ( rf_info ), b_ ( b ), d_ ( d ), q_(),
-            pre_ ( pre ), rep_ ( rep ), horner_ ( horner ) {
-
+        cd_lambda ( const integer_type &d, OIter pre, OIter rep, rf_info &rf_info, bool horner )
+            : rfi_ ( rf_info ), d_ ( d ), q_(), pre_ ( pre ), rep_ ( rep ), horner_ ( horner ) {
             if ( horner ) rfi_.reptend = rfi_.pre = zero_;
         }
 
         integer_type operator() ( const integer_type &r ) const {
-            return ( op_multiplies() ( op_modulus() ( r, d_ ), b_ ) );
+            return ( op_multiplies() ( op_modulus() ( r, d_ ),
+                                       DecomposeBaseTraits<integer_type,
+                                       std::numeric_limits<integer_type>::is_signed>::Base ) );
         }
 
         integer_type operator() ( const integer_type &r, PUSH p ) const {
 
-            const integer_type ret ( op_multiplies() ( _remquo<integer_type, GCD, CHKOP, Alloc>()
-                                     ( r, d_, q_ ), b_ ) );
+            const integer_type ret ( op_multiplies() ( _remquo<integer_type, GCD, CHKOP, Alloc,
+                                     typename DecomposeBaseTraits<integer_type,
+                                     std::numeric_limits<integer_type>::is_signed>::digit_type>()
+                                     ( r, d_, q_ ), DecomposeBaseTraits<integer_type,
+                                     std::numeric_limits<integer_type>::is_signed>::Base ) );
             if ( p != NOP ) {
 
                 if ( p == REP ) {
                     * ( rep_++ ) = q_;
-                    if ( horner_ ) rfi_.reptend = op_plus() ( op_multiplies() ( rfi_.reptend, b_ ),
-                                                      q_ );
+                    if ( horner_ ) rfi_.reptend =
+                            op_plus() ( op_multiplies()
+                                        ( rfi_.reptend,
+                                          DecomposeBaseTraits<integer_type,
+                                          std::numeric_limits<integer_type>::is_signed>::Base ),
+                                        q_ );
                 } else {
                     * ( pre_++ ) = q_;
-                    if ( horner_ ) rfi_.pre = op_plus() ( op_multiplies() ( rfi_.pre, b_ ), q_ );
+                    if ( horner_ ) rfi_.pre =
+                            op_plus() ( op_multiplies()
+                                        ( rfi_.pre, DecomposeBaseTraits<integer_type,
+                                          std::numeric_limits<integer_type>::is_signed>::Base ),
+                                        q_ );
                 }
             }
 
@@ -1447,9 +1476,9 @@ private:
 
     private:
         rf_info &rfi_;
-        const integer_type &b_;
         const integer_type &d_;
-        mutable integer_type q_;
+        mutable typename DecomposeBaseTraits<integer_type,
+                std::numeric_limits<integer_type>::is_signed>::digit_type q_;
         mutable OIter pre_;
         mutable OIter rep_;
         bool horner_;
@@ -2011,7 +2040,7 @@ template<typename T, template<typename, bool,
          template<class, typename, bool> class CHKOP, template<typename> class Alloc>
 template<class Container> typename Rational<T, GCD, CHKOP, Alloc>::integer_type
 Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_digits,
-        Container &rep_digits, bool digitsOnly, const integer_type &base ) const {
+        Container &rep_digits, bool digitsOnly ) const {
 
     integer_type w;
 
@@ -2021,7 +2050,7 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
     typename Container::difference_type period;
     const typename Container::difference_type first_repeat (
-        floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( base, m_denom,
+        floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( m_denom,
                              std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
                              rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
                              ( m_numer, m_denom, w ), period ) - 1 );
@@ -2044,12 +2073,22 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
 
         if ( !pre_digits.empty() ) {
             typename Container::iterator i ( ++pre_digits.begin() );
-            std::transform ( i, pre_digits.end(), i, op_negate() );
+            std::transform ( i, pre_digits.end(), i, CHKOP<std::negate<typename
+                             std::iterator_traits<typename Container::iterator>::value_type>,
+                             typename std::iterator_traits<typename
+                             Container::iterator>::value_type, std::numeric_limits<typename
+                             std::iterator_traits<typename
+                             Container::iterator>::value_type>::is_signed>() );
         }
 
         if ( !rep_digits.empty() ) {
             typename Container::iterator i ( ++rep_digits.begin() );
-            std::transform ( i, rep_digits.end(), i, op_negate() );
+            std::transform ( i, rep_digits.end(), i, CHKOP<std::negate<typename
+                             std::iterator_traits<typename Container::iterator>::value_type>,
+                             typename std::iterator_traits<typename
+                             Container::iterator>::value_type, std::numeric_limits<typename
+                             std::iterator_traits<typename
+                             Container::iterator>::value_type>::is_signed>() );
         }
     }
 

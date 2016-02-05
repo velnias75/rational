@@ -161,6 +161,11 @@ template<> struct ExpressionEvalTraits<mpz_class> {
 #endif
 };
 
+template<> struct DecomposeBaseTraits<mpz_class, true> {
+    typedef mpz_class digit_type;
+    enum { Base = 10 };
+};
+
 template<> struct _type_round_helper<mpz_class> {
     mpz_class operator() ( const mpz_class &tr ) const {
         return tr;
