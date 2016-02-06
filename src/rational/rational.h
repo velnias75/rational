@@ -2068,7 +2068,7 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
         floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( m_denom,
                              std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
                              rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
-                             ( m_numer, m_denom, w ), period ) - 1 );
+                             ( m_numer < zero_ ? -m_numer : m_numer, m_denom, w ), period ) - 1 );
 
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
     rf_info.negative = m_numer < zero_;
@@ -2085,32 +2085,12 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
         rep_digits.clear();
     }
 
-    if ( rf_info.negative ) {
-
-        if ( !pre_digits.empty() ) {
-
-            std::transform ( pre_digits.begin(), pre_digits.end(), pre_digits.begin(),
-                             CHKOP<std::negate<typename std::iterator_traits<typename
-                             Container::iterator>::value_type>,
-                             typename std::iterator_traits<typename
-                             Container::iterator>::value_type, std::numeric_limits<typename
-                             std::iterator_traits<typename
-                             Container::iterator>::value_type>::is_signed>() );
-        }
-
-        if ( !rep_digits.empty() ) {
-
-            std::transform ( rep_digits.begin(), rep_digits.end(), rep_digits.begin(),
-                             CHKOP<std::negate<typename std::iterator_traits<typename
-                             Container::iterator>::value_type>,
-                             typename std::iterator_traits<typename
-                             Container::iterator>::value_type, std::numeric_limits<typename
-                             std::iterator_traits<typename
-                             Container::iterator>::value_type>::is_signed>() );
-        }
+    if ( !digitsOnly && rf_info.negative ) {
+		rf_info.pre = -rf_info.pre;
+		rf_info.reptend = -rf_info.reptend;
     }
 
-    return w;
+    return !rf_info.negative ? w : -w;
 }
 #pragma GCC diagnostic pop
 
@@ -3408,4 +3388,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP, Alloc> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
