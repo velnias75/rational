@@ -2047,9 +2047,9 @@ RetType Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect ( const F &f,
     return mu;
 }
 
-#pragma GCC diagnostic ignored "-Wtype-limits"
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic push
+//#pragma GCC diagnostic ignored "-Wtype-limits"
+//#pragma GCC diagnostic ignored "-Wconversion"
+//#pragma GCC diagnostic push
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP, template<typename> class Alloc>
@@ -2068,7 +2068,8 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
         floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( m_denom,
                              std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
                              rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
-                             ( m_numer < zero_ ? -m_numer : m_numer, m_denom, w ), period ) - 1 );
+                             ( m_numer < zero_ ? integer_type ( -m_numer ) : m_numer, m_denom, w ),
+                             period ) - 1 );
 
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
     rf_info.negative = m_numer < zero_;
@@ -2086,13 +2087,13 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
     }
 
     if ( !digitsOnly && rf_info.negative ) {
-		rf_info.pre = -rf_info.pre;
-		rf_info.reptend = -rf_info.reptend;
+        rf_info.pre = -rf_info.pre;
+        rf_info.reptend = -rf_info.reptend;
     }
 
-    return !rf_info.negative ? w : -w;
+    return !rf_info.negative ? w : integer_type ( -w );
 }
-#pragma GCC diagnostic pop
+//#pragma GCC diagnostic pop
 
 /**
  * @relates Rational
@@ -3388,4 +3389,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP, Alloc> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
