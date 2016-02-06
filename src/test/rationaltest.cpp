@@ -1396,7 +1396,8 @@ void RationalTest::testStdMath() {
 
     CPPUNIT_ASSERT_EQUAL ( -2l, o.decompose ( sdc, spre, srep ) );
     CPPUNIT_ASSERT ( spre.empty() );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( -6l ), srep.front() );
+    CPPUNIT_ASSERT ( sdc.negative );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( 6l ), srep.front() );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, sdc.pre );
     CPPUNIT_ASSERT_EQUAL ( -6l, sdc.reptend );
@@ -1407,8 +1408,9 @@ void RationalTest::testStdMath() {
     const Rational<long> p ( 13, -30 );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, p.decompose ( sdc, spre, srep ) );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( -4l ), spre.front() );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( -3l ), srep.front() );
+    CPPUNIT_ASSERT ( sdc.negative );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( 4l ), spre.front() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( 3l ), srep.front() );
 
     CPPUNIT_ASSERT_EQUAL ( -4l, sdc.pre );
     CPPUNIT_ASSERT_EQUAL ( -3l, sdc.reptend );
@@ -1419,7 +1421,8 @@ void RationalTest::testStdMath() {
     const Rational<long> q ( -2, 5 );
 
     CPPUNIT_ASSERT_EQUAL ( 0l, q.decompose ( sdc, spre, srep ) );
-    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( -4l ), spre.front() );
+    CPPUNIT_ASSERT ( sdc.negative );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( 4l ), spre.front() );
     CPPUNIT_ASSERT ( srep.empty() );
 
     CPPUNIT_ASSERT_EQUAL ( -4l, sdc.pre );
@@ -1431,6 +1434,7 @@ void RationalTest::testStdMath() {
     const Rational<long> r ( 8, -2, 5 );
 
     CPPUNIT_ASSERT_EQUAL ( 7l, r.decompose ( sdc, spre, srep ) );
+    CPPUNIT_ASSERT ( !sdc.negative );
     CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<long>::rf_info::digit_type> ( 6l ), spre.front() );
     CPPUNIT_ASSERT ( srep.empty() );
 

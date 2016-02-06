@@ -820,16 +820,23 @@ public:
 
         RATIONAL_NOCOPYASSIGN ( _rf_info );
 
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic push
         _rf_info ( const integer_type &r, std::size_t lz = 0u,
                    const integer_type &p = integer_type(),  std::size_t plz = 0u ) :
-            reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ) {}
+            reptend ( r ), leading_zeros ( lz ), pre ( p ), pre_leading_zeros ( plz ),
+            negative ( r < zero_ || p < zero_ ) {}
+#pragma GCC diagnostic pop
 
-        _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ) {}
+        _rf_info() : reptend(), leading_zeros ( 0u ), pre(), pre_leading_zeros ( 0u ),
+            negative ( false ) {}
 
         integer_type reptend; ///< the repeating part as integer_type
         std::size_t leading_zeros; ///< the amount of zeros at the beginning of @c reptend
         integer_type pre; ///< the digits before @c reptend as integer_type
         std::size_t pre_leading_zeros; ///< the amount of zeros at the beginning of @c pre
+
+        bool negative; ///< @c true if the decimal is negative, @c false otherwise
 
     } rf_info;
 
@@ -2064,6 +2071,7 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
                              ( m_numer, m_denom, w ), period ) - 1 );
 
     rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
+    rf_info.negative = m_numer < zero_;
 
     if ( first_repeat ) {
         rf_info.pre_leading_zeros = countLeading ( pre_digits.begin(), pre_digits.end() );
@@ -2077,12 +2085,13 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
         rep_digits.clear();
     }
 
-    if ( m_numer < zero_ ) {
+    if ( rf_info.negative ) {
 
         if ( !pre_digits.empty() ) {
-            typename Container::iterator i ( ++pre_digits.begin() );
-            std::transform ( i, pre_digits.end(), i, CHKOP<std::negate<typename
-                             std::iterator_traits<typename Container::iterator>::value_type>,
+
+            std::transform ( pre_digits.begin(), pre_digits.end(), pre_digits.begin(),
+                             CHKOP<std::negate<typename std::iterator_traits<typename
+                             Container::iterator>::value_type>,
                              typename std::iterator_traits<typename
                              Container::iterator>::value_type, std::numeric_limits<typename
                              std::iterator_traits<typename
@@ -2090,9 +2099,10 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
         }
 
         if ( !rep_digits.empty() ) {
-            typename Container::iterator i ( ++rep_digits.begin() );
-            std::transform ( i, rep_digits.end(), i, CHKOP<std::negate<typename
-                             std::iterator_traits<typename Container::iterator>::value_type>,
+
+            std::transform ( rep_digits.begin(), rep_digits.end(), rep_digits.begin(),
+                             CHKOP<std::negate<typename std::iterator_traits<typename
+                             Container::iterator>::value_type>,
                              typename std::iterator_traits<typename
                              Container::iterator>::value_type, std::numeric_limits<typename
                              std::iterator_traits<typename
