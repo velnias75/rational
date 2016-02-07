@@ -1461,24 +1461,20 @@ private:
                                      std::numeric_limits<integer_type>::is_signed>::digit_type>()
                                      ( r, d_, q_ ), DecomposeBaseTraits<integer_type,
                                      std::numeric_limits<integer_type>::is_signed>::Base ) );
-            if ( p != NOP ) {
-
-                if ( p == REP ) {
-                    * ( rep_++ ) = q_;
-                    if ( horner_ ) rfi_.reptend =
-                            op_plus() ( op_multiplies()
-                                        ( rfi_.reptend,
-                                          DecomposeBaseTraits<integer_type,
-                                          std::numeric_limits<integer_type>::is_signed>::Base ),
-                                        q_ );
-                } else {
-                    * ( pre_++ ) = q_;
-                    if ( horner_ ) rfi_.pre =
-                            op_plus() ( op_multiplies()
-                                        ( rfi_.pre, DecomposeBaseTraits<integer_type,
-                                          std::numeric_limits<integer_type>::is_signed>::Base ),
-                                        q_ );
-                }
+            if ( p == REP ) {
+                * ( rep_++ ) = q_;
+                if ( horner_ ) rfi_.reptend =
+                        op_plus() ( op_multiplies()
+                                    ( rfi_.reptend, DecomposeBaseTraits<integer_type,
+                                      std::numeric_limits<integer_type>::is_signed>::Base ),
+                                    q_ );
+            } else {
+                * ( pre_++ ) = q_;
+                if ( horner_ ) rfi_.pre =
+                        op_plus() ( op_multiplies()
+                                    ( rfi_.pre, DecomposeBaseTraits<integer_type,
+                                      std::numeric_limits<integer_type>::is_signed>::Base ),
+                                    q_ );
             }
 
             return ret;
@@ -1506,11 +1502,10 @@ private:
                                                   <IIter>::value_type>(), v ) ) ) ) );
     }
 
-    template<class F, class RetType>
-    static RetType floyd_cycle_detect ( const F &f,
-                                        typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
-                                        const integer_type &, const integer_type>::ResultT x,
-                                        RetType &lam );
+    template<class F>
+    static void floyd_cycle_detect (
+        F f, typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
+        const integer_type &, const integer_type>::ResultT x );
 
     template<class Op>
     Rational &knuth_addSub ( const Rational &o );
@@ -2006,82 +2001,56 @@ Rational<T, GCD, CHKOP, Alloc>::mod() const {
            std::numeric_limits<integer_type>::is_signed>() ( *this );
 }
 
-template<typename T, template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
-template<class F, class RetType>
-RetType Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect ( const F &f,
-        typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
-        const integer_type>::ResultT x, RetType &lam ) {
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> template<class F>
+void Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect (
+    F f, typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
+    const integer_type>::ResultT x ) {
 
     integer_type tortoise ( f ( x ) );
     integer_type hare ( f ( tortoise ) );
 
     while ( tortoise != hare ) {
-
         tortoise = f ( tortoise );
         hare = f ( f ( hare ) );
     }
 
-    RetType mu ( 0 );
+    std::size_t mu = 0u;
 
     tortoise = x;
 
     while ( tortoise != hare ) {
-
-        tortoise = f ( tortoise, mu++ ? F::PRE : F::NOP );
+        tortoise = mu++ ? f ( tortoise, F::PRE ) : f ( tortoise );
         hare = f ( hare );
     }
 
-    lam = 1;
+    hare = tortoise != zero_ ? f ( tortoise,  F::REP ) : f ( tortoise );
 
-    hare = f ( tortoise, tortoise != zero_ ? F::REP : F::NOP );
-
-    while ( tortoise != hare ) {
-
-        hare = f ( hare, F::REP );
-
-        ++lam;
-    }
-
-    return mu;
+    while ( tortoise != hare ) hare = f ( hare, F::REP );
 }
 
-template<typename T, template<typename, bool,
-         template<class, typename, bool> class, template<typename> class> class GCD,
-         template<class, typename, bool> class CHKOP, template<typename> class Alloc>
-template<class Container> typename Rational<T, GCD, CHKOP, Alloc>::integer_type
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc> template<class Container>
+typename Rational<T, GCD, CHKOP, Alloc>::integer_type
 Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_digits,
         Container &rep_digits, bool digitsOnly ) const {
-
-    integer_type w;
 
     pre_digits.clear();
     rep_digits.clear();
 
+    integer_type w;
+
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-    typename Container::difference_type period;
-    const typename Container::difference_type first_repeat (
-        floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( m_denom,
-                             std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
-                             rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
-                             ( m_numer < zero_ ? integer_type ( -m_numer ) : m_numer, m_denom, w ),
-                             period ) - 1 );
+    floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( m_denom,
+                         std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
+                         rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
+                         ( m_numer < zero_ ? integer_type ( -m_numer ) : m_numer, m_denom, w ) );
 
-    rf_info.leading_zeros = rf_info.pre_leading_zeros = 0u;
     rf_info.negative = m_numer < zero_;
-
-    if ( first_repeat ) {
-        rf_info.pre_leading_zeros = countLeading ( pre_digits.begin(), pre_digits.end() );
-    } else {
-        pre_digits.clear();
-    }
-
-    if ( period ) {
-        rf_info.leading_zeros = countLeading ( rep_digits.begin(), rep_digits.end() );
-    }  else {
-        rep_digits.clear();
-    }
+    rf_info.pre_leading_zeros = countLeading ( pre_digits.begin(), pre_digits.end() );
+    rf_info.leading_zeros = countLeading ( rep_digits.begin(), rep_digits.end() );
 
     if ( !digitsOnly && rf_info.negative ) {
         rf_info.pre = -rf_info.pre;
@@ -2854,7 +2823,6 @@ template<typename T, template<class, typename = T, bool = false> class CHKOP,
 
             typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const T &,
                      const T>::ResultT h ( CHKOP<std::modulus<T> >() ( x, y ) );
-
             x = y;
             y = h;
         }
