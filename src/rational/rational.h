@@ -2047,9 +2047,6 @@ RetType Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect ( const F &f,
     return mu;
 }
 
-//#pragma GCC diagnostic ignored "-Wtype-limits"
-//#pragma GCC diagnostic ignored "-Wconversion"
-//#pragma GCC diagnostic push
 template<typename T, template<typename, bool,
          template<class, typename, bool> class, template<typename> class> class GCD,
          template<class, typename, bool> class CHKOP, template<typename> class Alloc>
@@ -2093,7 +2090,6 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
 
     return !rf_info.negative ? w : integer_type ( -w );
 }
-//#pragma GCC diagnostic pop
 
 /**
  * @relates Rational
