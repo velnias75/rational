@@ -1435,10 +1435,11 @@ private:
         *tok_len = 0;
     }
 
-    template<typename OIter>
+    template<typename OIter, typename SizeType>
     struct cd_lambda {
 
-        typedef enum { NOP, PRE, REP } PUSH;
+        typedef enum { PRE, REP } PUSH;
+        typedef SizeType size_type;
 
         cd_lambda ( typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
                     const integer_type &, const integer_type>::ResultT d, OIter pre, OIter rep,
@@ -1466,15 +1467,12 @@ private:
                 if ( horner_ ) rfi_.reptend =
                         op_plus() ( op_multiplies()
                                     ( rfi_.reptend, DecomposeBaseTraits<integer_type,
-                                      std::numeric_limits<integer_type>::is_signed>::Base ),
-                                    q_ );
+                                      std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
             } else {
                 * ( pre_++ ) = q_;
-                if ( horner_ ) rfi_.pre =
-                        op_plus() ( op_multiplies()
-                                    ( rfi_.pre, DecomposeBaseTraits<integer_type,
-                                      std::numeric_limits<integer_type>::is_signed>::Base ),
-                                    q_ );
+                if ( horner_ ) rfi_.pre = op_plus() ( op_multiplies()
+                                                          ( rfi_.pre, DecomposeBaseTraits<integer_type,
+                                                            std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
             }
 
             return ret;
@@ -2016,7 +2014,7 @@ void Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect (
         hare = f ( f ( hare ) );
     }
 
-    std::size_t mu = 0u;
+    typename F::size_type mu ( 0 );
 
     tortoise = x;
 
@@ -2043,9 +2041,11 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
     integer_type w;
 
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-    floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container> > ( m_denom,
-                         std::back_inserter ( pre_digits ), std::back_inserter ( rep_digits ),
-                         rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
+    floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container>,
+                         typename Container::size_type> ( m_denom,
+                                 std::back_inserter ( pre_digits ),
+                                 std::back_inserter ( rep_digits ),
+                                 rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
                          ( m_numer < zero_ ? integer_type ( -m_numer ) : m_numer, m_denom, w ) );
 
     rf_info.negative = m_numer < zero_;
