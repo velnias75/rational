@@ -99,7 +99,6 @@ namespace tmp {
 #pragma GCC diagnostic push
 template<typename T>
 class _isClassT {
-private:
     typedef char One;
     typedef struct {
         char a[2];
