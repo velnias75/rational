@@ -1444,6 +1444,20 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), sdc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), sdc.leading_zeros );
 
+    std::set<Rational<unsigned long>::rf_info::digit_type> unique_pre, unique_rep;
+
+    const Rational<unsigned long> r1 ( 221, 999 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0ul, r1.decompose ( dc, unique_pre, unique_rep ) );
+
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), unique_pre.size() );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 2 ), unique_rep.size() );
+
+    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<unsigned long>::rf_info::digit_type> ( 1 ),
+                           *unique_rep.begin() );
+    CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<unsigned long>::rf_info::digit_type> ( 2 ),
+                           *unique_rep.rbegin() );
+
     const Rational<unsigned long> s ( 3, 4 );
 
     CPPUNIT_ASSERT_EQUAL ( 81ul, s.pow ( 4 ).numerator() );

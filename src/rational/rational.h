@@ -99,14 +99,33 @@ namespace tmp {
 #pragma GCC diagnostic push
 template<typename T>
 class _isClassT {
+
     typedef char One;
     typedef struct {
         char a[2];
     } Two;
+
     template<typename C> static One test ( int C:: * );
     template<typename C> static Two test ( ... );
 public:
     enum { Yes = sizeof ( _isClassT<T>::template test<T> ( 0L ) ) == 1 };
+    enum { No = !Yes };
+};
+
+template<class Container>
+class _hasPushBack {
+
+    typedef char One;
+    typedef struct {
+        char a[2];
+    } Two;
+
+    template<class U, void ( U::* ) ( const typename Container::value_type& ) > struct Check;
+    template<class C> static One Test ( Check<C, &C::push_back>* );
+    template<class> static Two Test ( ... );
+
+public:
+    enum { Yes = sizeof ( Test<Container> ( 0 ) ) == sizeof ( One ) };
     enum { No = !Yes };
 };
 #pragma GCC diagnostic pop
@@ -534,6 +553,40 @@ template<typename T> struct _type_round_helper {
     typename ExpressionEvalTraits<T>::NumberType
     operator() ( const typename ExpressionEvalTraits<T>::NumberType &tr ) const {
         return typename ExpressionEvalTraits<T>::NumberType ( 0.5 ) + tr;
+    }
+};
+
+template<typename Container, bool ExplicitEnd>
+struct _inserterPolicy;
+
+template<typename Container>
+struct _inserterPolicy<Container, true> {
+
+    typedef std::insert_iterator<Container> iterator;
+
+    static iterator make_iterator ( Container &c ) {
+        return std::inserter ( c, c.end() );
+    }
+};
+
+template<typename Container>
+struct _inserterPolicy<Container, false> {
+
+    typedef std::back_insert_iterator<Container> iterator;
+
+    static iterator make_iterator ( Container &c ) {
+        return std::back_inserter ( c );
+    }
+};
+
+template<typename Container>
+struct _inserter {
+
+    typedef typename _inserterPolicy<Container,
+            tmp::_hasPushBack<Container>::No>::iterator iterator;
+
+    iterator operator() ( Container &c ) const {
+        return _inserterPolicy<Container, tmp::_hasPushBack<Container>::No>::make_iterator ( c );
     }
 };
 
@@ -2040,10 +2093,10 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_dig
     integer_type w;
 
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-    floyd_cycle_detect ( cd_lambda<std::back_insert_iterator<Container>,
+    floyd_cycle_detect ( cd_lambda<typename _inserter<Container>::iterator,
                          typename Container::size_type> ( m_denom,
-                                 std::back_inserter ( pre_digits ),
-                                 std::back_inserter ( rep_digits ),
+                                 _inserter<Container> () ( pre_digits ),
+                                 _inserter<Container> () ( rep_digits ),
                                  rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
                          ( m_numer < zero_ ? integer_type ( -m_numer ) : m_numer, m_denom, w ) );
 
