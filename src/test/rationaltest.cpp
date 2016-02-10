@@ -1444,12 +1444,14 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), sdc.pre_leading_zeros );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), sdc.leading_zeros );
 
-    std::set<Rational<unsigned long>::rf_info::digit_type> unique_pre, unique_rep;
+    std::list<Rational<unsigned long>::rf_info::digit_type> list_pre;
+    std::set<Rational<unsigned long>::rf_info::digit_type> unique_rep;
+
     const Rational<unsigned long> r1 ( 221, 999 );
 
-    CPPUNIT_ASSERT_EQUAL ( 0ul, r1.decompose ( dc, unique_pre, unique_rep ) );
+    CPPUNIT_ASSERT_EQUAL ( 0ul, r1.decompose ( dc, list_pre, unique_rep ) );
 
-    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), unique_pre.size() );
+    CPPUNIT_ASSERT ( list_pre.empty() );
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 2 ), unique_rep.size() );
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<unsigned long>::rf_info::digit_type> ( 1 ),
@@ -1459,8 +1461,9 @@ void RationalTest::testStdMath() {
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 
-	Rational<unsigned long>::rf_info adc;
-    std::array<Rational<unsigned long>::rf_info::digit_type, 6u> apre, arep;
+    Rational<unsigned long>::rf_info adc;
+    std::array<Rational<unsigned long>::rf_info::digit_type, 0u> apre;
+    std::array<Rational<unsigned long>::rf_info::digit_type, 6u> arep;
     const Rational<unsigned long> r2 ( 7ul, 13ul );
 
     CPPUNIT_ASSERT_EQUAL ( 0ul, r2.decompose ( adc, apre, arep ) );
@@ -1560,4 +1563,4 @@ void RationalTest::testGoldenRatio() {
     CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.inverse().denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 

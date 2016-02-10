@@ -717,8 +717,8 @@ template<typename T, std::size_t N> struct _inserterPolicy<std::array<T, N>, tru
     }
 
     static void clear ( std::array<T, N> &c ) {
-		c.fill ( typename std::array<T, N>::value_type() );
-	}
+        c.fill ( typename std::array<T, N>::value_type() );
+    }
 };
 #endif
 
@@ -1086,15 +1086,14 @@ public:
      *
      * @return the whole part of the fraction
      */
-    template<class Container>
-    integer_type decompose ( rf_info &rf_info, Container &pre_digits, Container &reptend_digits,
+    template<class PreC, class RepC>
+    integer_type decompose ( rf_info &rf_info, PreC &pre_digits, RepC &reptend_digits,
                              bool digitsOnly ) const;
     /**
      * @overload
      */
-    template<class Container>
-    integer_type decompose ( rf_info &rf_info, Container &pre_digits,
-                             Container &reptend_digits ) const {
+    template<class PreC, class RepC>
+    integer_type decompose ( rf_info &rf_info, PreC &pre_digits, RepC &reptend_digits ) const {
         return decompose ( rf_info, pre_digits, reptend_digits, false );
     }
 
@@ -1635,16 +1634,16 @@ private:
         *tok_len = 0;
     }
 
-    template<typename OIter, typename SizeType>
+    template<typename PreOIter, typename RepOIter, typename SizeType>
     struct cd_lambda {
 
         typedef enum { PRE, REP } PUSH;
         typedef SizeType size_type;
 
         cd_lambda ( typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes,
-                    const integer_type &, const integer_type>::ResultT d, OIter pre, OIter rep,
-                    rf_info &rf_info, bool horner ) : rfi_ ( rf_info ), d_ ( d ), q_(),
-            pre_ ( pre ), rep_ ( rep ), horner_ ( horner ) {
+                    const integer_type &, const integer_type>::ResultT d, PreOIter pre,
+                    RepOIter rep, rf_info &rf_info, bool horner ) : rfi_ ( rf_info ), d_ ( d ),
+            q_(), pre_ ( pre ), rep_ ( rep ), horner_ ( horner ) {
 
             if ( horner ) rfi_.reptend = rfi_.pre = zero_;
         }
@@ -1684,8 +1683,8 @@ private:
                  const integer_type>::ResultT d_;
         mutable typename DecomposeBaseTraits<integer_type,
                 std::numeric_limits<integer_type>::is_signed>::digit_type q_;
-        mutable OIter pre_;
-        mutable OIter rep_;
+        mutable PreOIter pre_;
+        mutable RepOIter rep_;
         bool horner_;
     };
 
@@ -1694,10 +1693,9 @@ private:
                                       const typename std::iterator_traits<IIter>::value_type &v =
                                           typename std::iterator_traits<IIter>::value_type() ) {
 
-		const IIter &f ( std::find_if ( first, last,
-                                          std::not1 ( std::bind2nd ( std::equal_to
-                                                  <typename std::iterator_traits
-                                                  <IIter>::value_type>(), v ) ) ) );
+        const IIter &f ( std::find_if ( first, last, std::not1 ( std::bind2nd ( std::equal_to
+                                        <typename std::iterator_traits<IIter>::value_type>(),
+                                        v ) ) ) );
 
         return f != last ? static_cast<std::size_t> ( std::distance ( first, f ) ) : 0u;
     }
@@ -2232,23 +2230,23 @@ void Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect (
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         template<typename> class Alloc> template<class Container>
+         template<typename> class Alloc> template<class PreC, class RepC>
 typename Rational<T, GCD, CHKOP, Alloc>::integer_type
-Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_digits,
-        Container &rep_digits, bool digitsOnly ) const {
+Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, PreC &pre_digits,
+        RepC &rep_digits, bool digitsOnly ) const {
 
-    _inserter<Container>().clear ( pre_digits );
-    _inserter<Container>().clear ( rep_digits );
+    _inserter<PreC>().clear ( pre_digits );
+    _inserter<RepC>().clear ( rep_digits );
 
     integer_type w;
 
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-    floyd_cycle_detect ( cd_lambda<typename _inserter<Container>::iterator,
-                         typename Container::size_type> ( m_denom,
-                                 _inserter<Container> () ( pre_digits ),
-                                 _inserter<Container> () ( rep_digits ),
-                                 rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
-                         ( m_numer < zero_ ? integer_type ( -m_numer ) : m_numer, m_denom, w ) );
+    floyd_cycle_detect ( cd_lambda<typename _inserter<PreC>::iterator,
+                         typename _inserter<RepC>::iterator, typename RepC::size_type> ( m_denom,
+                                 _inserter<PreC> () ( pre_digits ),
+                                 _inserter<RepC> () ( rep_digits ), rf_info, !digitsOnly ),
+                         _remquo<T, GCD, CHKOP, Alloc> () ( m_numer < zero_ ?
+                                 integer_type ( -m_numer ) : m_numer, m_denom, w ) );
 
     rf_info.negative = m_numer < zero_;
     rf_info.pre_leading_zeros = countLeading ( pre_digits.begin(), pre_digits.end() );
@@ -3555,4 +3553,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP, Alloc> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
