@@ -70,6 +70,7 @@
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 #include <type_traits>
+#include <list>
 #endif
 
 #ifdef __EXCEPTIONS
@@ -565,7 +566,7 @@ struct _inserterPolicy<Container, true> {
     typedef std::insert_iterator<Container> iterator;
 
     RATIONAL_CONSTEXPR static iterator make_iterator ( Container &c ) {
-        return std::inserter ( c, c.end() );
+        return iterator ( c, c.end() );
     }
 };
 
@@ -575,9 +576,71 @@ struct _inserterPolicy<Container, false> {
     typedef std::back_insert_iterator<Container> iterator;
 
     RATIONAL_CONSTEXPR static iterator make_iterator ( Container &c ) {
-        return std::back_inserter ( c );
+        return iterator ( c );
     }
 };
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+template<typename Container> class back_emplace_iterator :
+    public std::iterator<std::output_iterator_tag, void, void, void, void> {
+public:
+    typedef Container container_type;
+
+    explicit back_emplace_iterator ( Container &c ) : c_ ( &c ) {}
+
+    back_emplace_iterator &operator= ( const typename Container::value_type &value ) {
+        c_->emplace_back ( value );
+        return *this;
+    }
+
+    back_emplace_iterator &operator= ( typename Container::value_type &&value ) {
+        c_->emplace_back ( std::move ( value ) );
+        return *this;
+    }
+
+    back_emplace_iterator &operator*() {
+        return *this;
+    }
+
+    back_emplace_iterator &operator++() {
+        return *this;
+    }
+
+    back_emplace_iterator operator++ ( int ) {
+        return *this;
+    }
+
+protected:
+    Container *c_;
+};
+
+template<typename T, typename A> struct _inserterPolicy<std::list<T, A>, false> {
+
+    typedef back_emplace_iterator<std::list<T, A> > iterator;
+
+    RATIONAL_CONSTEXPR static iterator make_iterator ( std::list<T, A> &c ) {
+        return iterator ( c );
+    }
+};
+
+template<typename T, typename A> struct _inserterPolicy<std::deque<T, A>, false> {
+
+    typedef back_emplace_iterator<std::deque<T, A> > iterator;
+
+    RATIONAL_CONSTEXPR static iterator make_iterator ( std::deque<T, A> &c ) {
+        return iterator ( c );
+    }
+};
+
+template<typename T, typename A> struct _inserterPolicy<std::vector<T, A>, false> {
+
+    typedef back_emplace_iterator<std::vector<T, A> > iterator;
+
+    RATIONAL_CONSTEXPR static iterator make_iterator ( std::vector<T, A> &c ) {
+        return iterator ( c );
+    }
+};
+#endif
 
 template<typename Container>
 struct _inserter {
