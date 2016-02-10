@@ -716,7 +716,9 @@ template<typename T, std::size_t N> struct _inserterPolicy<std::array<T, N>, tru
 #endif
     }
 
-    static void clear ( std::array<T, N> & ) {}
+    static void clear ( std::array<T, N> &c ) {
+		c.fill ( typename std::array<T, N>::value_type() );
+	}
 };
 #endif
 
@@ -1692,10 +1694,12 @@ private:
                                       const typename std::iterator_traits<IIter>::value_type &v =
                                           typename std::iterator_traits<IIter>::value_type() ) {
 
-        return static_cast<std::size_t> ( std::distance ( first, std::find_if ( first, last,
+		const IIter &f ( std::find_if ( first, last,
                                           std::not1 ( std::bind2nd ( std::equal_to
                                                   <typename std::iterator_traits
-                                                  <IIter>::value_type>(), v ) ) ) ) );
+                                                  <IIter>::value_type>(), v ) ) ) );
+
+        return f != last ? static_cast<std::size_t> ( std::distance ( first, f ) ) : 0u;
     }
 
     template<class F>
@@ -1763,11 +1767,11 @@ Rational<T, GCD, CHKOP, Alloc>::Rational ( const rf_info &info ) : m_numer (), m
 
     *this = ( Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
                          static_cast<integer_type> ( _type_round_helper<integer_type>() (
-                                     pow10 ( ceil ( log10 ( ( info.reptend < integer_type() ?
+                                     pow10 ( ceil ( log10 ( ( info.reptend < zero_ ?
                                              integer_type ( -info.reptend ) : info.reptend ) +
                                              one_ ) ) + info.leading_zeros ) - one_ ) ) ) *=
                   Rational ( one_, static_cast<integer_type> ( _type_round_helper<integer_type>() (
-                                 pow10 ( ceil ( log10 ( ( info.pre < integer_type() ?
+                                 pow10 ( ceil ( log10 ( ( info.pre < zero_ ?
                                          integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
                                          info.pre_leading_zeros ) ) ) ) );
 }
@@ -3551,4 +3555,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP, Alloc> &__x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

@@ -1459,21 +1459,26 @@ void RationalTest::testStdMath() {
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 
+	Rational<unsigned long>::rf_info adc;
     std::array<Rational<unsigned long>::rf_info::digit_type, 6u> apre, arep;
-    const Rational<unsigned long> r2 ( 7, 13 );
+    const Rational<unsigned long> r2 ( 7ul, 13ul );
 
-    CPPUNIT_ASSERT_EQUAL ( 0ul, r2.decompose ( dc, apre, arep ) );
-    CPPUNIT_ASSERT_EQUAL ( 7ul, Rational<unsigned long> ( dc ).numerator() );
-    CPPUNIT_ASSERT_EQUAL ( 13ul, Rational<unsigned long> ( dc ).denominator() );
+    CPPUNIT_ASSERT_EQUAL ( 0ul, r2.decompose ( adc, apre, arep ) );
 
-    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
-    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( 0ul, adc.pre );
+    CPPUNIT_ASSERT_EQUAL ( 538461ul, adc.reptend );
+
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), adc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), adc.leading_zeros );
+
+    CPPUNIT_ASSERT_EQUAL ( 7ul, Rational<unsigned long> ( adc ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 13ul, Rational<unsigned long> ( adc ).denominator() );
 
     CPPUNIT_ASSERT ( std::equal ( arep.begin(), arep.end(), k_digits ) );
 
 #ifdef __EXCEPTIONS
     std::array<Rational<unsigned long>::rf_info::digit_type, 2u> aspre, asrep;
-    CPPUNIT_ASSERT_THROW ( r2.decompose ( dc, aspre, asrep ), std::out_of_range );
+    CPPUNIT_ASSERT_THROW ( r2.decompose ( adc, aspre, asrep ), std::out_of_range );
 #endif
 #endif
 
@@ -1555,4 +1560,4 @@ void RationalTest::testGoldenRatio() {
     CPPUNIT_ASSERT_EQUAL ( 7540113804746346429u, phi.inverse().denominator() );
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
