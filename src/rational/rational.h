@@ -564,7 +564,7 @@ struct _inserterPolicy<Container, true> {
 
     typedef std::insert_iterator<Container> iterator;
 
-    static iterator make_iterator ( Container &c ) {
+    RATIONAL_CONSTEXPR static iterator make_iterator ( Container &c ) {
         return std::inserter ( c, c.end() );
     }
 };
@@ -574,7 +574,7 @@ struct _inserterPolicy<Container, false> {
 
     typedef std::back_insert_iterator<Container> iterator;
 
-    static iterator make_iterator ( Container &c ) {
+    RATIONAL_CONSTEXPR static iterator make_iterator ( Container &c ) {
         return std::back_inserter ( c );
     }
 };
