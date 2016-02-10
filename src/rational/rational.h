@@ -70,6 +70,7 @@
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 #include <type_traits>
+#include <array>
 #include <list>
 #endif
 
@@ -568,6 +569,10 @@ struct _inserterPolicy<Container, true> {
     RATIONAL_CONSTEXPR static iterator make_iterator ( Container &c ) {
         return iterator ( c, c.end() );
     }
+
+    static void clear ( Container &c ) {
+        c.clear();
+    }
 };
 
 template<typename Container>
@@ -577,6 +582,10 @@ struct _inserterPolicy<Container, false> {
 
     RATIONAL_CONSTEXPR static iterator make_iterator ( Container &c ) {
         return iterator ( c );
+    }
+
+    static void clear ( Container &c ) {
+        c.clear();
     }
 };
 
@@ -621,6 +630,10 @@ template<typename T, typename A> struct _inserterPolicy<std::list<T, A>, false> 
     RATIONAL_CONSTEXPR static iterator make_iterator ( std::list<T, A> &c ) {
         return iterator ( c );
     }
+
+    static void clear ( std::list<T, A>  &c ) {
+        c.clear();
+    }
 };
 
 template<typename T, typename A> struct _inserterPolicy<std::deque<T, A>, false> {
@@ -629,6 +642,10 @@ template<typename T, typename A> struct _inserterPolicy<std::deque<T, A>, false>
 
     RATIONAL_CONSTEXPR static iterator make_iterator ( std::deque<T, A> &c ) {
         return iterator ( c );
+    }
+
+    static void clear ( std::deque<T, A> &c ) {
+        c.clear();
     }
 };
 
@@ -639,17 +656,83 @@ template<typename T, typename A> struct _inserterPolicy<std::vector<T, A>, false
     RATIONAL_CONSTEXPR static iterator make_iterator ( std::vector<T, A> &c ) {
         return iterator ( c );
     }
+
+    static void clear ( std::vector<T, A> &c ) {
+        c.clear();
+    }
+};
+
+#ifdef __EXCEPTIONS
+template<typename T, std::size_t N> class array_at_iterator :
+    public std::iterator<std::output_iterator_tag, void, void, void, void> {
+
+public:
+    explicit array_at_iterator ( std::array<T, N> &c ) : c_ ( &c ), pos_ ( 0 ) {}
+
+    array_at_iterator &operator= ( const typename std::array<T, N>::value_type &value ) {
+        c_->at ( pos_ ) = value;
+        return *this;
+    }
+
+    array_at_iterator &operator= ( typename std::array<T, N>::value_type &&value ) {
+        c_->at ( pos_ ) = std::move ( value );
+        return *this;
+    }
+
+    array_at_iterator &operator*() {
+        return *this;
+    }
+
+    array_at_iterator &operator++() {
+        ++pos_;
+        return *this;
+    }
+
+    array_at_iterator operator++ ( int ) {
+        array_at_iterator tmp ( *this );
+        ++pos_;
+        return tmp;
+    }
+
+protected:
+    std::array<T, N> *c_;
+    typename std::array<T, N>::size_type pos_;
+};
+#endif
+
+template<typename T, std::size_t N> struct _inserterPolicy<std::array<T, N>, true> {
+
+#ifdef __EXCEPTIONS
+    typedef array_at_iterator<T, N> iterator;
+#else
+    typedef typename std::array<T, N>::iterator iterator;
+#endif
+
+    RATIONAL_CONSTEXPR static iterator make_iterator ( std::array<T, N> &c ) {
+#ifdef __EXCEPTIONS
+        return iterator ( c );
+#else
+        return c.begin();
+#endif
+    }
+
+    static void clear ( std::array<T, N> & ) {}
 };
 #endif
 
 template<typename Container>
-struct _inserter {
+class _inserter {
+    typedef _inserterPolicy<Container, tmp::_hasPushBack<Container>::No> policy;
 
-    typedef typename _inserterPolicy<Container,
-            tmp::_hasPushBack<Container>::No>::iterator iterator;
+public:
+    typedef typename policy::iterator iterator;
 
     iterator operator() ( Container &c ) const {
-        return _inserterPolicy<Container, tmp::_hasPushBack<Container>::No>::make_iterator ( c );
+        return policy::make_iterator ( c );
+    }
+
+    static void clear ( Container &c ) {
+        policy::clear ( c );
     }
 };
 
@@ -2150,8 +2233,8 @@ typename Rational<T, GCD, CHKOP, Alloc>::integer_type
 Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, Container &pre_digits,
         Container &rep_digits, bool digitsOnly ) const {
 
-    pre_digits.clear();
-    rep_digits.clear();
+    _inserter<Container>().clear ( pre_digits );
+    _inserter<Container>().clear ( rep_digits );
 
     integer_type w;
 

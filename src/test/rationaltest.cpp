@@ -1445,7 +1445,6 @@ void RationalTest::testStdMath() {
     CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), sdc.leading_zeros );
 
     std::set<Rational<unsigned long>::rf_info::digit_type> unique_pre, unique_rep;
-
     const Rational<unsigned long> r1 ( 221, 999 );
 
     CPPUNIT_ASSERT_EQUAL ( 0ul, r1.decompose ( dc, unique_pre, unique_rep ) );
@@ -1457,6 +1456,26 @@ void RationalTest::testStdMath() {
                            *unique_rep.begin() );
     CPPUNIT_ASSERT_EQUAL ( static_cast<Rational<unsigned long>::rf_info::digit_type> ( 2 ),
                            *unique_rep.rbegin() );
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+
+    std::array<Rational<unsigned long>::rf_info::digit_type, 6u> apre, arep;
+    const Rational<unsigned long> r2 ( 7, 13 );
+
+    CPPUNIT_ASSERT_EQUAL ( 0ul, r2.decompose ( dc, apre, arep ) );
+    CPPUNIT_ASSERT_EQUAL ( 7ul, Rational<unsigned long> ( dc ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 13ul, Rational<unsigned long> ( dc ).denominator() );
+
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.pre_leading_zeros );
+    CPPUNIT_ASSERT_EQUAL ( std::size_t ( 0 ), dc.leading_zeros );
+
+    CPPUNIT_ASSERT ( std::equal ( arep.begin(), arep.end(), k_digits ) );
+
+#ifdef __EXCEPTIONS
+    std::array<Rational<unsigned long>::rf_info::digit_type, 2u> aspre, asrep;
+    CPPUNIT_ASSERT_THROW ( r2.decompose ( dc, aspre, asrep ), std::out_of_range );
+#endif
+#endif
 
     const Rational<unsigned long> s ( 3, 4 );
 
