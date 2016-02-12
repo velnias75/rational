@@ -1073,9 +1073,10 @@ public:
     Rational ( const rf_info &info );
 
     /**
-     * @brief Splits a fraction in its whole and repetitive part
+     * @brief Splits a fraction in it's whole and repetitive part
      *
-     * @tparam Container container type to store digit sequences
+     * @tparam PreC container type to store pre digit sequences
+     * @tparam RepC container type to store reptend digit sequences
      *
      * @param[out] rf_info rf_info structure to store the result
      * @param[out] pre_digits Container to store the pre-digits
@@ -2231,8 +2232,8 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
          template<typename> class Alloc> template<class PreC, class RepC>
 typename Rational<T, GCD, CHKOP, Alloc>::integer_type
-Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, PreC &pre_digits,
-        RepC &rep_digits, bool digitsOnly ) const {
+Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, PreC &pre_digits, RepC &rep_digits,
+        bool digitsOnly ) const {
 
     ContainerPolicy<PreC>().clear ( pre_digits );
     ContainerPolicy<RepC>().clear ( rep_digits );
