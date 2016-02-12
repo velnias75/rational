@@ -559,10 +559,10 @@ template<typename T> struct _type_round_helper {
 };
 
 template<typename Container, bool ExplicitEnd>
-struct _inserterPolicy;
+struct ContainerTraits;
 
 template<typename Container>
-struct _inserterPolicy<Container, true> {
+struct ContainerTraits<Container, true> {
 
     typedef std::insert_iterator<Container> iterator;
 
@@ -576,7 +576,7 @@ struct _inserterPolicy<Container, true> {
 };
 
 template<typename Container>
-struct _inserterPolicy<Container, false> {
+struct ContainerTraits<Container, false> {
 
     typedef std::back_insert_iterator<Container> iterator;
 
@@ -623,7 +623,7 @@ protected:
     Container *c_;
 };
 
-template<typename T, typename A> struct _inserterPolicy<std::list<T, A>, false> {
+template<typename T, typename A> struct ContainerTraits<std::list<T, A>, false> {
 
     typedef back_emplace_iterator<std::list<T, A> > iterator;
 
@@ -636,7 +636,7 @@ template<typename T, typename A> struct _inserterPolicy<std::list<T, A>, false> 
     }
 };
 
-template<typename T, typename A> struct _inserterPolicy<std::deque<T, A>, false> {
+template<typename T, typename A> struct ContainerTraits<std::deque<T, A>, false> {
 
     typedef back_emplace_iterator<std::deque<T, A> > iterator;
 
@@ -649,7 +649,7 @@ template<typename T, typename A> struct _inserterPolicy<std::deque<T, A>, false>
     }
 };
 
-template<typename T, typename A> struct _inserterPolicy<std::vector<T, A>, false> {
+template<typename T, typename A> struct ContainerTraits<std::vector<T, A>, false> {
 
     typedef back_emplace_iterator<std::vector<T, A> > iterator;
 
@@ -700,7 +700,7 @@ protected:
 };
 #endif
 
-template<typename T, std::size_t N> struct _inserterPolicy<std::array<T, N>, true> {
+template<typename T, std::size_t N> struct ContainerTraits<std::array<T, N>, true> {
 
 #ifdef __EXCEPTIONS
     typedef array_at_iterator<T, N> iterator;
@@ -722,9 +722,9 @@ template<typename T, std::size_t N> struct _inserterPolicy<std::array<T, N>, tru
 };
 #endif
 
-template<typename Container>
-class _inserter {
-    typedef _inserterPolicy<Container, tmp::_hasPushBack<Container>::No> policy;
+template<typename Container> class ContainerPolicy {
+
+    typedef ContainerTraits<Container, tmp::_hasPushBack<Container>::No> policy;
 
 public:
     typedef typename policy::iterator iterator;
@@ -2235,16 +2235,17 @@ typename Rational<T, GCD, CHKOP, Alloc>::integer_type
 Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, PreC &pre_digits,
         RepC &rep_digits, bool digitsOnly ) const {
 
-    _inserter<PreC>().clear ( pre_digits );
-    _inserter<RepC>().clear ( rep_digits );
+    ContainerPolicy<PreC>().clear ( pre_digits );
+    ContainerPolicy<RepC>().clear ( rep_digits );
 
     integer_type w;
 
     // with many thanks to David Eisenstat (http://stackoverflow.com/a/34977982/1939803)
-    floyd_cycle_detect ( cd_lambda<typename _inserter<PreC>::iterator,
-                         typename _inserter<RepC>::iterator, typename RepC::size_type> ( m_denom,
-                                 _inserter<PreC> () ( pre_digits ),
-                                 _inserter<RepC> () ( rep_digits ), rf_info, !digitsOnly ),
+    floyd_cycle_detect ( cd_lambda<typename ContainerPolicy<PreC>::iterator,
+                         typename ContainerPolicy<RepC>::iterator,
+                         typename RepC::size_type> ( m_denom,
+                                 ContainerPolicy<PreC> () ( pre_digits ),
+                                 ContainerPolicy<RepC> () ( rep_digits ), rf_info, !digitsOnly ),
                          _remquo<T, GCD, CHKOP, Alloc> () ( m_numer < zero_ ?
                                  integer_type ( -m_numer ) : m_numer, m_denom, w ) );
 
