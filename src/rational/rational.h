@@ -301,6 +301,12 @@ private:
     const long double val;
 };
 
+template<typename T>
+struct RationalTraits {
+    typedef T integer_type;
+    typedef TYPE_CONVERT<integer_type> type_convert;
+};
+
 /**
  * @ingroup main
  * @brief @c %EPSILON for float approximation
@@ -467,7 +473,7 @@ template<typename T, template<typename, bool,
     T operator() ( const T &x, const T &y, Q &quo ) const {
         return typename Rational<T, GCD, CHKOP, Alloc>::op_minus() ( x,
                 typename Rational<T, GCD, CHKOP, Alloc>::op_multiplies() ( y,
-                        ( quo = TYPE_CONVERT<T>
+                        ( quo = typename RationalTraits<T>::type_convert
                                 ( typename Rational<T, GCD, CHKOP, Alloc>::op_divides()
                                   ( x, y ) ).template convert<Q>() ) ) );
     }
@@ -765,10 +771,7 @@ class Rational {
              template<typename> class, typename, bool, template<typename> class,
              template<typename> class> friend struct _approxFract;
 public:
-    /**
-     * @brief storage type
-     */
-    typedef T integer_type;
+    typedef typename RationalTraits<T>::integer_type integer_type; ///< storage type
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
     template<class Op, typename CT = T,
@@ -963,8 +966,10 @@ public:
      */
     template<typename NumberType>
     RATIONAL_CONSTEXPR operator NumberType() const {
-        return TYPE_CONVERT<integer_type> ( m_numer ).template convert<NumberType>() /
-               TYPE_CONVERT<integer_type> ( m_denom ).template convert<NumberType>();
+        return typename RationalTraits<integer_type>::type_convert ( m_numer ).
+               template convert<NumberType>() /
+        typename RationalTraits<integer_type>::type_convert ( m_denom ).
+        template convert<NumberType>();
     }
 
     /**
@@ -1626,9 +1631,8 @@ private:
     static void pushToken ( evalStack &rpn, const char *expr, std::ptrdiff_t tok_start,
                             std::ptrdiff_t *tok_len ) {
 
-        rpn.push ( TYPE_CONVERT<const char *> ( expr + tok_start,
-                                                expr + tok_start + *tok_len ).
-                   template convert<typename
+        rpn.push ( RationalTraits<const char *>::type_convert ( expr + tok_start,
+                   expr + tok_start + *tok_len ).template convert<typename
                    ExpressionEvalTraits<integer_type>::NumberType>() );
 
         *tok_len = 0;
@@ -1746,8 +1750,8 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
          template<typename> class Alloc>
 template<typename NumberType> Rational<T, GCD, CHKOP, Alloc>::Rational ( const NumberType &nt )
-    : m_numer ( TYPE_CONVERT<NumberType> ( nt ).template convert<integer_type> () ),
-      m_denom ( one_ ) {
+    : m_numer ( typename RationalTraits<NumberType>::type_convert ( nt ).
+                template convert<integer_type> () ), m_denom ( one_ ) {
 
     _approxFract<integer_type, GCD, CHKOP, Alloc, NumberType,
                  ! ( std::numeric_limits<NumberType>::is_integer ||
