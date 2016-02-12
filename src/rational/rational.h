@@ -2419,10 +2419,12 @@ bool Rational<T, GCD, CHKOP, Alloc>::eval ( const char op, evalStack &s, const c
 
         switch ( op ) {
         case '/':
+#if __EXCEPTIONS
             if ( operand[0] == Rational() ) {
                 throw std::domain_error ( std::string ( "division by zero in expression: " ).
                                           append ( expr ) );
             }
+#endif
             operand[1] = s.top();
             s.pop();
             s.push ( operand[1] /= operand[0] );
@@ -2443,10 +2445,12 @@ bool Rational<T, GCD, CHKOP, Alloc>::eval ( const char op, evalStack &s, const c
             s.push ( operand[1] -= operand[0] );
             return true;
         case '%':
+#if __EXCEPTIONS
             if ( operand[0] == Rational() ) {
                 throw std::domain_error ( std::string ( "modulus by zero in expression: " ).
                                           append ( expr ) );
             }
+#endif
             operand[1] = s.top();
             s.pop();
             s.push ( operand[1] %= operand[0] );
