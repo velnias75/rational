@@ -723,18 +723,17 @@ template<typename T, std::size_t N> struct ContainerTraits<std::array<T, N>, tru
 #endif
 
 template<typename Container> class ContainerPolicy {
-
-    typedef ContainerTraits<Container, tmp::_hasPushBack<Container>::No> policy;
+    typedef ContainerTraits<Container, tmp::_hasPushBack<Container>::No> traits;
 
 public:
-    typedef typename policy::iterator iterator;
+    typedef typename traits::iterator iterator;
 
-    iterator operator() ( Container &c ) const {
-        return policy::make_iterator ( c );
+    static iterator make_iterator ( Container &c ) {
+        return traits::make_iterator ( c );
     }
 
     static void clear ( Container &c ) {
-        policy::clear ( c );
+        traits::clear ( c );
     }
 };
 
@@ -2244,10 +2243,10 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, PreC &pre_digits,
     floyd_cycle_detect ( cd_lambda<typename ContainerPolicy<PreC>::iterator,
                          typename ContainerPolicy<RepC>::iterator,
                          typename RepC::size_type> ( m_denom,
-                                 ContainerPolicy<PreC> () ( pre_digits ),
-                                 ContainerPolicy<RepC> () ( rep_digits ), rf_info, !digitsOnly ),
-                         _remquo<T, GCD, CHKOP, Alloc> () ( m_numer < zero_ ?
-                                 integer_type ( -m_numer ) : m_numer, m_denom, w ) );
+                                 ContainerPolicy<PreC>::make_iterator ( pre_digits ),
+                                 ContainerPolicy<RepC>::make_iterator ( rep_digits ),
+                                 rf_info, !digitsOnly ), _remquo<T, GCD, CHKOP, Alloc> ()
+                         ( m_numer < zero_ ? integer_type ( -m_numer ) : m_numer, m_denom, w ) );
 
     rf_info.negative = m_numer < zero_;
     rf_info.pre_leading_zeros = countLeading ( pre_digits.begin(), pre_digits.end() );
