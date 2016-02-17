@@ -62,6 +62,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <limits>
 #include <vector>
@@ -932,7 +933,9 @@ public:
      *
      * @param[in] expr the expression to evaluate and approximate
      */
-    Rational ( const char *expr );
+    Rational ( const char *expr ) : m_numer(), m_denom ( one_ ) {
+        *this = eval ( expr );
+    }
 
     ~Rational();
 
@@ -1100,6 +1103,30 @@ public:
     template<class PreC, class RepC>
     integer_type decompose ( rf_info &rf_info, PreC &pre_digits, RepC &reptend_digits ) const {
         return decompose ( rf_info, pre_digits, reptend_digits, false );
+    }
+
+    template<typename IIter>
+    static Rational eval ( IIter first, IIter last );
+
+    Rational eval ( const char *expr ) const {
+
+        if ( expr && *expr ) {
+#if __EXCEPTIONS
+            try {
+#endif
+                return eval ( expr, expr + std::strlen ( expr ) );
+#if __EXCEPTIONS
+            } catch ( const std::domain_error &e ) {
+                throw std::domain_error ( std::string ( e.what() ).
+                                          append ( ": " ).append ( expr ) );
+            } catch ( const std::runtime_error &e ) {
+                throw std::runtime_error ( std::string ( e.what() ).
+                                           append ( ": " ).append ( expr ) );
+            }
+#endif
+        }
+
+        return Rational();
     }
 
     /**
@@ -1598,8 +1625,9 @@ public:
      */
     friend std::istream &operator>> ( std::istream &i, Rational &r ) {
 
-        r = Rational ( std::string ( std::istreambuf_iterator<char> ( i ),
-                                     std::istreambuf_iterator<char>() ).c_str() );
+        r = eval ( std::istreambuf_iterator<std::istream::char_type> ( i ),
+                   std::istreambuf_iterator<std::istream::char_type>() );
+
         return i;
     }
 
@@ -1626,16 +1654,16 @@ private:
 
     typedef std::stack<Rational, std::vector<Rational, Alloc<Rational> > > evalStack;
 
-    static bool eval ( const char op, evalStack &s, const char *expr );
+    static bool eval_ ( const char op, evalStack &s );
 
-    static void pushToken ( evalStack &rpn, const char *expr, std::ptrdiff_t tok_start,
-                            std::ptrdiff_t *tok_len ) {
+    template<typename Container>
+    static void pushToken ( evalStack &rpn, Container &token ) {
 
-        rpn.push ( RationalTraits<const char *>::type_convert ( expr + tok_start,
-                   expr + tok_start + *tok_len ).template convert<typename
+        rpn.push ( typename RationalTraits<typename Container::const_pointer>::type_convert
+                   ( token.data(), token.data() + token.size() ).template convert<typename
                    ExpressionEvalTraits<integer_type>::NumberType>() );
 
-        *tok_len = 0;
+        token.clear();
     }
 
     template<typename PreOIter, typename RepOIter, typename SizeType>
@@ -1781,59 +1809,74 @@ Rational<T, GCD, CHKOP, Alloc>::Rational ( const rf_info &info ) : m_numer (), m
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
-         template<typename> class Alloc>
-Rational<T, GCD, CHKOP, Alloc>::Rational ( const char *expr ) : m_numer(), m_denom ( one_ ) {
+         template<typename> class Alloc> template<typename IIter>
+Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::Rational::eval ( IIter first,
+        IIter last ) {
 
-    if ( expr && *expr ) {
+    Rational result;
 
-        std::stack<char, std::vector<char, Alloc<char> > > syard;
-        std::ptrdiff_t tok_start = 0, tok_len = 0;
-        evalStack rpn;
+    std::stack<typename std::iterator_traits<IIter>::value_type,
+        std::vector<typename std::iterator_traits<IIter>::value_type,
+        Alloc<typename std::iterator_traits<IIter>::value_type> > > syard;
 
-        const char *ptr = expr;
-        char top, prev = 0;
+    std::vector<typename std::iterator_traits<IIter>::value_type,
+        Alloc<typename std::iterator_traits<IIter>::value_type> > token;
 
-        while ( *ptr ) {
+    evalStack rpn;
 
-            if ( !isDelimiter ( *ptr ) ) {
+    if ( first != last ) {
 
-                if ( ( *ptr >= '0' && *ptr <= '9' ) || *ptr == '.' ) {
-                    if ( !tok_len++ ) tok_start = ptr - expr;
+        typename std::iterator_traits<IIter>::value_type prev ( 0 );
+
+        typename std::stack<typename std::iterator_traits<IIter>::value_type,
+                 std::vector<typename std::iterator_traits<IIter>::value_type,
+                 Alloc<typename std::iterator_traits<IIter>::value_type> > >::value_type top;
+
+        while ( first != last ) {
+
+            typename tmp::_ifThenElse<tmp::_isClassT<typename
+            std::iterator_traits<IIter>::value_type>::Yes,
+                const typename std::iterator_traits<IIter>::value_type &,
+                const typename std::iterator_traits<IIter>::value_type>::ResultT cur ( *first );
+
+            if ( !isDelimiter ( cur ) ) {
+
+                if ( ( cur >= '0' && cur <= '9' ) || cur == '.' ) {
+                    token.push_back ( cur );
                 } else {
 #ifdef __EXCEPTIONS
-                    throw std::runtime_error ( std::string
-                                               ( "invalid character(s) in expression: " ).
-                                               append ( expr ) );
+                    throw std::runtime_error (
+                        std::string ( "invalid character(s) in expression" ) );
 #endif
                 }
 
-                if ( ! * ( ptr + 1 ) ) pushToken ( rpn, expr, tok_start, &tok_len );
+                prev = *first++;
 
-                prev = *ptr++;
+                if ( first == last ) pushToken ( rpn, token );
+
                 continue;
 
-            } else if ( tok_len ) pushToken ( rpn, expr, tok_start, &tok_len );
+            } else if ( !token.empty() ) pushToken ( rpn, token );
 
-            if ( *ptr == ' ' || *ptr == '\t' || *ptr == '\n' ) {
-                ++ptr;
+            if ( cur == ' ' || cur == '\t' || cur == '\n' ) {
+                ++first;
                 continue;
             }
 
-            if ( *ptr == '(' ) {
+            if ( cur == '(' ) {
 
-                prev = *ptr;
-                syard.push ( *ptr );
+                prev = cur;
+                syard.push ( cur );
 
-            } else if ( *ptr == ')' ) {
+            } else if ( cur == ')' ) {
 
-                prev = *ptr;
+                prev = cur;
 
                 while ( !syard.empty() && ( top = syard.top() ) != '(' ) {
 
-                    if ( !eval ( top, rpn, expr ) ) {
+                    if ( !eval_ ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
-                        throw std::runtime_error ( std::string ( "invalid expression: " )
-                                                   .append ( expr ) );
+                        throw std::runtime_error ( std::string ( "invalid expression" ) );
 #endif
                     }
 
@@ -1850,15 +1893,15 @@ Rational<T, GCD, CHKOP, Alloc>::Rational ( const char *expr ) : m_numer(), m_den
 #endif
                 }
 
-            } else if ( isOperator ( *ptr ) ) {
+            } else if ( isOperator ( cur ) ) {
 
-                char cop = *ptr;
+                typename std::iterator_traits<IIter>::value_type cop ( cur );
 
-                const bool isUnary = ( ptr == expr ) || ( prev == '(' || isOperator ( prev ) );
+                const bool isUnary = !prev || ( prev == '(' || isOperator ( prev ) );
 
-                if ( *ptr == '-' && isUnary ) {
+                if ( cur == '-' && isUnary ) {
                     cop = 1;
-                } else if ( *ptr == '+' && isUnary ) {
+                } else if ( cur == '+' && isUnary ) {
                     cop = 2;
                 } else {
 
@@ -1866,10 +1909,9 @@ Rational<T, GCD, CHKOP, Alloc>::Rational ( const char *expr ) : m_numer(), m_den
                             ( ( isLeftAssoc ( cop ) && getPrec ( cop ) <= getPrec ( top ) ) ||
                               ( !isLeftAssoc ( cop ) && getPrec ( cop ) < getPrec ( top ) ) ) ) {
 
-                        if ( !eval ( top, rpn, expr ) ) {
+                        if ( !eval_ ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
-                            throw std::runtime_error ( std::string ( "invalid expression: " )
-                                                       .append ( expr ) );
+                            throw std::runtime_error ( std::string ( "invalid expression" ) );
 #endif
                         }
 
@@ -1877,18 +1919,18 @@ Rational<T, GCD, CHKOP, Alloc>::Rational ( const char *expr ) : m_numer(), m_den
                     }
                 }
 
-                prev = *ptr;
+                prev = cur;
                 syard.push ( cop );
             }
 
-            ++ptr;
+            ++first;
         }
 
         while ( !syard.empty() && isOperator ( top = syard.top() ) ) {
 
-            if ( !eval ( top, rpn, expr ) ) {
+            if ( !eval_ ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
-                throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
+                throw std::runtime_error ( std::string ( "invalid expression" ) );
 #endif
             }
 
@@ -1896,13 +1938,15 @@ Rational<T, GCD, CHKOP, Alloc>::Rational ( const char *expr ) : m_numer(), m_den
         }
 
         if ( ! ( !syard.empty() || rpn.empty() || rpn.size() > 1 ) ) {
-            *this = rpn.top();
+            return rpn.top();
         } else {
 #ifdef __EXCEPTIONS
-            throw std::runtime_error ( std::string ( "invalid expression: " ).append ( expr ) );
+            throw std::runtime_error ( std::string ( "invalid expression" ) );
 #endif
         }
     }
+
+    return result;
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -2407,7 +2451,7 @@ std::string Rational<T, GCD, CHKOP, Alloc>::str ( bool mixed ) const {
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
          template<typename> class Alloc>
-bool Rational<T, GCD, CHKOP, Alloc>::eval ( const char op, evalStack &s, const char *expr ) {
+bool Rational<T, GCD, CHKOP, Alloc>::eval_ ( const char op, evalStack &s ) {
 
     if ( !s.empty() ) {
 
@@ -2421,8 +2465,7 @@ bool Rational<T, GCD, CHKOP, Alloc>::eval ( const char op, evalStack &s, const c
         case '/':
 #if __EXCEPTIONS
             if ( operand[0] == Rational() ) {
-                throw std::domain_error ( std::string ( "division by zero in expression: " ).
-                                          append ( expr ) );
+                throw std::domain_error ( std::string ( "division by zero in expression" ) );
             }
 #endif
             operand[1] = s.top();
@@ -2447,8 +2490,7 @@ bool Rational<T, GCD, CHKOP, Alloc>::eval ( const char op, evalStack &s, const c
         case '%':
 #if __EXCEPTIONS
             if ( operand[0] == Rational() ) {
-                throw std::domain_error ( std::string ( "modulus by zero in expression: " ).
-                                          append ( expr ) );
+                throw std::domain_error ( std::string ( "modulus by zero in expression" ) );
             }
 #endif
             operand[1] = s.top();
