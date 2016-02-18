@@ -1108,26 +1108,7 @@ public:
     template<typename IIter>
     static Rational eval ( IIter first, IIter last );
 
-    Rational eval ( const char *expr ) const {
-
-        if ( expr && *expr ) {
-#if __EXCEPTIONS
-            try {
-#endif
-                return eval ( expr, expr + std::strlen ( expr ) );
-#if __EXCEPTIONS
-            } catch ( const std::domain_error &e ) {
-                throw std::domain_error ( std::string ( e.what() ).
-                                          append ( ": " ).append ( expr ) );
-            } catch ( const std::runtime_error &e ) {
-                throw std::runtime_error ( std::string ( e.what() ).
-                                           append ( ": " ).append ( expr ) );
-            }
-#endif
-        }
-
-        return Rational();
-    }
+    Rational eval ( const char *expr ) const;
 
     /**
      * @brief extract the integral and fractional part
@@ -2444,6 +2425,30 @@ std::string Rational<T, GCD, CHKOP, Alloc>::str ( bool mixed ) const {
     }
 
     return os.str();
+}
+
+template<typename T, template<typename, bool, template<class, typename, bool> class,
+         template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
+         template<typename> class Alloc>
+Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::eval ( const char *expr ) const {
+
+    if ( expr && *expr ) {
+#if __EXCEPTIONS
+        try {
+#endif
+            return eval ( expr, expr + std::strlen ( expr ) );
+#if __EXCEPTIONS
+        } catch ( const std::domain_error &e ) {
+            throw std::domain_error ( std::string ( e.what() ).
+                                      append ( ": " ).append ( expr ) );
+        } catch ( const std::runtime_error &e ) {
+            throw std::runtime_error ( std::string ( e.what() ).
+                                       append ( ": " ).append ( expr ) );
+        }
+#endif
+    }
+
+    return Rational();
 }
 
 #pragma GCC diagnostic ignored "-Wfloat-equal"
