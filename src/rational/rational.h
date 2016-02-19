@@ -1796,34 +1796,31 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::Rational::eval ( 
 
     Rational result;
 
-    std::stack<typename std::iterator_traits<IIter>::value_type,
-        std::vector<typename std::iterator_traits<IIter>::value_type,
-        Alloc<typename std::iterator_traits<IIter>::value_type> > > syard;
+    typedef typename std::iterator_traits<IIter>::value_type value_type;
+    typedef std::stack<value_type, std::vector<value_type, Alloc<value_type> > > SYARD;
+    typedef std::vector<value_type, Alloc<value_type> > TOKENS;
 
-    std::vector<typename std::iterator_traits<IIter>::value_type,
-        Alloc<typename std::iterator_traits<IIter>::value_type> > token;
-
+    SYARD syard;
+    TOKENS token;
     evalStack rpn;
+
+    typename ContainerPolicy<TOKENS>::iterator
+    tokenIter ( ContainerPolicy<TOKENS>::make_iterator ( token ) );
 
     if ( first != last ) {
 
-        typename std::iterator_traits<IIter>::value_type prev ( 0 );
-
-        typename std::stack<typename std::iterator_traits<IIter>::value_type,
-                 std::vector<typename std::iterator_traits<IIter>::value_type,
-                 Alloc<typename std::iterator_traits<IIter>::value_type> > >::value_type top;
+        value_type prev ( 0 );
+        typename SYARD::value_type top;
 
         while ( first != last ) {
 
-            typename tmp::_ifThenElse<tmp::_isClassT<typename
-            std::iterator_traits<IIter>::value_type>::Yes,
-                const typename std::iterator_traits<IIter>::value_type &,
-                const typename std::iterator_traits<IIter>::value_type>::ResultT cur ( *first );
+            typename tmp::_ifThenElse<tmp::_isClassT<value_type>::Yes,
+                     const value_type &, const value_type>::ResultT cur ( *first );
 
             if ( !isDelimiter ( cur ) ) {
 
                 if ( ( cur >= '0' && cur <= '9' ) || cur == '.' ) {
-                    token.push_back ( cur );
+                    * ( tokenIter++ ) = cur;
                 } else {
 #ifdef __EXCEPTIONS
                     throw std::runtime_error (
@@ -1876,7 +1873,7 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::Rational::eval ( 
 
             } else if ( isOperator ( cur ) ) {
 
-                typename std::iterator_traits<IIter>::value_type cop ( cur );
+                value_type cop ( cur );
 
                 const bool isUnary = !prev || ( prev == '(' || isOperator ( prev ) );
 
