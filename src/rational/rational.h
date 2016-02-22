@@ -1675,16 +1675,27 @@ private:
                                      ( r, d_, q_ ), DecomposeBaseTraits<integer_type,
                                      std::numeric_limits<integer_type>::is_signed>::Base ) );
             if ( p == REP ) {
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+                * ( rep_++ ) = std::move ( q_ );
+#else
                 * ( rep_++ ) = q_;
+#endif
                 if ( horner_ ) rfi_.reptend =
                         op_plus() ( op_multiplies()
                                     ( rfi_.reptend, DecomposeBaseTraits<integer_type,
                                       std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
             } else {
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+                * ( pre_++ ) = std::move ( q_ );
+#else
                 * ( pre_++ ) = q_;
-                if ( horner_ ) rfi_.pre = op_plus() ( op_multiplies()
-                                                          ( rfi_.pre, DecomposeBaseTraits<integer_type,
-                                                            std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
+#endif
+                if ( horner_ ) rfi_.pre =
+                        op_plus() ( op_multiplies()
+                                    ( rfi_.pre, DecomposeBaseTraits<integer_type,
+                                      std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
             }
 
             return ret;
