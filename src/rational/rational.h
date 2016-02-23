@@ -1004,7 +1004,8 @@ public:
      * @return @c true if @c describes an integer @f$\neq 0@f$, @c false otherwise
      */
     static bool isInteger ( const mod_type &m ) {
-        return m.first != zero_ && m.second.numerator() == zero_;
+        return std::not_equal_to<typename mod_type::first_type>() ( m.first, zero_ ) &&
+               m.second.numerator() == zero_;
     }
 
     /**
@@ -1955,7 +1956,7 @@ Rational<T, GCD, CHKOP, Alloc> &Rational<T, GCD, CHKOP, Alloc>::reduce() {
                      GCD<T, std::numeric_limits<integer_type>::is_signed,
                      CHKOP, TYPE_CONVERT>() ( m_numer, m_denom ) : m_denom );
 
-    if ( x != one_ ) {
+    if ( std::not_equal_to<integer_type>() ( x, one_ ) ) {
         m_numer = RATIONAL_MOVE ( op_divides() ( m_numer, x ) );
         m_denom = RATIONAL_MOVE ( op_divides() ( m_denom, x ) );
     }
@@ -2248,7 +2249,7 @@ void Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect (
     integer_type tortoise ( f ( x ) );
     integer_type hare ( f ( tortoise ) );
 
-    while ( tortoise != hare ) {
+    while ( std::not_equal_to<integer_type>() ( tortoise, hare ) ) {
         tortoise = RATIONAL_MOVE ( f ( tortoise ) );
         hare = RATIONAL_MOVE ( f ( f ( hare ) ) );
     }
@@ -2257,14 +2258,17 @@ void Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect (
 
     tortoise = RATIONAL_MOVE ( x );
 
-    while ( tortoise != hare ) {
+    while ( std::not_equal_to <integer_type>() ( tortoise, hare ) ) {
         tortoise = RATIONAL_MOVE ( mu++ ? f ( tortoise, F::PRE ) : f ( tortoise ) );
         hare = RATIONAL_MOVE ( f ( hare ) );
     }
 
-    hare = RATIONAL_MOVE ( tortoise != zero_ ? f ( tortoise,  F::REP ) : f ( tortoise ) );
+    hare = RATIONAL_MOVE ( std::not_equal_to<integer_type>() ( tortoise, zero_ ) ?
+                           f ( tortoise,  F::REP ) : f ( tortoise ) );
 
-    while ( tortoise != hare ) hare = RATIONAL_MOVE ( f ( hare, F::REP ) );
+    while ( std::not_equal_to<integer_type>() ( tortoise, hare ) ) {
+        hare = RATIONAL_MOVE ( f ( hare, F::REP ) );
+    }
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -2383,7 +2387,7 @@ template<typename T, template<typename, bool, template<class, typename, bool> cl
          template<typename> class Alloc> Rational<T, GCD, CHKOP, Alloc>&
 Rational<T, GCD, CHKOP, Alloc>::operator%= ( const Rational& o ) {
 
-    if ( m_denom != o.m_denom ) {
+    if ( std::not_equal_to<integer_type>() ( m_denom, o.m_denom ) ) {
 
         typename tmp::_ifThenElse<tmp::_isClassT<integer_type>::Yes, const integer_type &,
                  const integer_type>::ResultT l ( _lcm<integer_type, GCD, CHKOP, Alloc,
@@ -2417,15 +2421,17 @@ std::string Rational<T, GCD, CHKOP, Alloc>::str ( bool mixed ) const {
 
         os << m_numer;
 
-        if ( m_denom != one_ ) os << '/' << m_denom;
+        if ( std::not_equal_to<integer_type>() ( m_denom, one_ ) ) os << '/' << m_denom;
 
     } else {
 
         const mod_type &p ( mod() );
 
-        if ( m_denom != one_ ) {
+        if ( std::not_equal_to<integer_type>() ( m_denom, one_ ) ) {
 
-            if ( p.first != zero_ ) os << p.first << ' ';
+            if ( std::not_equal_to<typename mod_type::first_type>() ( p.first, zero_ ) ) {
+                os << p.first << ' ';
+            }
 
             os << p.second.abs().str ( false );
 
@@ -3043,7 +3049,7 @@ T GCD_euclid_fast<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) 
 
     T x ( a ), y ( b );
 
-    while ( y != zero_ ) {
+    while ( std::not_equal_to<T>() ( y, zero_ ) ) {
 
         x %= y;
         y ^= x;
@@ -3080,7 +3086,7 @@ template<typename T, template<class, typename = T, bool = false> class CHKOP,
 
         T x ( a ), y ( b );
 
-        while ( y != zero_ ) {
+        while ( std::not_equal_to<T>() ( y, zero_ ) ) {
 
             typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const T &,
                      const T>::ResultT h ( CHKOP<std::modulus<T> >() ( x, y ) );
@@ -3137,7 +3143,7 @@ T GCD_stein<T, false, CHKOP, CONV>::operator() ( const T &a, const T &b ) const 
 
     T x ( a ), y ( b ), f = zero_;
 
-    while ( y != zero_ ) {
+    while ( std::not_equal_to<T>() ( y, zero_ ) ) {
 
         if ( x < y ) {
 
@@ -3265,7 +3271,8 @@ struct _psq {
                  const typename Rational<T, GCD, CHKOP, Alloc>::mod_type::first_type>::ResultT
                  m ( x.mod().first );
 
-        if ( m != typename Rational<T, GCD, CHKOP, Alloc>::mod_type::first_type() ) {
+        if ( std::not_equal_to<typename Rational<T, GCD, CHKOP, Alloc>::mod_type::first_type>()
+                ( m, typename Rational<T, GCD, CHKOP, Alloc>::mod_type::first_type() ) ) {
 
             const Rational<T, GCD, CHKOP, Alloc> psq ( m );
 
@@ -3540,7 +3547,8 @@ OIter seq ( const Rational<T, GCD, CHKOP, Alloc> &r, OIter out ) {
         mt = RATIONAL_MOVE ( h.mod() );
         * ( out++ ) = RATIONAL_MOVE ( mt.first );
 
-    } while ( mt.second.numerator() != T() && ( h = RATIONAL_MOVE ( mt.second.invert() ), true ) );
+    } while ( std::not_equal_to<T>() ( mt.second.numerator(), T() ) &&
+              ( h = RATIONAL_MOVE ( mt.second.invert() ), true ) );
 
     return out;
 }

@@ -147,6 +147,16 @@ template<> struct numeric_limits<mpz_class> {
     static const float_round_style round_style = round_toward_zero;
 };
 #endif
+
+#pragma GCC diagnostic ignored "-Weffc++"
+#pragma GCC diagnostic push
+template<> struct not_equal_to<mpz_class> : public binary_function<mpz_class, mpz_class, bool> {
+    bool operator() ( const mpz_class &x, const mpz_class &y ) const {
+        return mpz_cmp ( x.get_mpz_t(), y.get_mpz_t() );
+    }
+};
+#pragma GCC diagnostic pop
+
 }
 
 namespace Commons {
