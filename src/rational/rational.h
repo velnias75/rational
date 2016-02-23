@@ -87,11 +87,12 @@
     C(const C &&) = delete; \
     C &operator=(const C &) = delete; \
     C &operator=(const C &&) = delete
-
+#define RATIONAL_MOVE(x) std::move((x))
 #else
 #define RATIONAL_NOEXCEPT throw()
 #define RATIONAL_CONSTEXPR
 #define RATIONAL_NOCOPYASSIGN(C)
+#define RATIONAL_MOVE(x) (x)
 #endif
 
 namespace Commons {
@@ -1681,11 +1682,7 @@ private:
                                     ( rfi_.reptend, DecomposeBaseTraits<integer_type,
                                       std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-                * ( rep_++ ) = std::move ( q_ );
-#else
-                * ( rep_++ ) = q_;
-#endif
+                * ( rep_++ ) = RATIONAL_MOVE ( q_ );
 
             } else {
 
@@ -1694,11 +1691,7 @@ private:
                                     ( rfi_.pre, DecomposeBaseTraits<integer_type,
                                       std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-                * ( pre_++ ) = std::move ( q_ );
-#else
-                * ( pre_++ ) = q_;
-#endif
+                * ( pre_++ ) = RATIONAL_MOVE ( q_ );
             }
 
             return ret;
@@ -2484,24 +2477,24 @@ bool Rational<T, GCD, CHKOP, Alloc>::eval_ ( const char op, evalStack &s ) {
                 throw std::domain_error ( std::string ( "division by zero in expression" ) );
             }
 #endif
-            operand[1] = s.top();
+            operand[1] = RATIONAL_MOVE ( s.top() );
             s.pop();
-            s.push ( operand[1] /= operand[0] );
+            s.push ( RATIONAL_MOVE ( operand[1] /= operand[0] ) );
             return true;
         case '*':
-            operand[1] = s.top();
+            operand[1] = RATIONAL_MOVE ( s.top() );
             s.pop();
-            s.push ( operand[1] *= operand[0] );
+            s.push ( RATIONAL_MOVE ( operand[1] *= operand[0] ) );
             return true;
         case '+':
-            operand[1] = s.top();
+            operand[1] = RATIONAL_MOVE ( s.top() );
             s.pop();
-            s.push ( operand[1] += operand[0] );
+            s.push ( RATIONAL_MOVE ( operand[1] += operand[0] ) );
             return true;
         case '-':
-            operand[1] = s.top();
+            operand[1] = RATIONAL_MOVE ( s.top() );
             s.pop();
-            s.push ( operand[1] -= operand[0] );
+            s.push ( RATIONAL_MOVE ( operand[1] -= operand[0] ) );
             return true;
         case '%':
 #if __EXCEPTIONS
@@ -2509,15 +2502,15 @@ bool Rational<T, GCD, CHKOP, Alloc>::eval_ ( const char op, evalStack &s ) {
                 throw std::domain_error ( std::string ( "modulus by zero in expression" ) );
             }
 #endif
-            operand[1] = s.top();
+            operand[1] = RATIONAL_MOVE ( s.top() );
             s.pop();
-            s.push ( operand[1] %= operand[0] );
+            s.push ( RATIONAL_MOVE ( operand[1] %= operand[0] ) );
             return true;
         case 1:
-            s.push ( -operand[0] );
+            s.push ( RATIONAL_MOVE ( -operand[0] ) );
             return true;
         case 2:
-            s.push ( operand[0] );
+            s.push ( RATIONAL_MOVE ( operand[0] ) );
             return true;
         }
     }
@@ -2857,21 +2850,13 @@ void _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV>::operat
             r.m_numer = typename rat::op_plus ()
                         ( m[0][0], typename rat::op_multiplies () ( n, m[0][1] ) );
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-            m[0][0] = std::move ( m[0][1] );
-#else
-            m[0][0] = m[0][1];
-#endif
+            m[0][0] = RATIONAL_MOVE ( m[0][1] );
             m[0][1] = r.m_numer;
 
             r.m_denom = typename rat::op_plus ()
                         ( m[1][0], typename rat::op_multiplies () ( n, m[1][1] ) );
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-            m[1][0] = std::move ( m[1][1] );
-#else
-            m[1][0] = m[1][1];
-#endif
+            m[1][0] = RATIONAL_MOVE ( m[1][1] );
             m[1][1] = r.m_denom;
 
             typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
@@ -3507,21 +3492,13 @@ cf ( IIter first, IIter last ) {
         n = typename rat::op_plus() (
                 typename rat::op_multiplies() ( *first, m[0][1] ), m[0][0] );
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-        m[0][0] = std::move ( m[0][1] );
-#else
-        m[0][0] = m[0][1];
-#endif
+        m[0][0] = RATIONAL_MOVE ( m[0][1] );
         m[0][1] = n;
 
         d = typename rat::op_plus() (
                 typename rat::op_multiplies() ( *first++, m[1][1] ), m[1][0] );
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-        m[1][0] = std::move ( m[1][1] );
-#else
-        m[1][0] = m[1][1];
-#endif
+        m[1][0] = RATIONAL_MOVE ( m[1][1] );
         m[1][1] = d;
     }
 
