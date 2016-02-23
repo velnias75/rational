@@ -935,7 +935,7 @@ public:
      * @param[in] expr the expression to evaluate and approximate
      */
     Rational ( const char *expr ) : m_numer(), m_denom ( one_ ) {
-        *this = eval ( expr );
+        *this = RATIONAL_MOVE ( eval ( expr ) );
     }
 
     ~Rational();
@@ -954,7 +954,7 @@ public:
      */
     template<typename NumberType>
     Rational &operator= ( const NumberType &number ) {
-        return ( *this = Rational ( number ) );
+        return ( *this = RATIONAL_MOVE ( Rational ( number ) ) );
     }
 
 #ifndef __clang__
@@ -1243,7 +1243,7 @@ public:
      * @return the incremented %Rational
      */
     Rational& operator++() {
-        m_numer = op_plus() ( m_numer, m_denom );
+        m_numer = RATIONAL_MOVE ( op_plus() ( m_numer, m_denom ) );
         return reduce();
     }
 
@@ -1305,7 +1305,7 @@ public:
      */
     Rational operator-() const {
         Rational tmp ( *this );
-        tmp.m_numer = op_negate() ( tmp.m_numer );
+        tmp.m_numer = RATIONAL_MOVE ( op_negate() ( tmp.m_numer ) );
         return tmp;
     }
 
@@ -1318,7 +1318,7 @@ public:
       * @return the incremented %Rational
       */
     Rational& operator--() {
-        m_numer = op_minus() ( m_numer, m_denom );
+        m_numer = RATIONAL_MOVE ( op_minus() ( m_numer, m_denom ) );
         return reduce();
     }
 
@@ -1607,8 +1607,8 @@ public:
      */
     friend std::istream &operator>> ( std::istream &i, Rational &r ) {
 
-        r = eval ( std::istreambuf_iterator<std::istream::char_type> ( i ),
-                   std::istreambuf_iterator<std::istream::char_type>() );
+        r = RATIONAL_MOVE ( eval ( std::istreambuf_iterator<std::istream::char_type> ( i ),
+                                   std::istreambuf_iterator<std::istream::char_type>() ) );
 
         return i;
     }
@@ -1678,18 +1678,22 @@ private:
             if ( p == REP ) {
 
                 if ( horner_ ) rfi_.reptend =
-                        op_plus() ( op_multiplies()
-                                    ( rfi_.reptend, DecomposeBaseTraits<integer_type,
-                                      std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
+                        RATIONAL_MOVE ( op_plus()
+                                        ( op_multiplies()
+                                          ( rfi_.reptend, DecomposeBaseTraits<integer_type,
+                                            std::numeric_limits<integer_type>::is_signed>::Base ),
+                                          q_ ) );
 
                 * ( rep_++ ) = RATIONAL_MOVE ( q_ );
 
             } else {
 
                 if ( horner_ ) rfi_.pre =
-                        op_plus() ( op_multiplies()
-                                    ( rfi_.pre, DecomposeBaseTraits<integer_type,
-                                      std::numeric_limits<integer_type>::is_signed>::Base ), q_ );
+                        RATIONAL_MOVE ( op_plus()
+                                        ( op_multiplies()
+                                          ( rfi_.pre, DecomposeBaseTraits<integer_type,
+                                            std::numeric_limits<integer_type>::is_signed>::Base ),
+                                          q_ ) );
 
                 * ( pre_++ ) = RATIONAL_MOVE ( q_ );
             }
@@ -1783,15 +1787,17 @@ Rational<T, GCD, CHKOP, Alloc>::Rational ( const rf_info &info ) : m_numer (), m
 
     using namespace std;
 
-    *this = ( Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
-                         static_cast<integer_type> ( _type_round_helper<integer_type>() (
-                                     pow10 ( ceil ( log10 ( ( info.reptend < zero_ ?
-                                             integer_type ( -info.reptend ) : info.reptend ) +
-                                             one_ ) ) + info.leading_zeros ) - one_ ) ) ) *=
-                  Rational ( one_, static_cast<integer_type> ( _type_round_helper<integer_type>() (
-                                 pow10 ( ceil ( log10 ( ( info.pre < zero_ ?
-                                         integer_type ( -info.pre ) : info.pre ) + one_ ) ) +
-                                         info.pre_leading_zeros ) ) ) ) );
+    *this = RATIONAL_MOVE (
+                Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
+                           static_cast<integer_type> ( _type_round_helper<integer_type>() (
+                                       pow10 ( ceil ( log10 ( ( info.reptend < zero_ ?
+                                               integer_type ( -info.reptend ) : info.reptend ) +
+                                               one_ ) ) + info.leading_zeros ) - one_ ) ) ) *=
+                    Rational ( one_,
+                               static_cast<integer_type> ( _type_round_helper<integer_type>() (
+                                           pow10 ( ceil ( log10 ( ( info.pre < zero_ ?
+                                                   integer_type ( -info.pre ) : info.pre ) +
+                                                   one_ ) ) + info.pre_leading_zeros ) ) ) ) );
 }
 #pragma GCC diagnostic pop
 
@@ -1827,7 +1833,7 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::Rational::eval ( 
             if ( !isDelimiter ( cur ) ) {
 
                 if ( ( cur >= '0' && cur <= '9' ) || cur == '.' ) {
-                    * ( tokenIter++ ) = cur;
+                    * ( tokenIter++ ) = RATIONAL_MOVE ( cur );
                 } else {
 #ifdef __EXCEPTIONS
                     throw std::runtime_error (
@@ -1857,7 +1863,7 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::Rational::eval ( 
 
                 prev = cur;
 
-                while ( !syard.empty() && ( top = syard.top() ) != '(' ) {
+                while ( !syard.empty() && ( top = RATIONAL_MOVE ( syard.top() ) ) != '(' ) {
 
                     if ( !eval_ ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
@@ -1890,7 +1896,7 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::Rational::eval ( 
                     cop = 2;
                 } else {
 
-                    while ( !syard.empty() && isOperator ( top = syard.top() ) &&
+                    while ( !syard.empty() && isOperator ( top = RATIONAL_MOVE ( syard.top() ) ) &&
                             ( ( isLeftAssoc ( cop ) && getPrec ( cop ) <= getPrec ( top ) ) ||
                               ( !isLeftAssoc ( cop ) && getPrec ( cop ) < getPrec ( top ) ) ) ) {
 
@@ -1911,7 +1917,7 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::Rational::eval ( 
             ++first;
         }
 
-        while ( !syard.empty() && isOperator ( top = syard.top() ) ) {
+        while ( !syard.empty() && isOperator ( top = RATIONAL_MOVE ( syard.top() ) ) ) {
 
             if ( !eval_ ( top, rpn ) ) {
 #ifdef __EXCEPTIONS
@@ -1950,8 +1956,8 @@ Rational<T, GCD, CHKOP, Alloc> &Rational<T, GCD, CHKOP, Alloc>::reduce() {
                      CHKOP, TYPE_CONVERT>() ( m_numer, m_denom ) : m_denom );
 
     if ( x != one_ ) {
-        m_numer = op_divides() ( m_numer, x );
-        m_denom = op_divides() ( m_denom, x );
+        m_numer = RATIONAL_MOVE ( op_divides() ( m_numer, x ) );
+        m_denom = RATIONAL_MOVE ( op_divides() ( m_denom, x ) );
     }
 
     return _swapSign<integer_type, GCD, CHKOP, Alloc,
@@ -1971,7 +1977,6 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>:: _sqrt() const {
     if ( m_numer == zero_ ) throw std::domain_error ( "sqrt is undefined for zero" );
 #endif
 
-
     if ( m_numer == m_denom ) return *this;
 
     const Rational half ( one_, one_ + one_ );
@@ -1979,8 +1984,8 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>:: _sqrt() const {
                            ( Rational ( one_, one_ ) += *this ) *= half : *this );
 
     while ( SQRT_HERON_ITERATE<Rational>() ( *this, m_numer,
-            ( inv = x.inverse() ).denominator() ) && SQRT_HERON_ITERATE<Rational>()
-            ( x, ( aux = Rational ( *this ) *= inv ) ) ) {
+            ( inv = RATIONAL_MOVE ( x.inverse() ) ).denominator() ) &&
+            SQRT_HERON_ITERATE<Rational>() ( x, ( aux = Rational ( *this ) *= inv ) ) ) {
 
         x += aux;
         x *= half;
@@ -2002,9 +2007,9 @@ Rational<T, GCD, CHKOP, Alloc>::knuth_addSub ( const Rational<T, GCD, CHKOP, All
 
     if ( d1 == one_ ) {
 
-        m_numer = Op() ( op_multiplies() ( m_numer, o.m_denom ),
-                         op_multiplies() ( m_denom, o.m_numer ) );
-        m_denom = op_multiplies() ( m_denom, o.m_denom );
+        m_numer = RATIONAL_MOVE ( Op() ( op_multiplies() ( m_numer, o.m_denom ),
+                                         op_multiplies() ( m_denom, o.m_numer ) ) );
+        m_denom = RATIONAL_MOVE ( op_multiplies() ( m_denom, o.m_denom ) );
 
     } else {
 
@@ -2019,8 +2024,9 @@ Rational<T, GCD, CHKOP, Alloc>::knuth_addSub ( const Rational<T, GCD, CHKOP, All
                          std::numeric_limits<integer_type>::is_signed,
                          CHKOP, TYPE_CONVERT>() ( t, d1 ) );
 
-        m_numer = op_divides() ( t, d2 );
-        m_denom = op_multiplies() ( op_divides() ( m_denom, d1 ), op_divides() ( o.m_denom, d2 ) );
+        m_numer = RATIONAL_MOVE ( op_divides() ( t, d2 ) );
+        m_denom = RATIONAL_MOVE ( op_multiplies() ( op_divides() ( m_denom, d1 ),
+                                  op_divides() ( o.m_denom, d2 ) ) );
     }
 
     return *this;
@@ -2218,8 +2224,8 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::sqrt() const {
 
     Rational p, q;
 
-    return ( ( p = Rational ( m_numer, one_ )._sqrt() ).isInteger() &&
-             ( q = Rational ( m_denom, one_ )._sqrt() ).isInteger() ) ?
+    return ( ( p = RATIONAL_MOVE ( Rational ( m_numer, one_ )._sqrt() ) ).isInteger() &&
+             ( q = RATIONAL_MOVE ( Rational ( m_denom, one_ )._sqrt() ) ).isInteger() ) ?
            Rational ( p.numerator(), q.numerator() ) : _sqrt();
 }
 
@@ -2243,22 +2249,22 @@ void Rational<T, GCD, CHKOP, Alloc>::floyd_cycle_detect (
     integer_type hare ( f ( tortoise ) );
 
     while ( tortoise != hare ) {
-        tortoise = f ( tortoise );
-        hare = f ( f ( hare ) );
+        tortoise = RATIONAL_MOVE ( f ( tortoise ) );
+        hare = RATIONAL_MOVE ( f ( f ( hare ) ) );
     }
 
     typename F::size_type mu ( 0 );
 
-    tortoise = x;
+    tortoise = RATIONAL_MOVE ( x );
 
     while ( tortoise != hare ) {
-        tortoise = mu++ ? f ( tortoise, F::PRE ) : f ( tortoise );
-        hare = f ( hare );
+        tortoise = RATIONAL_MOVE ( mu++ ? f ( tortoise, F::PRE ) : f ( tortoise ) );
+        hare = RATIONAL_MOVE ( f ( hare ) );
     }
 
-    hare = tortoise != zero_ ? f ( tortoise,  F::REP ) : f ( tortoise );
+    hare = RATIONAL_MOVE ( tortoise != zero_ ? f ( tortoise,  F::REP ) : f ( tortoise ) );
 
-    while ( tortoise != hare ) hare = f ( hare, F::REP );
+    while ( tortoise != hare ) hare = RATIONAL_MOVE ( f ( hare, F::REP ) );
 }
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
@@ -2287,8 +2293,8 @@ Rational<T, GCD, CHKOP, Alloc>::decompose ( rf_info &rf_info, PreC &pre_digits, 
     rf_info.leading_zeros = countLeading ( rep_digits.begin(), rep_digits.end() );
 
     if ( !digitsOnly && rf_info.negative ) {
-        rf_info.pre = -rf_info.pre;
-        rf_info.reptend = -rf_info.reptend;
+        rf_info.pre = RATIONAL_MOVE ( -rf_info.pre );
+        rf_info.reptend = RATIONAL_MOVE ( -rf_info.reptend );
     }
 
     return !rf_info.negative ? w : integer_type ( -w );
@@ -2359,14 +2365,14 @@ Rational<T, GCD, CHKOP, Alloc>::operator*= ( const Rational& other ) {
 
     if ( ! ( d2 == one_ && d1 == one_ ) ) {
 
-        m_numer = op_multiplies() ( ( op_divides() ( m_numer, d1 ) ),
-                                    ( op_divides() ( other.m_numer, d2 ) ) );
-        m_denom = op_multiplies() ( ( op_divides() ( m_denom, d2 ) ),
-                                    ( op_divides() ( other.m_denom, d1 ) ) );
+        m_numer = RATIONAL_MOVE ( op_multiplies() ( ( op_divides() ( m_numer, d1 ) ),
+                                  ( op_divides() ( other.m_numer, d2 ) ) ) );
+        m_denom = RATIONAL_MOVE ( op_multiplies() ( ( op_divides() ( m_denom, d2 ) ),
+                                  ( op_divides() ( other.m_denom, d1 ) ) ) );
 
     } else {
-        m_numer = op_multiplies() ( m_numer, other.m_numer );
-        m_denom = op_multiplies() ( m_denom, other.m_denom );
+        m_numer = RATIONAL_MOVE ( op_multiplies() ( m_numer, other.m_numer ) );
+        m_denom = RATIONAL_MOVE ( op_multiplies() ( m_denom, other.m_denom ) );
     }
 
     return *this;
@@ -2388,13 +2394,13 @@ Rational<T, GCD, CHKOP, Alloc>::operator%= ( const Rational& o ) {
                  const integer_type>::ResultT a ( op_multiplies()
                          ( op_divides() ( l, o.m_denom ), o.m_numer ) );
 
-        m_numer = op_modulus() ( op_plus() ( op_modulus() ( op_multiplies() ( op_divides()
-                                             ( l, m_denom ), m_numer ), a ), a ), a );
-        m_denom = l;
+        m_numer = RATIONAL_MOVE ( op_modulus() ( op_plus() ( op_modulus() ( op_multiplies()
+                                  ( op_divides() ( l, m_denom ), m_numer ), a ), a ), a ) );
+        m_denom = RATIONAL_MOVE ( l );
 
     } else {
-        m_numer = op_modulus() ( op_plus() ( op_modulus() ( m_numer, o.m_numer ), o.m_numer ),
-                                 o.m_numer );
+        m_numer = RATIONAL_MOVE ( op_modulus() ( op_plus() ( op_modulus() ( m_numer, o.m_numer ),
+                                  o.m_numer ), o.m_numer ) );
     }
 
     return reduce();
@@ -2518,7 +2524,6 @@ bool Rational<T, GCD, CHKOP, Alloc>::eval_ ( const char op, evalStack &s ) {
     return false;
 }
 #pragma GCC diagnostic pop
-
 
 /**
  * @relates Rational
@@ -3079,8 +3084,9 @@ template<typename T, template<class, typename = T, bool = false> class CHKOP,
 
             typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const T &,
                      const T>::ResultT h ( CHKOP<std::modulus<T> >() ( x, y ) );
-            x = y;
-            y = h;
+
+            x = RATIONAL_MOVE ( y );
+            y = RATIONAL_MOVE ( h );
         }
 
         return x;
@@ -3218,7 +3224,7 @@ struct _swapSign<T, GCD, CHKOP, Alloc, true> {
     Rational<T, GCD, CHKOP, Alloc> &operator() ( Rational<T, GCD, CHKOP, Alloc> &r ) const {
 
         if ( r.m_denom < zero_ ) {
-            r.m_numer = -r.m_numer;
+            r.m_numer =  -r.m_numer;
             r.m_denom = -r.m_denom;
         }
 
@@ -3531,10 +3537,10 @@ OIter seq ( const Rational<T, GCD, CHKOP, Alloc> &r, OIter out ) {
 
     do {
 
-        mt = h.mod();
-        * ( out++ ) = mt.first;
+        mt = RATIONAL_MOVE ( h.mod() );
+        * ( out++ ) = RATIONAL_MOVE ( mt.first );
 
-    } while ( mt.second.numerator() != T() && ( h = mt.second.invert(), true ) );
+    } while ( mt.second.numerator() != T() && ( h = RATIONAL_MOVE ( mt.second.invert() ), true ) );
 
     return out;
 }
