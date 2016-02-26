@@ -550,6 +550,23 @@ void GMPTest::testAlgorithm() {
     CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<gmp_rational::integer_type>::size_type> ( 97u ),
                            o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
+
+    std::vector<gmp_rational::integer_type> cal, cbl;
+    const Rational<gmp_rational::integer_type, GCD_null> ca ( 2, 4 );
+    const Rational<gmp_rational::integer_type, GCD_null> cb ( 4, 8 );
+
+    seq ( ca, std::back_inserter ( cal ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, cf ( cal.begin(), cal.end() ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 2l, cf ( cal.begin(), cal.end() ).denominator().get_si() );
+
+    seq ( cb, std::back_inserter ( cbl ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1l, cf ( cbl.begin(), cbl.end() ).numerator().get_si() );
+    CPPUNIT_ASSERT_EQUAL ( 2l, cf ( cbl.begin(), cbl.end() ).denominator().get_si() );
+
+    CPPUNIT_ASSERT ( std::equal ( cal.begin(), cal.end(), cbl.begin() ) );
+    CPPUNIT_ASSERT ( std::equal ( cbl.begin(), cbl.end(), cal.begin() ) );
 }
 #pragma GCC diagnostic pop
 

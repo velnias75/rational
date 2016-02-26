@@ -847,6 +847,18 @@ void RationalTest::testRelOps() {
     CPPUNIT_ASSERT ( c_stein == b );
     CPPUNIT_ASSERT ( b_stein == c );
 
+    CPPUNIT_ASSERT ( ! ( c != b ) );
+    CPPUNIT_ASSERT ( ! ( b != c ) );
+
+    CPPUNIT_ASSERT ( ! ( c_stein != b_stein ) );
+    CPPUNIT_ASSERT ( ! ( b_stein != c_stein ) );
+
+    CPPUNIT_ASSERT ( ! ( c != b_stein ) );
+    CPPUNIT_ASSERT ( ! ( b != c_stein ) );
+
+    CPPUNIT_ASSERT ( ! ( c_stein != b ) );
+    CPPUNIT_ASSERT ( ! ( b_stein != c ) );
+
     CPPUNIT_ASSERT ( a != b );
     CPPUNIT_ASSERT ( b != a );
 
@@ -858,6 +870,18 @@ void RationalTest::testRelOps() {
 
     CPPUNIT_ASSERT ( a_stein != b );
     CPPUNIT_ASSERT ( b_stein != a );
+
+    CPPUNIT_ASSERT ( ! ( a == b ) );
+    CPPUNIT_ASSERT ( ! ( b == a ) );
+
+    CPPUNIT_ASSERT ( ! ( a_stein == b_stein ) );
+    CPPUNIT_ASSERT ( ! ( b_stein == a_stein ) );
+
+    CPPUNIT_ASSERT ( ! ( a == b_stein ) );
+    CPPUNIT_ASSERT ( ! ( b == a_stein ) );
+
+    CPPUNIT_ASSERT ( ! ( a_stein == b ) );
+    CPPUNIT_ASSERT ( ! ( b_stein == a ) );
 
     CPPUNIT_ASSERT ( b <= c );
     CPPUNIT_ASSERT ( c <= b );
@@ -945,6 +969,15 @@ void RationalTest::testRelOps() {
 
     CPPUNIT_ASSERT ( g_stein < d );
     CPPUNIT_ASSERT ( d_stein > g );
+
+    const Rational<rational_type> h ( 1, 2 );
+    const Rational<rational_type> i ( 2, 4 );
+
+    CPPUNIT_ASSERT ( ! ( h != i ) );
+    CPPUNIT_ASSERT ( ! ( i != h ) );
+
+    CPPUNIT_ASSERT ( h == i );
+    CPPUNIT_ASSERT ( i == h );
 }
 
 void RationalTest::testGlobalOps() {
@@ -1275,6 +1308,23 @@ void RationalTest::testAlgorithm() {
     seq ( c, std::back_inserter ( negcf ) );
 
     CPPUNIT_ASSERT ( std::equal ( negcf.begin(), negcf.end(), ancf ) );
+
+    std::list<rational_type> cal, cbl;
+    const Rational<rational_type, GCD_null> ca ( 2, 4 );
+    const Rational<rational_type, GCD_null> cb ( 4, 8 );
+
+    seq ( ca, std::back_inserter ( cal ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, cf ( cal.begin(), cal.end() ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 2, cf ( cal.begin(), cal.end() ).denominator() );
+
+    seq ( cb, std::back_inserter ( cbl ) );
+
+    CPPUNIT_ASSERT_EQUAL ( 1, cf ( cbl.begin(), cbl.end() ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( 2, cf ( cbl.begin(), cbl.end() ).denominator() );
+
+    CPPUNIT_ASSERT ( std::equal ( cal.begin(), cal.end(), cbl.begin() ) );
+    CPPUNIT_ASSERT ( std::equal ( cbl.begin(), cbl.end(), cal.begin() ) );
 }
 #pragma GCC diagnostic pop
 

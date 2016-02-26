@@ -559,6 +559,23 @@ void CLNTest::testAlgorithm() {
 
     CPPUNIT_ASSERT_EQUAL ( static_cast<std::vector<cln_rational::integer_type>::size_type> ( 97u ), o_pi.size() );
     CPPUNIT_ASSERT ( std::equal ( o_pi.begin(), o_pi.end(), cf_pi ) );
+
+    std::deque<cln_rational::integer_type> cal, cbl;
+    const Rational<cln_rational::integer_type, GCD_null> ca ( 2, 4 );
+    const Rational<cln_rational::integer_type, GCD_null> cb ( 4, 8 );
+
+    seq ( ca, std::back_inserter ( cal ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), cf ( cal.begin(), cal.end() ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), cf ( cal.begin(), cal.end() ).denominator() );
+
+    seq ( cb, std::back_inserter ( cbl ) );
+
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 1 ), cf ( cbl.begin(), cbl.end() ).numerator() );
+    CPPUNIT_ASSERT_EQUAL ( cln::cl_I ( 2 ), cf ( cbl.begin(), cbl.end() ).denominator() );
+
+    CPPUNIT_ASSERT ( std::equal ( cal.begin(), cal.end(), cbl.begin() ) );
+    CPPUNIT_ASSERT ( std::equal ( cbl.begin(), cbl.end(), cal.begin() ) );
 }
 #pragma GCC diagnostic pop
 
