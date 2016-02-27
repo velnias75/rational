@@ -2789,16 +2789,26 @@ struct _approxUtils {
         return abs ( af - nt ) < eps_;
     }
 
+    static NumberType reciprocal ( const NumberType &x ) {
+        return one_ / x;
+    }
+
     const static NumberType eps_;
 
 private:
     static NumberType abs ( const NumberType &nt ) {
         return nt < NumberType() ? NumberType ( -nt ) : nt;
     }
+
+private:
+    const static NumberType one_;
 };
 
 template<typename NumberType, template<typename> class EPSILON>
 const NumberType _approxUtils<NumberType, EPSILON>::eps_ ( EPSILON<NumberType>::value() );
+
+template<typename NumberType, template<typename> class EPSILON>
+const NumberType _approxUtils<NumberType, EPSILON>::one_ ( 1 );
 
 template<typename T, template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,
@@ -2848,9 +2858,6 @@ void _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV>::operat
 
         NumberType x ( nt );
 
-        typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const NumberType &,
-                 const NumberType>::ResultT one ( CONV<T> ( one_ ).template convert<NumberType>() );
-
         while ( !_approxUtils<NumberType, EPSILON>::approximated ( r, nt ) ) {
 
             using namespace std;
@@ -2874,9 +2881,11 @@ void _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV>::operat
                      const NumberType>::ResultT
                      d ( x - CONV<T> ( n ).template convert<NumberType>() );
 
-            if ( _approxUtils<NumberType, EPSILON>::approximated ( d, NumberType() ) ) break;
-
-            x = one / d;
+            if ( !_approxUtils<NumberType, EPSILON>::approximated ( d, NumberType() ) ) {
+                x = _approxUtils<NumberType, EPSILON>::reciprocal ( d );
+            } else {
+                break;
+            }
         }
 #ifdef __EXCEPTIONS
     } else {

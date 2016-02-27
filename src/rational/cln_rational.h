@@ -306,17 +306,26 @@ template<template<typename> class EPSILON> struct _approxUtils<cln::cl_F, EPSILO
         return abs ( af - nt ) < eps_;
     }
 
+    static cln::cl_F reciprocal ( const cln::cl_F &x ) {
+        return one_ / x;
+    }
+
     const static cln::cl_F eps_;
 
 private:
-
     static cln::cl_F abs ( const cln::cl_F &nt ) {
         return cln::abs ( nt );
     }
+
+private:
+    const static cln::cl_F one_;
 };
 
 template<template<typename> class EPSILON>
 const cln::cl_F _approxUtils<cln::cl_F, EPSILON>::eps_ ( EPSILON<cln::cl_F>::value() );
+
+template<template<typename> class EPSILON>
+const cln::cl_F _approxUtils<cln::cl_F, EPSILON>::one_ ( 1.0 );
 
 template<template<typename, bool, template<class, typename, bool> class,
          template<typename> class> class GCD, template<class, typename, bool> class CHKOP,

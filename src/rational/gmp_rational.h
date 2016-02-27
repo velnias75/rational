@@ -381,10 +381,13 @@ template<template<typename> class EPSILON> struct _approxUtils<mpfr::mpreal, EPS
         return !mpfr_cmp ( af.mpfr_ptr(), nt.mpfr_ptr() );
     }
 
+    static mpfr::mpreal reciprocal ( const mpfr::mpreal &x ) {
+        return 1u / x;
+    }
+
     const static mpfr::mpreal eps_;
 
 private:
-
     static mpfr::mpreal abs ( const mpfr::mpreal &nt ) {
         return mpfr::abs ( nt );
     }
@@ -400,10 +403,15 @@ template<template<typename> class EPSILON> struct _approxUtils<mpf_class, EPSILO
         return mpf_eq ( af.get_mpf_t(), nt.get_mpf_t(), std::min ( af.get_prec(), nt.get_prec() ) );
     }
 
+    static mpf_class reciprocal ( const mpf_class &x ) {
+        mpf_class rop ( x );
+        mpf_ui_div ( rop.get_mpf_t(), static_cast<unsigned long int> ( 1 ), x.get_mpf_t() );
+        return rop;
+    }
+
     const static mpf_class eps_;
 
 private:
-
     static mpf_class abs ( const mpf_class &nt ) {
         return ::abs ( nt );
     }
