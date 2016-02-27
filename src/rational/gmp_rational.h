@@ -404,8 +404,8 @@ template<template<typename> class EPSILON> struct _approxUtils<mpf_class, EPSILO
     }
 
     static mpf_class reciprocal ( const mpf_class &x ) {
-        mpf_class rop ( x );
-        mpf_ui_div ( rop.get_mpf_t(), static_cast<unsigned long int> ( 1 ), x.get_mpf_t() );
+        mpf_class rop ( 1.0, x.get_prec() );
+        mpf_div ( rop.get_mpf_t(), rop.get_mpf_t(), x.get_mpf_t() );
         return rop;
     }
 
