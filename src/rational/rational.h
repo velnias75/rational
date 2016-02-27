@@ -2857,25 +2857,26 @@ void _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV>::operat
         T m[2][2] = { { zero_, one_ }, { one_, zero_ } };
 
         NumberType x ( nt );
+        rat res ( r );
 
-        while ( !_approxUtils<NumberType, EPSILON>::approximated ( r, nt ) ) {
+        while ( !_approxUtils<NumberType, EPSILON>::approximated ( res, nt ) ) {
 
             using namespace std;
 
             typename tmp::_ifThenElse<tmp::_isClassT<T>::Yes, const T &,
                      const T>::ResultT n ( CONV<NumberType> ( floor ( x ) ).template convert<T>() );
 
-            r.m_numer = typename rat::op_plus ()
-                        ( m[0][0], typename rat::op_multiplies () ( n, m[0][1] ) );
+            res.m_numer = typename rat::op_plus ()
+                          ( m[0][0], typename rat::op_multiplies () ( n, m[0][1] ) );
 
             m[0][0] = RATIONAL_MOVE ( m[0][1] );
-            m[0][1] = r.m_numer;
+            m[0][1] = res.m_numer;
 
-            r.m_denom = typename rat::op_plus ()
-                        ( m[1][0], typename rat::op_multiplies () ( n, m[1][1] ) );
+            res.m_denom = typename rat::op_plus ()
+                          ( m[1][0], typename rat::op_multiplies () ( n, m[1][1] ) );
 
             m[1][0] = RATIONAL_MOVE ( m[1][1] );
-            m[1][1] = r.m_denom;
+            m[1][1] = res.m_denom;
 
             typename tmp::_ifThenElse<tmp::_isClassT<NumberType>::Yes, const NumberType &,
                      const NumberType>::ResultT
@@ -2887,6 +2888,9 @@ void _approxFract<T, GCD, CHKOP, Alloc, NumberType, true, EPSILON, CONV>::operat
                 break;
             }
         }
+
+        r = RATIONAL_MOVE ( res );
+
 #ifdef __EXCEPTIONS
     } else {
         throw std::domain_error ( "rational approximation overflow" );
