@@ -442,7 +442,6 @@ void ExprTest::testExpression_gmp() {
 
     CPPUNIT_ASSERT_EQUAL ( -2920l, r11.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 431l, r11.denominator().get_si() );
-#endif
 
     const gmp_rational &sqr1 ( eval_rat_expr ( sqrt ( h + i ) ) );
 
@@ -458,6 +457,7 @@ void ExprTest::testExpression_gmp() {
 
     CPPUNIT_ASSERT_EQUAL ( 9l, sqr3.numerator().get_si() );
     CPPUNIT_ASSERT_EQUAL ( 16l, sqr3.denominator().get_si() );
+#endif
 }
 
 void ExprTest::testIntegrate() {
@@ -478,4 +478,4 @@ void ExprTest::testIntegrate() {
 #endif
 }
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
