@@ -562,7 +562,8 @@ struct DecomposeBaseTraits<T, false> {
 template<typename T> struct _type_round_helper {
     typename ExpressionEvalTraits<T>::NumberType
     operator() ( const typename ExpressionEvalTraits<T>::NumberType& tr ) const {
-        return typename ExpressionEvalTraits<T>::NumberType ( 0.5 ) + tr;
+        return std::numeric_limits<typename ExpressionEvalTraits<T>::NumberType>::round_error()
+               + tr;
     }
 };
 
