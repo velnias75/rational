@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [2.13], [heiko@rangun.de])
+AC_INIT([rational], [2.13.1], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -14,7 +14,6 @@ CFLAGS="${CXXFLAGS} -std=c99"
 
 # Checks for programs.
 AC_PROG_CXX
-AM_PATH_CPPUNIT([1.12])
 PKG_PROG_PKG_CONFIG([0.22])
 AX_CXX_COMPILE_STDCXX_11([noext],[optional])
 
@@ -27,6 +26,8 @@ if test x$enable_cln = xyes; then
   AC_DEFINE([HAVE_CLN_RATIONAL], [1], [define to 1 if CLN is available])
 fi
 ])])
+
+PKG_CHECK_MODULES([CPPUNIT], [cppunit >= 1.14])
 
 # Checks for header files.
 AC_LANG_PUSH([C++])
