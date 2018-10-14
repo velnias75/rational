@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2018 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -20,7 +20,7 @@
 /**
  * @file
  * @author Heiko Schäfer <heiko@rangun.de>
- * @copyright 2015-2016 by Heiko Schäfer <heiko@rangun.de>
+ * @copyright 2015-2018 by Heiko Schäfer <heiko@rangun.de>
  *
  * @defgroup main Rational fraction class
  *
@@ -1825,7 +1825,7 @@ Rational<T, GCD, CHKOP, Alloc> Rational<T, GCD, CHKOP, Alloc>::Rational::eval ( 
     if ( first != last ) {
 
         value_type prev ( 0 );
-        typename SYARD::value_type top;
+        typename SYARD::value_type top(0);
 
         while ( first != last ) {
 

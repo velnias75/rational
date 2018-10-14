@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [2.13.1], [heiko@rangun.de])
+AC_INIT([rational], [2.13.2], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -90,10 +90,27 @@ if test x$enable_infint = xyes; then
   fi
 fi
 ])
+AM_CONDITIONAL([WITH_UNLOGICAL], [false])
+AC_ARG_ENABLE([unlogical], [AS_HELP_STRING([--enable-unlogical],
+  [enable unlogical extension (experimental)])], [
+if test x$enable_unlogical = xyes; then
+  if test -n "${UNLOGICAL_CFLAGS}" ; then
+    ac_save_cppflags="${CPPFLAGS}"
+    CPPFLAGS="${CPPFLAGS} ${UNLOGICAL_CFLAGS}"
+  fi
+  AC_CHECK_HEADER([number.h], [
+    AM_CONDITIONAL([WITH_UNLOGICAL], [true])
+    AC_DEFINE([HAVE_NUMBER_H], [1], [define to 1 if number.h is available])])
+  if test -n "${UNLOGICAL_CFLAGS}" ; then
+    CPPFLAGS=$ac_save_cppflags
+  fi
+fi
+])
 AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
+AC_TYPE_INT64_T
 AC_TYPE_INT32_T
 AC_TYPE_INT8_T
 AC_TYPE_UINT32_T
@@ -106,11 +123,15 @@ AC_LANG_PUSH([C++])
 AC_CHECK_FUNCS([modf])
 AC_CHECK_FUNCS([floor])
 AC_CHECK_FUNCS([sqrt])
+AC_CHECK_FUNCS([pow])
+AC_CHECK_FUNCS([strndup])
 AC_LANG_POP([C++])
 
 AC_ARG_VAR([GMP_CFLAGS], [C compiler flags for GMP, useful if installed in a non-standard location])
 AC_ARG_VAR([GMP_LIBS], [linker flags for GMP, useful if installed in a non-standard location])
 AC_ARG_VAR([INFINT_CFLAGS], [C compiler flags for InfInt, useful if installed in a non-standard location])
+AC_ARG_VAR([UNLOGICAL_CFLAGS], [C compiler flags for unlogical, useful if installed in a non-standard location])
+AC_ARG_VAR([UNLOGICAL_LIBS], [linker flags for unlogical, useful if installed in a non-standard location])
 
 AC_OUTPUT([
 	Makefile
