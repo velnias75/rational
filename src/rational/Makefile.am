@@ -11,3 +11,7 @@ endif
 if WITH_INFINT
 pkginclude_HEADERS += infint_rational.h
 endif
+
+if WITH_UNLOGICAL
+pkginclude_HEADERS += unlogical_rational.h
+endif
