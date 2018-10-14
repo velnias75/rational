@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2018 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -30,14 +30,16 @@
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
 #define RATIONAL_OVERRIDE override
+#define RATIONAL_FINAL final
 #else
 #define RATIONAL_OVERRIDE
+#define RATIONAL_FINAL
 #endif
 
 #pragma GCC diagnostic ignored "-Winline"
 #pragma GCC diagnostic ignored "-Weffc++"
 #pragma GCC diagnostic push
-class RationalTest : public CppUnit::TestFixture {
+class RationalTest RATIONAL_FINAL : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE ( RationalTest );
     CPPUNIT_TEST ( testNullRational );
     CPPUNIT_TEST ( testConstruct );
