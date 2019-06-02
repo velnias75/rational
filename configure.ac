@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [2.13.2], [heiko@rangun.de])
+AC_INIT([rational], [2.13.3], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -15,7 +15,7 @@ CFLAGS="${CXXFLAGS} -std=c99"
 # Checks for programs.
 AC_PROG_CXX
 PKG_PROG_PKG_CONFIG([0.22])
-AX_CXX_COMPILE_STDCXX_11([noext],[optional])
+AX_CXX_COMPILE_STDCXX_11([noext], [optional])
 
 # Checks for libraries.
 AM_CONDITIONAL([WITH_CLN], [false])

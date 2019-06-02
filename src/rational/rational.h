@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 by Heiko Schäfer <heiko@rangun.de>
+ * Copyright 2015-2019 by Heiko Schäfer <heiko@rangun.de>
  *
  * This file is part of rational.
  *
@@ -20,7 +20,7 @@
 /**
  * @file
  * @author Heiko Schäfer <heiko@rangun.de>
- * @copyright 2015-2018 by Heiko Schäfer <heiko@rangun.de>
+ * @copyright 2015-2019 by Heiko Schäfer <heiko@rangun.de>
  *
  * @defgroup main Rational fraction class
  *
@@ -1789,17 +1789,43 @@ Rational<T, GCD, CHKOP, Alloc>::Rational ( const rf_info& info ) : m_numer (), m
 
     using namespace std;
 
+#if defined(_ISOC99_SOURCE) || _POSIX_C_SOURCE >= 200112L || defined(_DEFAULT_SOURCE)
+    typedef long double pow_promote_;
+#else
+    typedef double pow_promote_;
+#endif
+
     *this = RATIONAL_MOVE (
                 Rational ( info.pre, info.reptend, info.reptend == zero_ ? one_ :
-                           static_cast<integer_type> ( _type_round_helper<integer_type>() (
-                                       pow10 ( ceil ( log10 ( ( info.reptend < zero_ ?
-                                               integer_type ( -info.reptend ) : info.reptend ) +
-                                               one_ ) ) + info.leading_zeros ) - one_ ) ) ) *=
+                           static_cast<integer_type>
+                           ( _type_round_helper<integer_type>() (
+                               TYPE_CONVERT<pow_promote_>(
+                                   std::pow (static_cast<pow_promote_>(10),
+                                             TYPE_CONVERT<integer_type>(
+                                                 ceil ( log10 (
+                                                 ( info.reptend < zero_ ?
+                                                 integer_type ( -info.reptend )
+                                                 : info.reptend ) + one_ ) ) +
+                                                 info.leading_zeros).
+                                             template convert<pow_promote_>()
+                                            ) ).template convert<integer_type>()
+                                            - one_ ) ) ) *=
                     Rational ( one_,
-                               static_cast<integer_type> ( _type_round_helper<integer_type>() (
-                                           pow10 ( ceil ( log10 ( ( info.pre < zero_ ?
-                                                   integer_type ( -info.pre ) : info.pre ) +
-                                                   one_ ) ) + info.pre_leading_zeros ) ) ) ) );
+                               static_cast<integer_type> (
+                                   _type_round_helper<integer_type>() (
+                                       TYPE_CONVERT<pow_promote_>(
+                                           std::pow (
+                                           static_cast<pow_promote_>(10),
+                                                     TYPE_CONVERT<integer_type>(
+                                                         ceil ( log10 (
+                                                             ( info.pre < zero_
+                                                             ? integer_type
+                                                             ( -info.pre ) :
+                                                             info.pre ) +
+                                                             one_ ) )).
+                                                     template convert<pow_promote_>()
+                                                     + info.pre_leading_zeros ) ).
+                                       template convert<integer_type>() ) ) ));
 }
 #pragma GCC diagnostic pop
 
@@ -3629,4 +3655,4 @@ modf ( const Commons::Math::Rational<T, GCD, CHKOP, Alloc>& __x,
 
 #endif /* COMMONS_MATH_RATIONAL_H */
 
-// kate: indent-mode cstyle; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on; replace-trailing-space-save on
