@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([rational], [2.13.3], [heiko@rangun.de])
+AC_INIT([rational], [2.13.4], [heiko@rangun.de])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -16,6 +16,10 @@ CFLAGS="${CXXFLAGS} -std=c99"
 AC_PROG_CXX
 PKG_PROG_PKG_CONFIG([0.22])
 AX_CXX_COMPILE_STDCXX_11([noext], [optional])
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+if test -z "$DOXYGEN";
+   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+fi
 
 # Checks for libraries.
 AM_CONDITIONAL([WITH_CLN], [false])
@@ -127,6 +131,9 @@ AC_CHECK_FUNCS([pow])
 AC_CHECK_FUNCS([strndup])
 AC_LANG_POP([C++])
 
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
+AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([docs/Doxyfile])])
+
 AC_ARG_VAR([GMP_CFLAGS], [C compiler flags for GMP, useful if installed in a non-standard location])
 AC_ARG_VAR([GMP_LIBS], [linker flags for GMP, useful if installed in a non-standard location])
 AC_ARG_VAR([INFINT_CFLAGS], [C compiler flags for InfInt, useful if installed in a non-standard location])
@@ -135,6 +142,7 @@ AC_ARG_VAR([UNLOGICAL_LIBS], [linker flags for unlogical, useful if installed in
 
 AC_OUTPUT([
 	Makefile
+	docs/Makefile
 	src/Makefile
 	src/rational/Makefile
 	src/test/Makefile
